@@ -1,5 +1,7 @@
 # 파이썬 기반 커스텀 퀵 드로우 — 고등학생 6시간 수업 자료
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/richee-pc/quickdraw-class/blob/main/%EC%BB%A4%EC%8A%A4%ED%85%80_%ED%80%B5%EB%93%9C%EB%A1%9C%EC%9A%B0.ipynb)
+
 그림을 알아맞히는 AI를 학생들이 직접 만들고, **펜마우스로 그려서** 자기 AI와 게임하는 6시간 수업 패키지입니다. **미드저니(생성형 AI)** 로 게임 아트를 만들고, **퀵 드로우(분류 AI)** 로 게임의 두뇌를 만드는 흐름입니다.
 
 > 선생님이 처음이어도 진행할 수 있도록 구성했습니다. **먼저 `교사용_가이드.md` 부터 읽으세요.**

@@ -6,6 +6,7 @@
 로컬 실행:  streamlit run app.py
 """
 from pathlib import Path
+import urllib.parse
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -18,13 +19,23 @@ st.set_page_config(
     layout="wide",
 )
 
-# ✏️ 학생에게 나눠줄 Colab 노트북 링크를 여기에 붙여넣으세요.
-#    (Colab에서 노트북 열기 → 공유 → 링크 복사)
-COLAB_NOTEBOOK_URL = ""
-
 NOTEBOOK_FILE = "커스텀_퀵드로우.ipynb"
 SLIDES_FILE = "슬라이드.html"
 WORKSHEET_FILE = "학습지.html"
+
+# GitHub 저장소 정보 — 이 노트북을 Colab에서 바로 열도록 자동 연결합니다.
+GITHUB_OWNER_REPO = "richee-pc/quickdraw-class"
+GITHUB_BRANCH = "main"
+
+# GitHub에 올라간 노트북을 Colab에서 바로 여는 링크 (자동 생성)
+COLAB_NOTEBOOK_URL = (
+    "https://colab.research.google.com/github/"
+    f"{GITHUB_OWNER_REPO}/blob/{GITHUB_BRANCH}/"
+    + urllib.parse.quote(NOTEBOOK_FILE)
+)
+
+# 미드저니 접속 주소
+MIDJOURNEY_URL = "https://www.midjourney.com/imagine"
 
 
 def read_text(filename: str) -> str:
@@ -47,7 +58,7 @@ with st.sidebar:
     st.caption("AI를 직접 만들고 펜마우스로 그려서 게임하기")
     page = st.radio(
         "메뉴",
-        ["🏠 홈", "🖥️ 발표 슬라이드", "📄 학습지", "🧪 실습 (Colab)", "🔗 참고자료"],
+        ["🏠 홈", "🖥️ 발표 슬라이드", "📄 학습지", "🖌️ 미드저니", "🧪 실습 (Colab)", "🔗 참고자료"],
         label_visibility="collapsed",
     )
     st.divider()
@@ -127,6 +138,91 @@ elif page == "📄 학습지":
     else:
         st.error(f"{WORKSHEET_FILE} 파일을 찾을 수 없습니다.")
 
+# ------------------------------------------------------------------ 미드저니
+elif page == "🖌️ 미드저니":
+    st.title("🖌️ 미드저니로 게임 아트 만들기")
+    st.markdown(
+        "미드저니는 **글(프롬프트)을 쓰면 그림을 만들어 주는 AI**예요. "
+        "내 게임에 쓸 ① 제목 로고 ② 정답 캐릭터(마스코트) ③ 배경을 만들어 봅시다."
+    )
+    st.link_button("🎨 미드저니 열기", MIDJOURNEY_URL, type="primary")
+
+    st.divider()
+    st.subheader("✨ 프롬프트 자동 만들기")
+    st.caption("아래에서 고르면 미드저니에 넣을 영어 프롬프트가 자동으로 만들어져요. 복사해서 붙여넣으세요!")
+
+    purpose = st.selectbox(
+        "무엇을 만들까요?",
+        ["정답 캐릭터(마스코트)", "게임 제목 로고", "배경", "직접 입력"],
+    )
+
+    col1, col2 = st.columns(2)
+    with col1:
+        subject = st.text_input(
+            "주제 (영어로 쓰면 더 잘 돼요)",
+            value="cat",
+            help="예: cat, apple, robot, space ...",
+        )
+    with col2:
+        style = st.selectbox(
+            "그림 스타일",
+            [
+                "flat vector illustration",
+                "cute cartoon",
+                "watercolor painting",
+                "pixel art",
+                "3d render",
+                "simple line art",
+                "sticker design",
+            ],
+        )
+
+    col3, col4 = st.columns(2)
+    with col3:
+        color = st.selectbox(
+            "색감/분위기",
+            ["pastel colors", "vivid colors", "bright and cheerful", "black and white", "neon"],
+        )
+    with col4:
+        ratio = st.selectbox("그림 비율 (--ar)", ["1:1 (정사각)", "16:9 (가로)", "9:16 (세로)"])
+
+    extras = st.multiselect(
+        "추가 옵션 (선택)",
+        ["simple", "minimal", "white background", "kawaii", "logo", "mascot", "high detail"],
+        default=["simple", "white background"],
+    )
+
+    # 용도별 기본 키워드 살짝 더하기
+    purpose_hint = {
+        "정답 캐릭터(마스코트)": "mascot character",
+        "게임 제목 로고": "game logo, text",
+        "배경": "background scene",
+        "직접 입력": "",
+    }[purpose]
+
+    ratio_code = {"1:1 (정사각)": "1:1", "16:9 (가로)": "16:9", "9:16 (세로)": "9:16"}[ratio]
+
+    parts = [subject.strip(), purpose_hint, style, color] + extras
+    prompt_text = ", ".join([p for p in parts if p]).strip(", ")
+    prompt_text = f"{prompt_text} --ar {ratio_code}"
+
+    st.markdown("**👇 이 프롬프트를 복사해서 미드저니에 붙여넣으세요**")
+    st.code(prompt_text, language="text")
+
+    st.divider()
+    st.markdown(
+        """
+        ### 💡 사용 순서
+        1. 위 **미드저니 열기** 버튼으로 접속 (로그인)
+        2. 만들어진 프롬프트를 복사해서 입력칸(`/imagine`)에 붙여넣기
+        3. 마음에 드는 그림을 골라 **다운로드**
+        4. 실습에서 만든 게임을 이 그림으로 꾸미기
+
+        > ⚠️ **베이직 플랜 팁**: 빠른 생성(Fast) 시간이 정해져 있어요.
+        > 프롬프트를 미리 잘 정한 뒤 **꼭 필요한 4~6장만** 만드세요.
+        """
+    )
+
 # ------------------------------------------------------------------ 실습
 elif page == "🧪 실습 (Colab)":
     st.title("🧪 실습 — 나만의 AI 만들기")
@@ -135,14 +231,11 @@ elif page == "🧪 실습 (Colab)":
         "설치가 필요 없고, 구글 로그인만 하면 바로 시작할 수 있어요."
     )
 
-    if COLAB_NOTEBOOK_URL:
-        st.link_button("🚀 Colab에서 실습 노트북 열기", COLAB_NOTEBOOK_URL, type="primary")
-    else:
-        st.warning(
-            "아직 Colab 링크가 설정되지 않았어요. "
-            "선생님: `app.py` 의 `COLAB_NOTEBOOK_URL` 에 링크를 넣거나, "
-            "아래 노트북 파일을 내려받아 Colab에 업로드하세요."
-        )
+    st.link_button("🚀 Colab에서 실습 노트북 열기", COLAB_NOTEBOOK_URL, type="primary")
+    st.caption(
+        "버튼이 안 열리면(저장소가 비공개일 때) 아래에서 노트북을 내려받아 "
+        "Colab(좌측 상단 파일 → 노트북 업로드)에 올려서 사용하세요."
+    )
 
     st.download_button(
         "⬇️ 노트북 파일 내려받기 (.ipynb)",
