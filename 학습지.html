@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>나만의 커스텀 퀵 드로우 — 학습지</title>
+<style>
+  :root { --ink:#1f2937; --line:#cbd5e1; --accent:#6366f1; --soft:#eef2ff; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    color: var(--ink); line-height: 1.6; margin: 0;
+    background: #f1f5f9; padding: 24px;
+  }
+  .sheet {
+    background: #fff; max-width: 820px; margin: 0 auto 24px;
+    padding: 40px 44px; border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .sub { color:#64748b; margin: 0 0 18px; font-size: 14px; }
+  .name-row { display:flex; gap:14px; margin: 14px 0 26px; font-size: 14px; }
+  .name-row span { flex:1; border-bottom: 1.5px solid var(--line); padding-bottom: 6px; }
+  h2 {
+    font-size: 18px; margin: 28px 0 10px; padding: 8px 12px;
+    background: var(--soft); border-left: 5px solid var(--accent); border-radius: 4px;
+  }
+  .q { margin: 12px 0; }
+  .blank { display:inline-block; min-width: 120px; border-bottom: 1.5px solid var(--accent); }
+  .lines { border:1.5px solid var(--line); border-radius: 8px; min-height: 70px; margin-top:6px; padding:8px; }
+  .grid { display:grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+  .box { border:1.5px solid var(--line); border-radius: 8px; padding: 12px; }
+  .box b { color: var(--accent); }
+  ol { margin: 6px 0; padding-left: 20px; }
+  .pill { display:inline-block; background:var(--soft); color:var(--accent); border-radius:999px; padding:2px 10px; font-size:12px; font-weight:700; }
+  .draw-grid { display:grid; grid-template-columns: repeat(5,1fr); gap:10px; margin-top:8px; }
+  .draw-cell { border:1.5px solid var(--line); border-radius:8px; aspect-ratio:1; display:flex; align-items:flex-end; justify-content:center; padding:4px; font-size:12px; color:#64748b; }
+  .check { font-size:14px; }
+  .check label { display:block; padding:4px 0; }
+  table { width:100%; border-collapse: collapse; margin-top:8px; font-size:14px; }
+  th, td { border:1.5px solid var(--line); padding:8px; text-align:center; }
+  th { background: var(--soft); }
+  .footer-note { color:#94a3b8; font-size:12px; text-align:center; margin-top:18px; }
+  @media print {
+    body { background:#fff; padding:0; }
+    .sheet { box-shadow:none; margin:0; border-radius:0; max-width:none; padding:24px 28px; page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <h1>🎨 나만의 커스텀 퀵 드로우 만들기</h1>
+  <p class="sub">그림을 알아맞히는 AI를 직접 만들고, 펜마우스로 게임해봐요!</p>
+  <div class="name-row">
+    <span>학년/반: </span><span>이름: </span><span>날짜: </span>
+  </div>
+
+  <h2>① 오늘의 목표 — AI의 두 얼굴</h2>
+  <div class="q">AI는 그림을 <b>만들기</b>도 하고 <b>알아맞히기</b>도 해요. 빈칸을 채워봅시다.</div>
+  <div class="grid">
+    <div class="box">
+      <span class="pill">만든다</span><br/>
+      <b>생성형 AI</b> — 예: <span class="blank">　　　　　</span><br/>
+      <small>(글을 쓰면 그림을 그려줌)</small>
+    </div>
+    <div class="box">
+      <span class="pill">알아맞힌다</span><br/>
+      <b>분류 AI</b> — 예: <span class="blank">　　　　　</span><br/>
+      <small>(그림을 보면 이름을 말해줌)</small>
+    </div>
+  </div>
+
+  <h2>② 미드저니로 게임 아트 만들기</h2>
+  <div class="q">프롬프트 공식: <b>주제 + 스타일 + 색감/분위기</b><br/>
+  예) <i>cute cat mascot, flat vector illustration, pastel colors, simple</i></div>
+  <table>
+    <tr><th style="width:26%">무엇을</th><th>내가 쓸 프롬프트</th></tr>
+    <tr><td>① 게임 제목 로고</td><td>&nbsp;</td></tr>
+    <tr><td>② 정답 캐릭터(마스코트)</td><td>&nbsp;</td></tr>
+    <tr><td>③ 배경</td><td>&nbsp;</td></tr>
+  </table>
+
+  <h2>③ 내 게임에 쓸 그림 정하기</h2>
+  <div class="q">AI에게 가르칠 그림 종류를 <b>3~5개</b> 골라 적어요. (영어 이름 — 사이트에서 확인)</div>
+  <div class="draw-grid">
+    <div class="draw-cell">1.</div><div class="draw-cell">2.</div><div class="draw-cell">3.</div>
+    <div class="draw-cell">4.</div><div class="draw-cell">5.</div>
+  </div>
+</div>
+
+<div class="sheet">
+  <h2>④ 컴퓨터는 어떻게 그림을 알아맞힐까? (4단계)</h2>
+  <div class="q">빈칸에 알맞은 말을 써봅시다.</div>
+  <ol>
+    <li><b>ㄷ</b><span class="blank">　　　</span> : 사람들이 그린 낙서 그림 수천 장을 모은 것</li>
+    <li><b>ㅎ</b><span class="blank">　　　</span> : 컴퓨터가 그림들의 공통 패턴을 스스로 익히는 과정</li>
+    <li><b>ㅁ</b><span class="blank">　　　</span> : 학습이 끝나 똑똑해진 'AI의 두뇌'</li>
+    <li><b>ㅊ</b><span class="blank">　　　</span> : 새 그림을 보여주고 "이게 뭐게?" 물어보는 것</li>
+  </ol>
+  <div class="box" style="margin-top:10px;">
+    💡 정답 단어: <i>데이터 · 학습 · 모델 · 추론</i> (순서대로!)
+  </div>
+
+  <h2>⑤ 내 AI의 성적표</h2>
+  <div class="q">노트북 6단계에서 나온 정확도를 적어요.</div>
+  <div class="q">내 모델의 정확도 = <span class="blank">　　　　　</span> %</div>
+  <div class="q">학습 반복 횟수(EPOCHS) = <span class="blank">　　　</span> &nbsp;&nbsp; 그림 장수(N_PER_CLASS) = <span class="blank">　　　</span></div>
+
+  <h2>⑥ 펜마우스로 그려서 테스트! 🖊️</h2>
+  <table>
+    <tr><th>내가 그린 그림</th><th>AI의 대답</th><th>맞았나요?</th></tr>
+    <tr><td style="height:40px">&nbsp;</td><td>&nbsp;</td><td>⭕ / ❌</td></tr>
+    <tr><td style="height:40px">&nbsp;</td><td>&nbsp;</td><td>⭕ / ❌</td></tr>
+    <tr><td style="height:40px">&nbsp;</td><td>&nbsp;</td><td>⭕ / ❌</td></tr>
+    <tr><td style="height:40px">&nbsp;</td><td>&nbsp;</td><td>⭕ / ❌</td></tr>
+  </table>
+
+  <h2>⑦ 생각해보기 (마무리)</h2>
+  <div class="q">AI가 <b>잘 못 맞힌</b> 그림은 무엇이었나요? 왜 그랬을까요?</div>
+  <div class="lines"></div>
+  <div class="q">이런 '그림 알아맞히는 AI'는 우리 생활 어디에 쓰일 수 있을까요?</div>
+  <div class="lines"></div>
+
+  <p class="footer-note">잘 했어요! 오늘 여러분은 직접 AI를 만들고 가르쳤습니다. 🎉</p>
+</div>
+
+</body>
+</html>
