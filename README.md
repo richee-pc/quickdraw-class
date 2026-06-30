@@ -12,6 +12,34 @@
 | `커스텀_퀵드로우.ipynb` | 학생 실습용 Colab 노트북 (핵심 결과물) | Google Colab에 업로드 |
 | `학습지.html` | 학생 배포용 인쇄 학습지 | 브라우저로 열고 `인쇄(Ctrl/Cmd+P)` |
 | `슬라이드.html` | 수업용 발표 슬라이드 | 브라우저로 열고 `←` `→` 키로 이동 |
+| `app.py` | **Streamlit 강의 실습 홈페이지** (슬라이드·학습지·실습·자료를 한 곳에) | `streamlit run app.py` 또는 클라우드 배포 |
+| `requirements.txt` | 배포에 필요한 패키지 | — |
+| `.streamlit/config.toml` | 홈페이지 테마 설정 | — |
+
+## 🌐 학생용 실습 홈페이지 배포하기 (Streamlit)
+
+`app.py` 는 학생들이 한 페이지에서 **발표 슬라이드 / 학습지 / 실습(Colab) / 참고자료**에
+접근하는 강의 허브입니다.
+
+### 로컬에서 먼저 보기
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+브라우저에서 `http://localhost:8501` 이 열립니다.
+
+### 인터넷에 무료 배포 (Streamlit Community Cloud) — 추천
+
+1. https://share.streamlit.io 접속 → GitHub 계정으로 로그인
+2. `New app` → 저장소 `richee-pc/quickdraw-class`, 브랜치 `main`, 메인 파일 `app.py` 선택
+3. `Deploy` 클릭 → 잠시 뒤 `https://...streamlit.app` 주소가 생성됩니다.
+4. 그 주소를 학생들에게 공유하면 끝!
+
+> 💡 **Colab 링크 연결**: 노트북을 Colab에 올린 뒤 공유 링크를 복사해서,
+> `app.py` 상단의 `COLAB_NOTEBOOK_URL = ""` 안에 붙여넣으면
+> 홈페이지의 "실습" 메뉴에 **바로 열기 버튼**이 생깁니다. (안 넣어도 파일 다운로드는 가능)
 
 ## 🚀 빠른 시작 (선생님용 3단계)
 
