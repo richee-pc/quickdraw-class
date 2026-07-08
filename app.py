@@ -76,65 +76,65 @@ def post_json(url: str, payload: dict) -> tuple[bool, str]:
 st.markdown(
     """
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&display=swap');
       .stApp {
         background:
           radial-gradient(1200px 540px at 10% -10%, #dbeafe 0%, rgba(219,234,254,0) 60%),
-          radial-gradient(1000px 420px at 90% -20%, #e0f2fe 0%, rgba(224,242,254,0) 60%),
-          linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+          radial-gradient(1000px 420px at 90% -20%, #fce7f3 0%, rgba(252,231,243,0) 58%),
+          linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 55%, #fdf2f8 100%);
         font-family: 'Gowun Dodum', 'Malgun Gothic', system-ui, sans-serif;
       }
       [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0f172a 0%, #1e3a8a 60%, #0369a1 100%);
+        background: linear-gradient(180deg, #0f172a 0%, #1e3a8a 48%, #0284c7 78%, #db2777 100%);
       }
       [data-testid="stSidebar"] * { color: #f8fafc !important; }
       h1, h2, h3 {
-        font-family: 'Jua', 'Gowun Dodum', sans-serif !important;
-        letter-spacing: 0.2px;
+        font-family: 'Gaegu', 'Gowun Dodum', sans-serif !important;
+        letter-spacing: 0.35px;
       }
       .card {
         background: rgba(255, 255, 255, 0.92);
-        border: 1px solid #bfdbfe;
+        border: 1px solid #c4b5fd;
         border-radius: 18px;
         padding: 16px 18px;
-        box-shadow: 0 10px 26px rgba(14, 116, 144, 0.10);
+        box-shadow: 0 12px 28px rgba(219, 39, 119, 0.08);
       }
       .hero {
-        background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 45%, #6366f1 100%);
+        background: linear-gradient(135deg, #7dd3fc 0%, #93c5fd 42%, #f9a8d4 100%);
         color: #ffffff;
         border-radius: 22px;
         padding: 22px 20px;
-        box-shadow: 0 14px 34px rgba(37, 99, 235, 0.28);
+        box-shadow: 0 14px 34px rgba(236, 72, 153, 0.24);
       }
       .hero h3, .hero p { color: #ffffff !important; margin: 0; }
       .hero p { opacity: 0.95; margin-top: 8px; }
       .section-chip {
         display: inline-block;
-        background: #e0f2fe;
-        color: #075985;
-        border: 1px solid #bae6fd;
+        background: linear-gradient(135deg, #e0f2fe 0%, #fce7f3 100%);
+        color: #7e22ce;
+        border: 1px solid #c4b5fd;
         border-radius: 999px;
-        padding: 4px 12px;
+        padding: 4px 13px;
         font-size: 13px;
         margin-bottom: 8px;
       }
       .worksheet-wrap {
         background: rgba(255,255,255,0.9);
-        border: 1px solid #bae6fd;
+        border: 1px solid #c4b5fd;
         border-radius: 18px;
         padding: 16px 16px 4px;
-        box-shadow: 0 10px 24px rgba(14, 116, 144, 0.1);
+        box-shadow: 0 12px 30px rgba(236, 72, 153, 0.12);
       }
       .stButton>button, .stDownloadButton>button, .stFormSubmitButton>button {
         border-radius: 12px !important;
-        border: 1px solid #7dd3fc !important;
-        background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 100%) !important;
+        border: 1px solid #a5b4fc !important;
+        background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 55%, #f472b6 100%) !important;
         color: white !important;
         font-weight: 700 !important;
       }
       .stTextInput input, .stTextArea textarea {
         border-radius: 12px !important;
-        border-color: #7dd3fc !important;
+        border-color: #a5b4fc !important;
       }
     </style>
     """,
