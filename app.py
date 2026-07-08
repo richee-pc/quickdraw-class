@@ -8,6 +8,7 @@
 from pathlib import Path
 from datetime import datetime, timezone
 import json
+import random
 import urllib.parse
 import urllib.request
 import streamlit as st
@@ -226,6 +227,117 @@ if page == "🌈 도입":
             """,
             unsafe_allow_html=True,
         )
+
+    st.divider()
+    st.markdown("### 🎲 랜덤 팀 배정")
+    st.caption("학생 이름을 줄바꿈으로 입력하면 팀을 자동으로 나눠줍니다.")
+    name_text = st.text_area(
+        "학생 이름 목록 (한 줄에 한 명)",
+        height=130,
+        placeholder="김다은\n홍길동\n이하늘\n박소연",
+        key="icebreak_names",
+    )
+    team_count = st.slider("팀 수", min_value=2, max_value=8, value=4, key="icebreak_team_count")
+
+    if st.button("랜덤 팀 배정하기", key="assign_teams"):
+        names = [n.strip() for n in name_text.splitlines() if n.strip()]
+        if len(names) < team_count:
+            st.warning("팀 수보다 학생 수가 많아야 팀을 나눌 수 있어요.")
+        else:
+            random.shuffle(names)
+            teams = [[] for _ in range(team_count)]
+            for idx, name in enumerate(names):
+                teams[idx % team_count].append(name)
+            st.session_state["icebreak_teams"] = teams
+
+    teams = st.session_state.get("icebreak_teams", [])
+    if teams:
+        cols = st.columns(min(len(teams), 4))
+        for i, team in enumerate(teams):
+            with cols[i % len(cols)]:
+                members = "<br>".join(team) if team else "(없음)"
+                st.markdown(
+                    f"""
+                    <div class="card">
+                      <h3>팀 {i + 1}</h3>
+                      <p>{members}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+    st.divider()
+    st.markdown("### 🗂️ 쁘띠바크 게임 양식 틀")
+    st.caption("영상 규칙에 맞춰 팀별 기록을 남길 수 있는 제출용 템플릿입니다.")
+
+    with st.form("petitbac-template-form"):
+        c1, c2 = st.columns(2)
+        with c1:
+            pb_team_name = st.text_input("팀 이름", placeholder="예: 스카이블루팀")
+            pb_round = st.text_input("라운드", placeholder="예: 1라운드")
+        with c2:
+            pb_initial = st.text_input("제시 글자/초성", placeholder="예: ㄱ")
+            pb_time = st.text_input("제한 시간", value="3분")
+
+        st.markdown("#### 카테고리별 답안")
+        pb_cat1 = st.text_input("1) 카테고리 A", placeholder="예: 동물")
+        pb_ans1 = st.text_input("1) 우리 팀 답")
+        pb_cat2 = st.text_input("2) 카테고리 B", placeholder="예: 음식")
+        pb_ans2 = st.text_input("2) 우리 팀 답")
+        pb_cat3 = st.text_input("3) 카테고리 C", placeholder="예: 사물")
+        pb_ans3 = st.text_input("3) 우리 팀 답")
+        pb_cat4 = st.text_input("4) 카테고리 D", placeholder="예: 장소")
+        pb_ans4 = st.text_input("4) 우리 팀 답")
+        pb_cat5 = st.text_input("5) 카테고리 E", placeholder="예: 직업")
+        pb_ans5 = st.text_input("5) 우리 팀 답")
+
+        st.markdown("#### 결과 기록")
+        pb_score = st.text_input("라운드 점수", placeholder="예: 35")
+        pb_feedback = st.text_area("팀 회고/피드백", height=90, placeholder="무엇이 잘 됐고, 다음 라운드에서 무엇을 바꿀지")
+
+        pb_submit = st.form_submit_button("✅ 쁘띠바크 기록 제출")
+
+    if pb_submit:
+        if not pb_team_name.strip():
+            st.warning("팀 이름을 입력해주세요.")
+        else:
+            pb_payload = {
+                "action": "append",
+                "classId": "petitbac-submissions-2026",
+                "objectName": "petitbac-record",
+                "records": [
+                    {
+                        "studentId": pb_team_name.strip(),
+                        "vec": [],
+                        "meta": {
+                            "submittedAt": datetime.now(timezone.utc).isoformat(),
+                            "round": pb_round.strip(),
+                            "initial": pb_initial.strip(),
+                            "timeLimit": pb_time.strip(),
+                            "categoryA": pb_cat1.strip(),
+                            "answerA": pb_ans1.strip(),
+                            "categoryB": pb_cat2.strip(),
+                            "answerB": pb_ans2.strip(),
+                            "categoryC": pb_cat3.strip(),
+                            "answerC": pb_ans3.strip(),
+                            "categoryD": pb_cat4.strip(),
+                            "answerD": pb_ans4.strip(),
+                            "categoryE": pb_cat5.strip(),
+                            "answerE": pb_ans5.strip(),
+                            "score": pb_score.strip(),
+                            "feedback": pb_feedback.strip(),
+                        },
+                        "createdAt": datetime.now(timezone.utc).isoformat(),
+                    }
+                ],
+            }
+            ok, msg = post_json(COLLECTOR_API_URL, pb_payload)
+            if ok:
+                st.success("쁘띠바크 기록이 제출되었어요!")
+                st.caption(f"응답: {msg[:140]}")
+            else:
+                st.error("제출 중 오류가 발생했습니다.")
+                st.caption(msg[:180])
 
     c1, c2 = st.columns(2)
     with c1:
