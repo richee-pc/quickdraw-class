@@ -87,28 +87,10 @@
       </div>
 
       <div class="divider"></div>
-      <h3>교사용 DB 연동/전체 보기</h3>
-      <label>데이터베이스 API URL (Apps Script Web App 등)</label>
-      <input id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec" />
-      <div style="height:8px"></div>
-      <label>수업 코드(classId)</label>
-      <input id="classId" value="class-a" />
-      <div class="btns">
-        <button id="saveRemoteBtn">현재 샘플 DB 저장</button>
-        <button id="syncRemoteBtn">DB에서 전체 불러오기</button>
+      <div class="box">
+        <div class="pill">안내</div>
+        <div class="mono">학생 배포용 화면입니다. (교사용 데이터 관리 화면 비표시)</div>
       </div>
-      <div class="box" style="margin-top:8px;">
-        <div class="mono" id="remoteStatus">DB 상태: 미연결</div>
-      </div>
-
-      <div style="margin-top:10px;">
-        <div class="pill">전체 학생 샘플 갤러리</div>
-        <div id="gallery" class="gallery"></div>
-      </div>
-      <table class="table" id="summaryTable">
-        <thead><tr><th>학생</th><th>샘플 수</th></tr></thead>
-        <tbody></tbody>
-      </table>
     </section>
   </div>
 </div>
@@ -118,16 +100,14 @@
   const ctx = canvas.getContext("2d");
   const objectNameEl = document.getElementById("objectName");
   const studentIdEl = document.getElementById("studentId");
-  const apiUrlEl = document.getElementById("apiUrl");
-  const classIdEl = document.getElementById("classId");
   const totalSamplesEl = document.getElementById("totalSamples");
   const shapeStatsEl = document.getElementById("shapeStats");
   const biasStateEl = document.getElementById("biasState");
   const predEl = document.getElementById("pred");
   const drawInfoEl = document.getElementById("drawInfo");
-  const remoteStatusEl = document.getElementById("remoteStatus");
-  const galleryEl = document.getElementById("gallery");
-  const summaryBody = document.querySelector("#summaryTable tbody");
+  // 학생 배포용에서는 교사용 UI를 숨기고, 필요 시 아래 두 값만 설정해 자동 저장합니다.
+  const AUTO_SAVE_URL = ""; // 예: "https://script.google.com/macros/s/.../exec"
+  const AUTO_SAVE_CLASS_ID = "class-a";
 
   let drawing = false;
   let drawnPixels = 0;
@@ -241,14 +221,16 @@
       alert("그림이 너무 비어 있어요. 조금 더 진하게 그려주세요.");
       return;
     }
-    samples.push({
+    const record = {
       label: objectNameEl.value.trim() || "object",
       studentId: studentIdEl.value.trim() || "anonymous",
       vec, meta,
       createdAt: new Date().toISOString()
-    });
+    };
+    samples.push(record);
     predEl.textContent = `샘플 추가 완료 (${samples.length}개)`;
     updateStats();
+    autoSaveRecord(record);
   }
 
   function train() {
@@ -308,62 +290,23 @@
     return c;
   }
 
-  async function saveToRemote() {
-    if (!samples.length) return alert("먼저 샘플을 추가하세요.");
-    const apiUrl = apiUrlEl.value.trim();
-    if (!apiUrl) return alert("API URL을 먼저 입력하세요.");
-
-    const classId = classIdEl.value.trim() || "class-a";
+  async function autoSaveRecord(record) {
+    if (!AUTO_SAVE_URL) return;
     const payload = {
       action: "append",
-      classId,
+      classId: AUTO_SAVE_CLASS_ID,
       objectName: objectNameEl.value.trim() || "object",
-      records: samples.map((s) => ({ studentId: s.studentId, vec: s.vec, meta: s.meta, createdAt: s.createdAt }))
+      records: [{ studentId: record.studentId, vec: record.vec, meta: record.meta, createdAt: record.createdAt }]
     };
 
     try {
-      const res = await fetch(apiUrl, {
+      await fetch(AUTO_SAVE_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      remoteStatusEl.textContent = `DB 저장 성공: ${data.saved || samples.length}건`;
-    } catch (e) {
-      remoteStatusEl.textContent = `DB 저장 실패: ${e}`;
-    }
-  }
-
-  function renderRemote(records) {
-    galleryEl.innerHTML = "";
-    summaryBody.innerHTML = "";
-    const counts = {};
-    records.forEach((r) => {
-      counts[r.studentId || "anonymous"] = (counts[r.studentId || "anonymous"] || 0) + 1;
-      if (Array.isArray(r.vec) && r.vec.length === 784) {
-        galleryEl.appendChild(vectorToCanvas(r.vec));
-      }
-    });
-    Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([student, n]) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${student}</td><td>${n}</td>`;
-      summaryBody.appendChild(tr);
-    });
-  }
-
-  async function syncFromRemote() {
-    const apiUrl = apiUrlEl.value.trim();
-    if (!apiUrl) return alert("API URL을 먼저 입력하세요.");
-    const classId = encodeURIComponent(classIdEl.value.trim() || "class-a");
-    const objectName = encodeURIComponent(objectNameEl.value.trim() || "object");
-    try {
-      const res = await fetch(`${apiUrl}?action=list&classId=${classId}&objectName=${objectName}`);
-      const data = await res.json();
-      const records = data.records || [];
-      remoteStatusEl.textContent = `DB 불러오기 성공: ${records.length}건`;
-      renderRemote(records);
-    } catch (e) {
-      remoteStatusEl.textContent = `DB 불러오기 실패: ${e}`;
+    } catch (_e) {
+      // 학생 화면에서는 저장 실패 팝업을 띄우지 않습니다.
     }
   }
 
@@ -372,9 +315,6 @@
   document.getElementById("trainBtn").addEventListener("click", train);
   document.getElementById("testBtn").addEventListener("click", testNow);
   document.getElementById("exportBtn").addEventListener("click", exportJson);
-  document.getElementById("saveRemoteBtn").addEventListener("click", saveToRemote);
-  document.getElementById("syncRemoteBtn").addEventListener("click", syncFromRemote);
-
   resetCanvas();
   updateStats();
 </script>
