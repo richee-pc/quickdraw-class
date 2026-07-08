@@ -152,14 +152,14 @@ with st.sidebar:
     page = st.radio(
         "메뉴",
         [
-            "1️⃣ 도입",
-            "2️⃣ 데이터 학습·편향 (수집기)",
-            "🖥️ 발표 슬라이드",
-            "📄 학습지 작성·제출",
-            "3️⃣ 미드저니 아트 만들기",
-            "4️⃣~5️⃣ Colab으로 퀵드로우 만들기",
-            "6️⃣ 발표·마무리",
-            "🔗 참고자료",
+            "🌈 도입",
+            "🧩 데이터 학습·편향 (수집기)",
+            "🖥️ 수업 슬라이드",
+            "📝 학습지 작성·제출",
+            "🎀 미드저니 아트 만들기",
+            "💻 Colab으로 퀵드로우 만들기",
+            "🎤 발표·마무리",
+            "📎 참고자료",
         ],
         label_visibility="collapsed",
     )
@@ -175,7 +175,7 @@ with st.sidebar:
 
 
 # ------------------------------------------------------------------ 도입
-if page == "1️⃣ 도입":
+if page == "🌈 도입":
     st.title("나만의 커스텀 퀵 드로우 만들기")
     st.subheader("그림을 알아맞히는 AI를 직접 만들고, 펜마우스로 게임해봐요!")
     st.markdown(
@@ -221,7 +221,7 @@ if page == "1️⃣ 도입":
     )
 
 # ------------------------------------------------------------------ 수집기 체험
-elif page == "2️⃣ 데이터 학습·편향 (수집기)":
+elif page == "🧩 데이터 학습·편향 (수집기)":
     st.markdown('<div class="section-chip">DATA BIAS LAB</div>', unsafe_allow_html=True)
     st.title("🧩 나만의 퀵드로우 수집기")
     st.subheader("직접 데이터를 만들며 학습과 편향의 의미를 먼저 체험해요")
@@ -278,7 +278,7 @@ elif page == "2️⃣ 데이터 학습·편향 (수집기)":
     )
 
 # ------------------------------------------------------------------ 슬라이드
-elif page == "🖥️ 발표 슬라이드":
+elif page == "🖥️ 수업 슬라이드":
     st.markdown('<div class="section-chip">CLASS PRESENTATION</div>', unsafe_allow_html=True)
     st.title("🖥️ 발표 슬라이드")
     st.caption("슬라이드를 한 번 클릭한 뒤, 키보드 ← → 방향키 또는 화면의 ◀ ▶ 버튼으로 넘기세요.")
@@ -295,7 +295,7 @@ elif page == "🖥️ 발표 슬라이드":
         st.error(f"{SLIDES_FILE} 파일을 찾을 수 없습니다.")
 
 # ------------------------------------------------------------------ 학습지
-elif page == "📄 학습지 작성·제출":
+elif page == "📝 학습지 작성·제출":
     st.markdown('<div class="section-chip">WORKSHEET SUBMISSION</div>', unsafe_allow_html=True)
     st.title("📄 학습지 작성 · 제출")
     st.caption("인쇄 대신 웹에서 바로 작성하고 제출할 수 있어요.")
@@ -377,7 +377,7 @@ elif page == "📄 학습지 작성·제출":
                 st.caption(msg[:200])
 
 # ------------------------------------------------------------------ 미드저니
-elif page == "3️⃣ 미드저니 아트 만들기":
+elif page == "🎀 미드저니 아트 만들기":
     st.markdown('<div class="section-chip">MIDJOURNEY CREATOR</div>', unsafe_allow_html=True)
     st.title("🖌️ 미드저니로 게임 아트 만들기")
     st.markdown(
@@ -474,7 +474,7 @@ elif page == "3️⃣ 미드저니 아트 만들기":
     )
 
 # ------------------------------------------------------------------ 실습
-elif page == "4️⃣~5️⃣ Colab으로 퀵드로우 만들기":
+elif page == "💻 Colab으로 퀵드로우 만들기":
     st.markdown('<div class="section-chip">PYTHON BUILD ZONE</div>', unsafe_allow_html=True)
     st.title("🧪 실습 — 나만의 AI 만들기")
     st.markdown(
@@ -513,7 +513,7 @@ elif page == "4️⃣~5️⃣ Colab으로 퀵드로우 만들기":
     )
 
 # ------------------------------------------------------------------ 발표·마무리
-elif page == "6️⃣ 발표·마무리":
+elif page == "🎤 발표·마무리":
     st.markdown('<div class="section-chip">SHOWCASE TIME</div>', unsafe_allow_html=True)
     st.title("6️⃣ 발표 · 마무리")
     st.subheader("AI가 틀리는 이유를 데이터 관점으로 이야기해봐요")
@@ -522,7 +522,7 @@ elif page == "6️⃣ 발표·마무리":
     if slides_html:
         last_slide_html = slides_html.replace(
             "<body>",
-            "<body><script>window.SLIDE_START = 9;</script>",
+            "<body><script>window.SLIDE_START = 70;</script>",
             1,
         )
         st.caption("아래는 발표용 마지막 질문 슬라이드(자동 시작)입니다.")
@@ -547,7 +547,7 @@ elif page == "6️⃣ 발표·마무리":
     )
 
 # ------------------------------------------------------------------ 참고자료
-elif page == "🔗 참고자료":
+elif page == "📎 참고자료":
     st.title("🔗 참고자료")
     st.markdown(
         """
