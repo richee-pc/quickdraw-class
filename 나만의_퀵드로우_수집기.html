@@ -5,25 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>나만의 퀵드로우 수집기</title>
 <style>
-  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --text:#f1f5f9; --muted:#94a3b8; --accent:#818cf8; --ok:#22c55e; --warn:#f59e0b; }
+  @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+  :root { --bg:#f0f9ff; --card:#ffffff; --line:#bfdbfe; --text:#334155; --muted:#64748b; --accent:#60a5fa; --ok:#22c55e; --warn:#f59e0b; --pink:#f472b6; }
   * { box-sizing:border-box; }
-  body { margin:0; padding:16px; font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif; background:var(--bg); color:var(--text); }
+  body { margin:0; padding:16px; font-family:'Noto Sans KR',"Malgun Gothic",system-ui,sans-serif; background:linear-gradient(180deg,#f0f9ff 0%,#e0f2fe 60%,#fdf2f8 100%); color:var(--text); }
   .wrap { max-width:1200px; margin:0 auto; }
+  h1,h3 { font-family:'Gowun Dodum','Noto Sans KR',sans-serif; }
   h1 { font-size:28px; margin:0 0 8px; }
   .sub { color:var(--muted); margin:0 0 12px; }
   .grid { display:grid; grid-template-columns:330px 1fr; gap:14px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:0 10px 24px rgba(59,130,246,.10); }
   .card h3 { margin:0 0 10px; font-size:17px; }
   label { display:block; font-size:12px; color:var(--muted); margin-bottom:5px; }
-  input, button { width:100%; border-radius:10px; border:1px solid var(--line); background:#0b1222; color:var(--text); padding:10px 12px; font-size:14px; }
-  button { cursor:pointer; background:#111b34; }
-  button.primary { background:var(--accent); color:#0f172a; font-weight:700; border:none; }
+  input, button { width:100%; border-radius:10px; border:1px solid var(--line); background:#ffffff; color:var(--text); padding:10px 12px; font-size:14px; }
+  button { cursor:pointer; background:#ffffff; }
+  button.primary { background:linear-gradient(135deg,#60a5fa 0%,#a78bfa 60%,#f472b6 100%); color:#fff; font-weight:700; border:none; }
   button.good { background:var(--ok); color:#052e16; border:none; font-weight:700; }
   .btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
   canvas.main { width:100%; max-width:430px; aspect-ratio:1; background:#fff; border-radius:10px; cursor:crosshair; touch-action:none; display:block; margin:0 auto; }
   .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .box { background:#0b1222; border:1px solid var(--line); border-radius:10px; padding:10px; min-height:54px; }
-  .pill { display:inline-block; padding:3px 8px; border-radius:999px; background:#18213e; color:var(--muted); font-size:12px; margin-right:6px; }
+  .box { background:#f8fafc; border:1px solid var(--line); border-radius:10px; padding:10px; min-height:54px; }
+  .pill { display:inline-block; padding:3px 8px; border-radius:999px; background:#e0f2fe; color:#7e22ce; font-size:12px; margin-right:6px; border:1px solid #c4b5fd; }
   .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; }
   .list { margin:8px 0 0; padding-left:18px; color:var(--muted); }
   .muted { color:var(--muted); font-size:12px; }
@@ -35,7 +37,7 @@
   .thumb { background:#fff; border-radius:8px; aspect-ratio:1; width:100%; }
   .table { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
   .table th, .table td { border:1px solid var(--line); padding:6px 8px; text-align:left; }
-  .table th { background:#111a33; }
+  .table th { background:#e0f2fe; }
   @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
 </style>
 </head>
@@ -89,8 +91,12 @@
       <div class="divider"></div>
       <div class="box">
         <div class="pill">안내</div>
-        <div class="mono">학생 배포용 화면입니다. (교사용 데이터 관리 화면 비표시)</div>
+        <div class="mono">샘플 추가 시 자동 저장됩니다. 아래 버튼으로 전체 제출 이미지를 모아볼 수 있어요.</div>
       </div>
+      <div style="height:8px"></div>
+      <button id="loadAllBtn" class="primary">전체 제출 이미지 모아보기</button>
+      <div style="margin-top:8px" class="mono" id="galleryStatus">아직 불러오지 않았어요.</div>
+      <div id="gallery" class="gallery"></div>
     </section>
   </div>
 </div>
@@ -105,9 +111,11 @@
   const biasStateEl = document.getElementById("biasState");
   const predEl = document.getElementById("pred");
   const drawInfoEl = document.getElementById("drawInfo");
+  const galleryStatusEl = document.getElementById("galleryStatus");
+  const galleryEl = document.getElementById("gallery");
   // 학생 배포용에서는 교사용 UI를 숨기고, 필요 시 아래 두 값만 설정해 자동 저장합니다.
   const AUTO_SAVE_URL = "https://script.google.com/macros/s/AKfycbzPP6GHuqSHltZxutD8qyt8-TW_F5HNU1-2jLtkxEMPa-H8ufKdMzbl6GnCC1Lnq3pA/exec";
-  const AUTO_SAVE_CLASS_ID = "class-a";
+  const AUTO_SAVE_CLASS_ID = "collector-submissions-2026";
 
   let drawing = false;
   let drawnPixels = 0;
@@ -310,11 +318,40 @@
     }
   }
 
+  async function loadAllSubmitted() {
+    if (!AUTO_SAVE_URL) {
+      galleryStatusEl.textContent = "저장 URL이 설정되지 않았어요.";
+      return;
+    }
+    const classId = encodeURIComponent(AUTO_SAVE_CLASS_ID);
+    const objectName = encodeURIComponent(objectNameEl.value.trim() || "object");
+    galleryStatusEl.textContent = "불러오는 중...";
+    galleryEl.innerHTML = "";
+    try {
+      const res = await fetch(`${AUTO_SAVE_URL}?action=list&classId=${classId}&objectName=${objectName}`);
+      const data = await res.json();
+      const records = data.records || [];
+      if (!records.length) {
+        galleryStatusEl.textContent = "아직 제출된 이미지가 없어요.";
+        return;
+      }
+      records.forEach((r) => {
+        if (Array.isArray(r.vec) && r.vec.length === 784) {
+          galleryEl.appendChild(vectorToCanvas(r.vec));
+        }
+      });
+      galleryStatusEl.textContent = `총 ${records.length}개 이미지를 불러왔어요.`;
+    } catch (e) {
+      galleryStatusEl.textContent = `불러오기 실패: ${e}`;
+    }
+  }
+
   document.getElementById("clearBtn").addEventListener("click", resetCanvas);
   document.getElementById("addBtn").addEventListener("click", addSample);
   document.getElementById("trainBtn").addEventListener("click", train);
   document.getElementById("testBtn").addEventListener("click", testNow);
   document.getElementById("exportBtn").addEventListener("click", exportJson);
+  document.getElementById("loadAllBtn").addEventListener("click", loadAllSubmitted);
   resetCanvas();
   updateStats();
 </script>

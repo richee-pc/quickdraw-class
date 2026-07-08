@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>커스텀 퀵 드로우 — 수업 슬라이드</title>
 <style>
-  :root { --bg:#0f172a; --card:#1e293b; --accent:#818cf8; --accent2:#f472b6; --text:#f1f5f9; --muted:#94a3b8; }
+  :root { --bg:#f0f9ff; --card:#ffffff; --accent:#60a5fa; --accent2:#f472b6; --text:#334155; --muted:#64748b; --line:#bfdbfe; }
   * { box-sizing:border-box; margin:0; padding:0; }
   html, body { height:100%; }
   body {
     font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
-    background:var(--bg); color:var(--text); overflow:hidden;
+    background:linear-gradient(180deg,#f0f9ff 0%, #e0f2fe 58%, #fdf2f8 100%); color:var(--text); overflow:hidden;
   }
   .slide {
     position:absolute; inset:0; display:none;
@@ -27,22 +27,22 @@
   .accent { color:var(--accent); }
   .accent2 { color:var(--accent2); }
   ul { list-style:none; max-width:900px; }
-  ul li { margin:12px 0; padding:14px 22px; background:var(--card); border-radius:14px; border-left:5px solid var(--accent); text-align:left; }
+  ul li { margin:12px 0; padding:14px 22px; background:var(--card); border-radius:14px; border-left:5px solid var(--accent); text-align:left; box-shadow:0 10px 22px rgba(59,130,246,.12); }
   .two { display:flex; gap:28px; flex-wrap:wrap; justify-content:center; max-width:1000px; }
-  .col { flex:1; min-width:280px; background:var(--card); border-radius:18px; padding:28px; }
+  .col { flex:1; min-width:280px; background:var(--card); border-radius:18px; padding:28px; box-shadow:0 10px 24px rgba(236,72,153,.10); border:1px solid var(--line); }
   .col h3 { font-size:clamp(20px,3vw,30px); margin-bottom:12px; }
   .big-emoji { font-size:clamp(48px,9vw,96px); margin-bottom:14px; }
   .steps { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:980px; }
-  .step { background:var(--card); border-radius:16px; padding:20px 24px; min-width:180px; }
+  .step { background:var(--card); border-radius:16px; padding:20px 24px; min-width:180px; border:1px solid var(--line); box-shadow:0 10px 22px rgba(59,130,246,.12); }
   .step .num { display:inline-block; width:38px; height:38px; line-height:38px; border-radius:50%; background:var(--accent); color:#0f172a; font-weight:800; margin-bottom:10px; }
   .timetable { width:100%; max-width:760px; border-collapse:collapse; font-size:clamp(14px,1.9vw,20px); }
-  .timetable td { padding:10px 14px; border-bottom:1px solid #334155; text-align:left; }
+  .timetable td { padding:10px 14px; border-bottom:1px solid var(--line); text-align:left; }
   .timetable td:first-child { color:var(--accent); font-weight:700; white-space:nowrap; }
   .nav { position:fixed; bottom:18px; right:22px; display:flex; gap:10px; align-items:center; z-index:10; }
-  .nav button { background:var(--card); color:var(--text); border:1px solid #334155; border-radius:10px; padding:10px 16px; font-size:18px; cursor:pointer; }
-  .nav button:hover { background:var(--accent); color:#0f172a; }
+  .nav button { background:#fff; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:10px 16px; font-size:18px; cursor:pointer; }
+  .nav button:hover { background:var(--accent); color:#fff; }
   .counter { position:fixed; bottom:24px; left:22px; color:var(--muted); font-size:14px; z-index:10; }
-  .progress { position:fixed; top:0; left:0; height:4px; background:var(--accent); transition:width .3s; z-index:10; }
+  .progress { position:fixed; top:0; left:0; height:4px; background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6); transition:width .3s; z-index:10; }
   .hint { position:fixed; top:14px; right:20px; color:var(--muted); font-size:13px; z-index:10; }
 </style>
 </head>

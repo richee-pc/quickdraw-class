@@ -41,6 +41,8 @@ COLAB_NOTEBOOK_URL = (
 MIDJOURNEY_URL = "https://www.midjourney.com/imagine"
 COLLECTOR_FILE = "나만의_퀵드로우_수집기.html"
 COLLECTOR_API_URL = "https://script.google.com/macros/s/AKfycbzPP6GHuqSHltZxutD8qyt8-TW_F5HNU1-2jLtkxEMPa-H8ufKdMzbl6GnCC1Lnq3pA/exec"
+COLLECTOR_CLASS_ID = "collector-submissions-2026"
+WORKSHEET_CLASS_ID = "worksheet-submissions-2026"
 
 
 def read_text(filename: str) -> str:
@@ -76,21 +78,22 @@ def post_json(url: str, payload: dict) -> tuple[bool, str]:
 st.markdown(
     """
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700&display=swap');
       .stApp {
         background:
           radial-gradient(1200px 540px at 10% -10%, #dbeafe 0%, rgba(219,234,254,0) 60%),
           radial-gradient(1000px 420px at 90% -20%, #fce7f3 0%, rgba(252,231,243,0) 58%),
           linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 55%, #fdf2f8 100%);
-        font-family: 'Gowun Dodum', 'Malgun Gothic', system-ui, sans-serif;
+        font-family: 'Noto Sans KR', 'Malgun Gothic', system-ui, sans-serif;
       }
       [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0f172a 0%, #1e3a8a 48%, #0284c7 78%, #db2777 100%);
+        background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 42%, #fce7f3 100%);
+        border-right: 1px solid #bfdbfe;
       }
-      [data-testid="stSidebar"] * { color: #f8fafc !important; }
+      [data-testid="stSidebar"] * { color: #334155 !important; }
       h1, h2, h3 {
-        font-family: 'Gaegu', 'Gowun Dodum', sans-serif !important;
-        letter-spacing: 0.35px;
+        font-family: 'Gowun Dodum', 'Noto Sans KR', sans-serif !important;
+        letter-spacing: 0.1px;
       }
       .card {
         background: rgba(255, 255, 255, 0.92);
@@ -341,7 +344,7 @@ elif page == "📄 학습지 작성·제출":
         else:
             payload = {
                 "action": "append",
-                "classId": "worksheet-camp",
+                "classId": WORKSHEET_CLASS_ID,
                 "objectName": "worksheet-response",
                 "records": [
                     {
@@ -568,6 +571,10 @@ elif page == "🔗 참고자료":
     st.markdown(
         """
         현재 제출은 **Google Drive 폴더 파일**이 아니라, 연결된 **Apps Script의 저장소(대부분 Google 스프레드시트)**로 들어갑니다.
+
+        현재 앱의 저장 구분 키:
+        - 수집기: `classId=collector-submissions-2026`
+        - 학습지: `classId=worksheet-submissions-2026`
 
         확인 방법:
         1. Apps Script 편집기에서 해당 웹앱 프로젝트 열기  
