@@ -7,95 +7,108 @@
 <style>
   :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --text:#f1f5f9; --muted:#94a3b8; --accent:#818cf8; --ok:#22c55e; --warn:#f59e0b; }
   * { box-sizing:border-box; }
-  body { margin:0; padding:18px; font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif; background:var(--bg); color:var(--text); }
-  .wrap { max-width:1100px; margin:0 auto; }
+  body { margin:0; padding:16px; font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif; background:var(--bg); color:var(--text); }
+  .wrap { max-width:1200px; margin:0 auto; }
   h1 { font-size:28px; margin:0 0 8px; }
-  .sub { color:var(--muted); margin:0 0 14px; }
-  .grid { display:grid; grid-template-columns:320px 1fr; gap:14px; }
+  .sub { color:var(--muted); margin:0 0 12px; }
+  .grid { display:grid; grid-template-columns:330px 1fr; gap:14px; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
-  label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
-  input, select, button { width:100%; border-radius:10px; border:1px solid var(--line); background:#0b1222; color:var(--text); padding:10px 12px; font-size:14px; }
+  .card h3 { margin:0 0 10px; font-size:17px; }
+  label { display:block; font-size:12px; color:var(--muted); margin-bottom:5px; }
+  input, button { width:100%; border-radius:10px; border:1px solid var(--line); background:#0b1222; color:var(--text); padding:10px 12px; font-size:14px; }
   button { cursor:pointer; background:#111b34; }
   button.primary { background:var(--accent); color:#0f172a; font-weight:700; border:none; }
   button.good { background:var(--ok); color:#052e16; border:none; font-weight:700; }
   .btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
-  canvas { width:100%; max-width:420px; aspect-ratio:1; background:#fff; border-radius:10px; cursor:crosshair; touch-action:none; display:block; margin:0 auto; }
+  canvas.main { width:100%; max-width:430px; aspect-ratio:1; background:#fff; border-radius:10px; cursor:crosshair; touch-action:none; display:block; margin:0 auto; }
   .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .box { background:#0b1222; border:1px solid var(--line); border-radius:10px; padding:10px; min-height:54px; }
   .pill { display:inline-block; padding:3px 8px; border-radius:999px; background:#18213e; color:var(--muted); font-size:12px; margin-right:6px; }
-  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px; }
-  .stat { font-size:14px; margin:8px 0; }
+  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; }
+  .list { margin:8px 0 0; padding-left:18px; color:var(--muted); }
+  .muted { color:var(--muted); font-size:12px; }
+  .divider { height:1px; background:var(--line); margin:12px 0; }
+  .statline { font-size:13px; margin:5px 0; }
   .warn { color:var(--warn); }
   .ok { color:var(--ok); }
-  .list { margin:8px 0 0; padding-left:18px; color:var(--muted); }
-  .box { background:#0b1222; border:1px solid var(--line); border-radius:10px; padding:10px; min-height:52px; }
+  .gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(78px, 1fr)); gap:8px; margin-top:10px; max-height:360px; overflow:auto; }
+  .thumb { background:#fff; border-radius:8px; aspect-ratio:1; width:100%; }
+  .table { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
+  .table th, .table td { border:1px solid var(--line); padding:6px 8px; text-align:left; }
+  .table th { background:#111a33; }
   @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>🧩 나만의 퀵드로우 수집기</h1>
-  <p class="sub">학생이 직접 데이터셋을 만들고, 분류 성능을 테스트하면서 데이터 편향을 체험하는 미니 웹앱</p>
-
+  <p class="sub">처음에는 그냥 '자동차'를 자유롭게 그려서 데이터 수집 → 나중에 전체 분포를 함께 보며 편향 토의</p>
   <div class="grid">
     <section class="card">
-      <label>학습할 물체 이름 (예: car)</label>
+      <h3>학생 수집 영역</h3>
+      <label>학습할 물체 (영어 추천)</label>
       <input id="objectName" value="car" />
-
-      <div style="height:10px"></div>
-      <label>이번 샘플 유형 (각도/관점)</label>
-      <select id="viewType">
-        <option value="옆면">옆면</option>
-        <option value="앞면">앞면</option>
-        <option value="윗면">윗면</option>
-        <option value="기타">기타</option>
-      </select>
+      <div style="height:8px"></div>
+      <label>학생 이름/번호</label>
+      <input id="studentId" placeholder="예: 2-3 김민수 / 17번" />
 
       <div class="btns">
         <button id="clearBtn">지우기</button>
         <button id="addBtn" class="good">샘플 추가</button>
       </div>
       <div style="height:8px"></div>
-      <button id="trainBtn" class="primary">모델 학습(원형 프로토타입)</button>
+      <button id="trainBtn" class="primary">로컬 모델 학습</button>
+      <div style="height:8px"></div>
+      <button id="testBtn" class="primary">현재 그림 테스트</button>
 
-      <div style="height:12px"></div>
+      <div class="divider"></div>
       <div class="box">
-        <div class="stat">총 샘플 수: <span id="totalSamples" class="mono">0</span></div>
-        <div class="stat">옆면/앞면/윗면/기타: <span id="viewCounts" class="mono">0 / 0 / 0 / 0</span></div>
-        <div class="stat">편향 진단: <span id="biasState" class="mono warn">샘플을 모아주세요.</span></div>
+        <div class="statline">내 샘플 수: <span id="totalSamples" class="mono">0</span></div>
+        <div class="statline">획 평균/분산: <span id="shapeStats" class="mono">-</span></div>
+        <div class="statline">편향 힌트: <span id="biasState" class="mono warn">샘플을 모아주세요.</span></div>
       </div>
 
-      <div style="height:10px"></div>
-      <button id="exportBtn">데이터셋 JSON 내려받기</button>
-      <ul class="list">
-        <li>먼저 옆면만 10개 수집 후 테스트해보세요.</li>
-        <li>그다음 앞면/윗면을 추가 수집하고 결과를 비교해보세요.</li>
-      </ul>
+      <div style="height:8px"></div>
+      <button id="exportBtn">내 데이터셋 JSON 내려받기</button>
+      <p class="muted">학생에게는 각도 힌트를 주지 않고 자유롭게 그리게 해주세요.</p>
     </section>
 
     <section class="card">
-      <canvas id="canvas" width="280" height="280"></canvas>
+      <canvas id="canvas" class="main" width="280" height="280"></canvas>
       <div class="row" style="margin-top:10px;">
         <div class="box">
           <div class="pill">테스트 결과</div>
           <div id="pred" class="mono">아직 테스트 전</div>
         </div>
         <div class="box">
-          <div class="pill">현재 그린 샘플 정보</div>
+          <div class="pill">현재 그린 정보</div>
           <div id="drawInfo" class="mono">획이 없습니다.</div>
         </div>
       </div>
-      <div style="height:10px"></div>
-      <button id="testBtn" class="primary">현재 그림 테스트</button>
 
-      <div style="height:10px"></div>
-      <div class="box">
-        <div class="pill">수업 질문</div>
-        <ol class="list">
-          <li>왜 한쪽 관점만 학습했을 때 오인식이 늘어났나요?</li>
-          <li>어떤 유형의 데이터를 더 추가했더니 좋아졌나요?</li>
-          <li>실생활 AI에서도 같은 문제가 생길 수 있을까요?</li>
-        </ol>
+      <div class="divider"></div>
+      <h3>교사용 DB 연동/전체 보기</h3>
+      <label>데이터베이스 API URL (Apps Script Web App 등)</label>
+      <input id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec" />
+      <div style="height:8px"></div>
+      <label>수업 코드(classId)</label>
+      <input id="classId" value="class-a" />
+      <div class="btns">
+        <button id="saveRemoteBtn">현재 샘플 DB 저장</button>
+        <button id="syncRemoteBtn">DB에서 전체 불러오기</button>
       </div>
+      <div class="box" style="margin-top:8px;">
+        <div class="mono" id="remoteStatus">DB 상태: 미연결</div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <div class="pill">전체 학생 샘플 갤러리</div>
+        <div id="gallery" class="gallery"></div>
+      </div>
+      <table class="table" id="summaryTable">
+        <thead><tr><th>학생</th><th>샘플 수</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </section>
   </div>
 </div>
@@ -104,12 +117,17 @@
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
   const objectNameEl = document.getElementById("objectName");
-  const viewTypeEl = document.getElementById("viewType");
+  const studentIdEl = document.getElementById("studentId");
+  const apiUrlEl = document.getElementById("apiUrl");
+  const classIdEl = document.getElementById("classId");
   const totalSamplesEl = document.getElementById("totalSamples");
-  const viewCountsEl = document.getElementById("viewCounts");
+  const shapeStatsEl = document.getElementById("shapeStats");
   const biasStateEl = document.getElementById("biasState");
   const predEl = document.getElementById("pred");
   const drawInfoEl = document.getElementById("drawInfo");
+  const remoteStatusEl = document.getElementById("remoteStatus");
+  const galleryEl = document.getElementById("gallery");
+  const summaryBody = document.querySelector("#summaryTable tbody");
 
   let drawing = false;
   let drawnPixels = 0;
@@ -123,30 +141,6 @@
     drawInfoEl.textContent = "획이 없습니다.";
   }
 
-  function startDraw(x, y) {
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  }
-
-  function moveDraw(x, y) {
-    if (!drawing) return;
-    ctx.lineWidth = 10;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "#000000";
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    drawnPixels += 1;
-    drawInfoEl.textContent = `획 기록 중... (${drawnPixels})`;
-  }
-
-  function endDraw() {
-    drawing = false;
-    if (drawnPixels > 0) {
-      drawInfoEl.textContent = `그림 입력 완료 (획 카운트: ${drawnPixels})`;
-    }
-  }
-
   function pointerPos(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -156,15 +150,28 @@
 
   canvas.addEventListener("pointerdown", (e) => {
     const p = pointerPos(e);
-    startDraw(p.x, p.y);
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener("pointermove", (e) => {
+    if (!drawing) return;
     const p = pointerPos(e);
-    moveDraw(p.x, p.y);
+    ctx.lineWidth = 10;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000000";
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    drawnPixels += 1;
+    drawInfoEl.textContent = `획 기록 중... (${drawnPixels})`;
   });
-  canvas.addEventListener("pointerup", endDraw);
-  canvas.addEventListener("pointercancel", endDraw);
+  function finishDraw() {
+    drawing = false;
+    if (drawnPixels > 0) drawInfoEl.textContent = `그림 입력 완료 (획 카운트: ${drawnPixels})`;
+  }
+  canvas.addEventListener("pointerup", finishDraw);
+  canvas.addEventListener("pointercancel", finishDraw);
 
   function toVector28() {
     const temp = document.createElement("canvas");
@@ -174,11 +181,20 @@
     tctx.drawImage(canvas, 0, 0, 28, 28);
     const data = tctx.getImageData(0, 0, 28, 28).data;
     const vec = [];
-    for (let i = 0; i < data.length; i += 4) {
-      const gray = data[i];
-      vec.push((255 - gray) / 255);
-    }
+    for (let i = 0; i < data.length; i += 4) vec.push((255 - data[i]) / 255);
     return vec;
+  }
+
+  function features(vec) {
+    let sum = 0, cx = 0, cy = 0;
+    for (let y = 0; y < 28; y++) {
+      for (let x = 0; x < 28; x++) {
+        const v = vec[y * 28 + x];
+        sum += v; cx += x * v; cy += y * v;
+      }
+    }
+    if (sum === 0) return { ink: 0, cx: 0, cy: 0 };
+    return { ink: sum, cx: cx / sum, cy: cy / sum };
   }
 
   function l2(a, b) {
@@ -192,78 +208,67 @@
 
   function meanVec(vectors) {
     const out = new Array(vectors[0].length).fill(0);
-    for (const v of vectors) {
-      for (let i = 0; i < v.length; i++) out[i] += v[i];
-    }
+    for (const v of vectors) for (let i = 0; i < v.length; i++) out[i] += v[i];
     for (let i = 0; i < out.length; i++) out[i] /= vectors.length;
     return out;
   }
 
   function updateStats() {
-    const counts = { "옆면": 0, "앞면": 0, "윗면": 0, "기타": 0 };
-    for (const s of samples) counts[s.view] += 1;
     totalSamplesEl.textContent = String(samples.length);
-    viewCountsEl.textContent = `${counts["옆면"]} / ${counts["앞면"]} / ${counts["윗면"]} / ${counts["기타"]}`;
-
-    const nonZeroViews = Object.values(counts).filter(v => v > 0).length;
-    const maxCount = Math.max(...Object.values(counts), 0);
-    const maxRatio = samples.length ? maxCount / samples.length : 0;
     if (!samples.length) {
+      shapeStatsEl.textContent = "-";
       biasStateEl.textContent = "샘플을 모아주세요.";
       biasStateEl.className = "mono warn";
-    } else if (samples.length < 8 || nonZeroViews < 2 || maxRatio > 0.75) {
-      biasStateEl.textContent = "편향 위험 높음 (유형 다양성 부족)";
+      return;
+    }
+    const inks = samples.map(s => s.meta.ink);
+    const mean = inks.reduce((a, b) => a + b, 0) / inks.length;
+    const variance = inks.reduce((a, b) => a + (b - mean) ** 2, 0) / inks.length;
+    shapeStatsEl.textContent = `${mean.toFixed(1)} / ${variance.toFixed(1)}`;
+    if (samples.length < 8 || variance < 12) {
+      biasStateEl.textContent = "비슷한 모양이 많을 수 있어요. 다양한 형태를 시도해보세요.";
       biasStateEl.className = "mono warn";
     } else {
-      biasStateEl.textContent = "편향 위험 낮음 (다양성 양호)";
+      biasStateEl.textContent = "형태 다양성이 증가하고 있어요.";
       biasStateEl.className = "mono ok";
     }
   }
 
   function addSample() {
     const vec = toVector28();
-    const ink = vec.reduce((a, b) => a + b, 0);
-    if (ink < 8) {
+    const meta = features(vec);
+    if (meta.ink < 8) {
       alert("그림이 너무 비어 있어요. 조금 더 진하게 그려주세요.");
       return;
     }
     samples.push({
       label: objectNameEl.value.trim() || "object",
-      view: viewTypeEl.value,
-      vec
+      studentId: studentIdEl.value.trim() || "anonymous",
+      vec, meta,
+      createdAt: new Date().toISOString()
     });
-    updateStats();
     predEl.textContent = `샘플 추가 완료 (${samples.length}개)`;
+    updateStats();
   }
 
   function train() {
-    if (samples.length < 3) {
-      alert("최소 3개 이상 샘플이 필요해요.");
-      return;
-    }
+    if (samples.length < 3) return alert("최소 3개 이상 샘플이 필요해요.");
     const vectors = samples.map(s => s.vec);
     const center = meanVec(vectors);
     const dists = vectors.map(v => l2(v, center)).sort((a, b) => a - b);
     const q80 = dists[Math.floor(dists.length * 0.8)] || dists[dists.length - 1];
-    model = {
-      label: objectNameEl.value.trim() || "object",
-      center,
-      threshold: q80 * 1.2
-    };
+    model = { label: objectNameEl.value.trim() || "object", center, threshold: q80 * 1.2 };
     predEl.textContent = `학습 완료! 임계값=${model.threshold.toFixed(3)} (데이터 ${samples.length}개)`;
   }
 
   function testNow() {
-    if (!model) {
-      alert("먼저 모델 학습 버튼을 눌러주세요.");
-      return;
-    }
+    if (!model) return alert("먼저 로컬 모델 학습 버튼을 눌러주세요.");
     const v = toVector28();
     const dist = l2(v, model.center);
     const score = Math.max(0, 1 - dist / (model.threshold * 2));
-    const predicted = dist <= model.threshold ? model.label : "자동차 아님/미학습 형태";
+    const predicted = dist <= model.threshold ? model.label : "미학습 형태";
     const verdict = dist <= model.threshold ? "인식 성공" : "인식 실패";
-    predEl.textContent = `${verdict} | 예측: ${predicted} | 유사도: ${(score * 100).toFixed(1)}% | 거리: ${dist.toFixed(3)}`;
+    predEl.textContent = `${verdict} | 예측: ${predicted} | 유사도: ${(score * 100).toFixed(1)}%`;
   }
 
   function exportJson() {
@@ -271,7 +276,7 @@
       exportedAt: new Date().toISOString(),
       objectName: objectNameEl.value.trim() || "object",
       sampleCount: samples.length,
-      samples: samples.map((s, i) => ({ id: i + 1, label: s.label, view: s.view, vec: s.vec }))
+      samples: samples.map((s, i) => ({ id: i + 1, label: s.label, studentId: s.studentId, vec: s.vec, meta: s.meta, createdAt: s.createdAt }))
     };
     const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
     const a = document.createElement("a");
@@ -281,11 +286,94 @@
     URL.revokeObjectURL(a.href);
   }
 
+  function vectorToCanvas(vec) {
+    const c = document.createElement("canvas");
+    c.width = 56; c.height = 56;
+    c.className = "thumb";
+    const x = c.getContext("2d");
+    const image = x.createImageData(56, 56);
+    for (let yy = 0; yy < 56; yy++) {
+      for (let xx = 0; xx < 56; xx++) {
+        const sx = Math.floor(xx / 2), sy = Math.floor(yy / 2);
+        const v = vec[sy * 28 + sx] || 0;
+        const g = 255 - Math.round(v * 255);
+        const idx = (yy * 56 + xx) * 4;
+        image.data[idx] = g;
+        image.data[idx + 1] = g;
+        image.data[idx + 2] = g;
+        image.data[idx + 3] = 255;
+      }
+    }
+    x.putImageData(image, 0, 0);
+    return c;
+  }
+
+  async function saveToRemote() {
+    if (!samples.length) return alert("먼저 샘플을 추가하세요.");
+    const apiUrl = apiUrlEl.value.trim();
+    if (!apiUrl) return alert("API URL을 먼저 입력하세요.");
+
+    const classId = classIdEl.value.trim() || "class-a";
+    const payload = {
+      action: "append",
+      classId,
+      objectName: objectNameEl.value.trim() || "object",
+      records: samples.map((s) => ({ studentId: s.studentId, vec: s.vec, meta: s.meta, createdAt: s.createdAt }))
+    };
+
+    try {
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      remoteStatusEl.textContent = `DB 저장 성공: ${data.saved || samples.length}건`;
+    } catch (e) {
+      remoteStatusEl.textContent = `DB 저장 실패: ${e}`;
+    }
+  }
+
+  function renderRemote(records) {
+    galleryEl.innerHTML = "";
+    summaryBody.innerHTML = "";
+    const counts = {};
+    records.forEach((r) => {
+      counts[r.studentId || "anonymous"] = (counts[r.studentId || "anonymous"] || 0) + 1;
+      if (Array.isArray(r.vec) && r.vec.length === 784) {
+        galleryEl.appendChild(vectorToCanvas(r.vec));
+      }
+    });
+    Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([student, n]) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${student}</td><td>${n}</td>`;
+      summaryBody.appendChild(tr);
+    });
+  }
+
+  async function syncFromRemote() {
+    const apiUrl = apiUrlEl.value.trim();
+    if (!apiUrl) return alert("API URL을 먼저 입력하세요.");
+    const classId = encodeURIComponent(classIdEl.value.trim() || "class-a");
+    const objectName = encodeURIComponent(objectNameEl.value.trim() || "object");
+    try {
+      const res = await fetch(`${apiUrl}?action=list&classId=${classId}&objectName=${objectName}`);
+      const data = await res.json();
+      const records = data.records || [];
+      remoteStatusEl.textContent = `DB 불러오기 성공: ${records.length}건`;
+      renderRemote(records);
+    } catch (e) {
+      remoteStatusEl.textContent = `DB 불러오기 실패: ${e}`;
+    }
+  }
+
   document.getElementById("clearBtn").addEventListener("click", resetCanvas);
   document.getElementById("addBtn").addEventListener("click", addSample);
   document.getElementById("trainBtn").addEventListener("click", train);
   document.getElementById("testBtn").addEventListener("click", testNow);
   document.getElementById("exportBtn").addEventListener("click", exportJson);
+  document.getElementById("saveRemoteBtn").addEventListener("click", saveToRemote);
+  document.getElementById("syncRemoteBtn").addEventListener("click", syncFromRemote);
 
   resetCanvas();
   updateStats();
