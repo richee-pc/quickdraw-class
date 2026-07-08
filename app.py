@@ -331,6 +331,16 @@ elif page == "6️⃣ 발표·마무리":
     st.title("6️⃣ 발표 · 마무리")
     st.subheader("AI가 틀리는 이유를 데이터 관점으로 이야기해봐요")
 
+    slides_html = read_text(SLIDES_FILE)
+    if slides_html:
+        last_slide_html = slides_html.replace(
+            "<body>",
+            "<body><script>window.SLIDE_START = 9;</script>",
+            1,
+        )
+        st.caption("아래는 발표용 마지막 질문 슬라이드(자동 시작)입니다.")
+        components.html(last_slide_html, height=520, scrolling=False)
+
     st.markdown(
         """
         아래 질문에 답해보세요.

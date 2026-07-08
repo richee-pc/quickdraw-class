@@ -165,7 +165,19 @@
 
 <script>
   const slides = document.querySelectorAll(".slide");
-  let i = 0;
+  const qs = new URLSearchParams(window.location.search);
+  const startFromQuery = Number(qs.get("start"));
+  const startFromHash = Number((window.location.hash || "").replace("#", ""));
+  const startFromGlobal = Number(window.SLIDE_START);
+  const requestedStart =
+    Number.isFinite(startFromGlobal) && startFromGlobal > 0
+      ? startFromGlobal
+      : Number.isFinite(startFromQuery) && startFromQuery > 0
+        ? startFromQuery
+        : Number.isFinite(startFromHash) && startFromHash > 0
+          ? startFromHash
+          : 1;
+  let i = Math.max(0, requestedStart - 1);
   const total = slides.length;
   document.getElementById("total").textContent = total;
   function render() {
