@@ -76,32 +76,66 @@ def post_json(url: str, payload: dict) -> tuple[bool, str]:
 st.markdown(
     """
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap');
       .stApp {
         background:
-          radial-gradient(1200px 500px at 10% -10%, #fce7f3 0%, rgba(252,231,243,0) 60%),
-          radial-gradient(1000px 400px at 90% -20%, #ede9fe 0%, rgba(237,233,254,0) 60%),
-          linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+          radial-gradient(1200px 540px at 10% -10%, #dbeafe 0%, rgba(219,234,254,0) 60%),
+          radial-gradient(1000px 420px at 90% -20%, #e0f2fe 0%, rgba(224,242,254,0) 60%),
+          linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+        font-family: 'Gowun Dodum', 'Malgun Gothic', system-ui, sans-serif;
       }
       [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
+        background: linear-gradient(180deg, #0f172a 0%, #1e3a8a 60%, #0369a1 100%);
       }
       [data-testid="stSidebar"] * { color: #f8fafc !important; }
+      h1, h2, h3 {
+        font-family: 'Jua', 'Gowun Dodum', sans-serif !important;
+        letter-spacing: 0.2px;
+      }
       .card {
-        background: rgba(255, 255, 255, 0.88);
-        border: 1px solid #e2e8f0;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid #bfdbfe;
         border-radius: 18px;
         padding: 16px 18px;
-        box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+        box-shadow: 0 10px 26px rgba(14, 116, 144, 0.10);
       }
       .hero {
-        background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+        background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 45%, #6366f1 100%);
         color: #ffffff;
-        border-radius: 20px;
+        border-radius: 22px;
         padding: 22px 20px;
-        box-shadow: 0 14px 40px rgba(99, 102, 241, 0.28);
+        box-shadow: 0 14px 34px rgba(37, 99, 235, 0.28);
       }
       .hero h3, .hero p { color: #ffffff !important; margin: 0; }
       .hero p { opacity: 0.95; margin-top: 8px; }
+      .section-chip {
+        display: inline-block;
+        background: #e0f2fe;
+        color: #075985;
+        border: 1px solid #bae6fd;
+        border-radius: 999px;
+        padding: 4px 12px;
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+      .worksheet-wrap {
+        background: rgba(255,255,255,0.9);
+        border: 1px solid #bae6fd;
+        border-radius: 18px;
+        padding: 16px 16px 4px;
+        box-shadow: 0 10px 24px rgba(14, 116, 144, 0.1);
+      }
+      .stButton>button, .stDownloadButton>button, .stFormSubmitButton>button {
+        border-radius: 12px !important;
+        border: 1px solid #7dd3fc !important;
+        background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 100%) !important;
+        color: white !important;
+        font-weight: 700 !important;
+      }
+      .stTextInput input, .stTextArea textarea {
+        border-radius: 12px !important;
+        border-color: #7dd3fc !important;
+      }
     </style>
     """,
     unsafe_allow_html=True,
@@ -185,6 +219,7 @@ if page == "1️⃣ 도입":
 
 # ------------------------------------------------------------------ 수집기 체험
 elif page == "2️⃣ 데이터 학습·편향 (수집기)":
+    st.markdown('<div class="section-chip">DATA BIAS LAB</div>', unsafe_allow_html=True)
     st.title("🧩 나만의 퀵드로우 수집기")
     st.subheader("직접 데이터를 만들며 학습과 편향의 의미를 먼저 체험해요")
     st.markdown(
@@ -241,6 +276,7 @@ elif page == "2️⃣ 데이터 학습·편향 (수집기)":
 
 # ------------------------------------------------------------------ 슬라이드
 elif page == "🖥️ 발표 슬라이드":
+    st.markdown('<div class="section-chip">CLASS PRESENTATION</div>', unsafe_allow_html=True)
     st.title("🖥️ 발표 슬라이드")
     st.caption("슬라이드를 한 번 클릭한 뒤, 키보드 ← → 방향키 또는 화면의 ◀ ▶ 버튼으로 넘기세요.")
     html = read_text(SLIDES_FILE)
@@ -257,8 +293,19 @@ elif page == "🖥️ 발표 슬라이드":
 
 # ------------------------------------------------------------------ 학습지
 elif page == "📄 학습지 작성·제출":
+    st.markdown('<div class="section-chip">WORKSHEET SUBMISSION</div>', unsafe_allow_html=True)
     st.title("📄 학습지 작성 · 제출")
     st.caption("인쇄 대신 웹에서 바로 작성하고 제출할 수 있어요.")
+    st.markdown(
+        """
+        <div class="hero">
+          <h3>🧊 여름 캠프 미션 카드</h3>
+          <p>핵심 개념 + 데이터 편향 체험 + 코랩 결과를 정리해서 제출해요!</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown('<div class="worksheet-wrap">', unsafe_allow_html=True)
 
     with st.form("worksheet-submit-form"):
         c1, c2, c3 = st.columns(3)
@@ -286,6 +333,7 @@ elif page == "📄 학습지 작성·제출":
         reflection = st.text_area("AI가 틀린 이유와 느낀 점", height=120)
 
         submit = st.form_submit_button("📨 선생님께 제출")
+    st.markdown("</div>", unsafe_allow_html=True)
 
     if submit:
         if not student_name.strip():
@@ -327,6 +375,7 @@ elif page == "📄 학습지 작성·제출":
 
 # ------------------------------------------------------------------ 미드저니
 elif page == "3️⃣ 미드저니 아트 만들기":
+    st.markdown('<div class="section-chip">MIDJOURNEY CREATOR</div>', unsafe_allow_html=True)
     st.title("🖌️ 미드저니로 게임 아트 만들기")
     st.markdown(
         "미드저니는 **글(프롬프트)을 쓰면 그림을 만들어 주는 AI**예요. "
@@ -423,6 +472,7 @@ elif page == "3️⃣ 미드저니 아트 만들기":
 
 # ------------------------------------------------------------------ 실습
 elif page == "4️⃣~5️⃣ Colab으로 퀵드로우 만들기":
+    st.markdown('<div class="section-chip">PYTHON BUILD ZONE</div>', unsafe_allow_html=True)
     st.title("🧪 실습 — 나만의 AI 만들기")
     st.markdown(
         "구글 Colab에서 코드를 순서대로 실행하면 됩니다. "
@@ -461,6 +511,7 @@ elif page == "4️⃣~5️⃣ Colab으로 퀵드로우 만들기":
 
 # ------------------------------------------------------------------ 발표·마무리
 elif page == "6️⃣ 발표·마무리":
+    st.markdown('<div class="section-chip">SHOWCASE TIME</div>', unsafe_allow_html=True)
     st.title("6️⃣ 발표 · 마무리")
     st.subheader("AI가 틀리는 이유를 데이터 관점으로 이야기해봐요")
 
