@@ -6,7 +6,10 @@
 로컬 실행:  streamlit run app.py
 """
 from pathlib import Path
+from datetime import datetime, timezone
+import json
 import urllib.parse
+import urllib.request
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -37,6 +40,7 @@ COLAB_NOTEBOOK_URL = (
 # 미드저니 접속 주소
 MIDJOURNEY_URL = "https://www.midjourney.com/imagine"
 COLLECTOR_FILE = "나만의_퀵드로우_수집기.html"
+COLLECTOR_API_URL = "https://script.google.com/macros/s/AKfycbzPP6GHuqSHltZxutD8qyt8-TW_F5HNU1-2jLtkxEMPa-H8ufKdMzbl6GnCC1Lnq3pA/exec"
 
 
 def read_text(filename: str) -> str:
@@ -53,6 +57,57 @@ def read_bytes(filename: str) -> bytes:
     return path.read_bytes()
 
 
+def post_json(url: str, payload: dict) -> tuple[bool, str]:
+    """Server-side POST helper for Apps Script endpoints."""
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as res:
+            body = res.read().decode("utf-8", errors="ignore")
+        return True, body
+    except Exception as e:  # pragma: no cover - UI fallback path
+        return False, str(e)
+
+
+st.markdown(
+    """
+    <style>
+      .stApp {
+        background:
+          radial-gradient(1200px 500px at 10% -10%, #fce7f3 0%, rgba(252,231,243,0) 60%),
+          radial-gradient(1000px 400px at 90% -20%, #ede9fe 0%, rgba(237,233,254,0) 60%),
+          linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      }
+      [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
+      }
+      [data-testid="stSidebar"] * { color: #f8fafc !important; }
+      .card {
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 16px 18px;
+        box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+      }
+      .hero {
+        background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+        color: #ffffff;
+        border-radius: 20px;
+        padding: 22px 20px;
+        box-shadow: 0 14px 40px rgba(99, 102, 241, 0.28);
+      }
+      .hero h3, .hero p { color: #ffffff !important; margin: 0; }
+      .hero p { opacity: 0.95; margin-top: 8px; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 # ------------------------------------------------------------------ 사이드바
 with st.sidebar:
     st.title("🎨 퀵 드로우 실습")
@@ -63,7 +118,7 @@ with st.sidebar:
             "1️⃣ 도입",
             "2️⃣ 데이터 학습·편향 (수집기)",
             "🖥️ 발표 슬라이드",
-            "📄 학습지(인쇄)",
+            "📄 학습지 작성·제출",
             "3️⃣ 미드저니 아트 만들기",
             "4️⃣~5️⃣ Colab으로 퀵드로우 만들기",
             "6️⃣ 발표·마무리",
@@ -86,6 +141,15 @@ with st.sidebar:
 if page == "1️⃣ 도입":
     st.title("나만의 커스텀 퀵 드로우 만들기")
     st.subheader("그림을 알아맞히는 AI를 직접 만들고, 펜마우스로 게임해봐요!")
+    st.markdown(
+        """
+        <div class="hero">
+          <h3>✨ 오늘의 미션</h3>
+          <p>데이터를 모으고, AI를 학습시키고, 내가 만든 퀵드로우 게임을 직접 플레이해요.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     st.markdown(
         """
@@ -96,11 +160,15 @@ if page == "1️⃣ 도입":
 
     c1, c2 = st.columns(2)
     with c1:
-        st.markdown("### 🖌️ 만든다 — 생성형 AI")
-        st.markdown("글을 쓰면 그림을 그려줌\n\n**예: 미드저니**")
+        st.markdown(
+            '<div class="card"><h3>🖌️ 만든다 — 생성형 AI</h3><p>글을 쓰면 그림을 그려줌<br><b>예: 미드저니</b></p></div>',
+            unsafe_allow_html=True,
+        )
     with c2:
-        st.markdown("### 🔍 알아맞힌다 — 분류 AI")
-        st.markdown("그림을 보면 이름을 말해줌\n\n**예: 퀵 드로우**")
+        st.markdown(
+            '<div class="card"><h3>🔍 알아맞힌다 — 분류 AI</h3><p>그림을 보면 이름을 말해줌<br><b>예: 퀵 드로우</b></p></div>',
+            unsafe_allow_html=True,
+        )
 
     st.divider()
     st.markdown("### 컴퓨터는 어떻게 알아맞힐까? (4단계)")
@@ -188,20 +256,74 @@ elif page == "🖥️ 발표 슬라이드":
         st.error(f"{SLIDES_FILE} 파일을 찾을 수 없습니다.")
 
 # ------------------------------------------------------------------ 학습지
-elif page == "📄 학습지(인쇄)":
-    st.title("📄 학습지")
-    st.caption("아래에서 미리 보고, 내려받아 인쇄해서 사용하세요. (인쇄: 브라우저에서 Ctrl/Cmd + P)")
-    html = read_text(WORKSHEET_FILE)
-    if html:
-        st.download_button(
-            "⬇️ 학습지 내려받기 (HTML)",
-            data=read_bytes(WORKSHEET_FILE),
-            file_name=WORKSHEET_FILE,
-            mime="text/html",
-        )
-        components.html(html, height=900, scrolling=True)
-    else:
-        st.error(f"{WORKSHEET_FILE} 파일을 찾을 수 없습니다.")
+elif page == "📄 학습지 작성·제출":
+    st.title("📄 학습지 작성 · 제출")
+    st.caption("인쇄 대신 웹에서 바로 작성하고 제출할 수 있어요.")
+
+    with st.form("worksheet-submit-form"):
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            student_name = st.text_input("이름", max_chars=30)
+        with c2:
+            student_class = st.text_input("학년/반", max_chars=30)
+        with c3:
+            student_number = st.text_input("번호(선택)", max_chars=10)
+
+        st.markdown("### 1) 오늘의 핵심 개념")
+        concept_gen_ai = st.text_input("생성형 AI 예시 1개", placeholder="예: 미드저니")
+        concept_cls_ai = st.text_input("분류 AI 예시 1개", placeholder="예: 퀵드로우")
+
+        st.markdown("### 2) 데이터 편향 체험 기록")
+        bias_before = st.text_area("처음 수집 데이터 특징", placeholder="예: 비슷한 모양으로만 그림", height=90)
+        bias_issue = st.text_area("문제/오인식 사례", placeholder="예: 특정 모양만 잘 맞힘", height=90)
+        bias_fix = st.text_area("개선 방법", placeholder="예: 크기·위치·모양을 다양하게 추가", height=90)
+
+        st.markdown("### 3) 코랩 실습 결과")
+        accuracy = st.text_input("최종 정확도(%)", placeholder="예: 84.5")
+        best_tip = st.text_area("내가 찾은 성능 향상 팁 1가지", height=90)
+
+        st.markdown("### 4) 마무리")
+        reflection = st.text_area("AI가 틀린 이유와 느낀 점", height=120)
+
+        submit = st.form_submit_button("📨 선생님께 제출")
+
+    if submit:
+        if not student_name.strip():
+            st.error("이름은 꼭 입력해주세요.")
+        else:
+            payload = {
+                "action": "append",
+                "classId": "worksheet-camp",
+                "objectName": "worksheet-response",
+                "records": [
+                    {
+                        "studentId": f"{student_class.strip()} {student_name.strip()} {student_number.strip()}".strip(),
+                        "vec": [],
+                        "meta": {
+                            "submittedAt": datetime.now(timezone.utc).isoformat(),
+                            "name": student_name.strip(),
+                            "class": student_class.strip(),
+                            "number": student_number.strip(),
+                            "concept_gen_ai": concept_gen_ai.strip(),
+                            "concept_cls_ai": concept_cls_ai.strip(),
+                            "bias_before": bias_before.strip(),
+                            "bias_issue": bias_issue.strip(),
+                            "bias_fix": bias_fix.strip(),
+                            "accuracy": accuracy.strip(),
+                            "best_tip": best_tip.strip(),
+                            "reflection": reflection.strip(),
+                        },
+                        "createdAt": datetime.now(timezone.utc).isoformat(),
+                    }
+                ],
+            }
+            ok, msg = post_json(COLLECTOR_API_URL, payload)
+            if ok:
+                st.success("제출 완료! 선생님에게 전송되었습니다.")
+                st.caption(f"응답: {msg[:160]}")
+            else:
+                st.error("제출 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.")
+                st.caption(msg[:200])
 
 # ------------------------------------------------------------------ 미드저니
 elif page == "3️⃣ 미드저니 아트 만들기":
@@ -285,6 +407,17 @@ elif page == "3️⃣ 미드저니 아트 만들기":
 
         > ⚠️ **베이직 플랜 팁**: 빠른 생성(Fast) 시간이 정해져 있어요.
         > 프롬프트를 미리 잘 정한 뒤 **꼭 필요한 4~6장만** 만드세요.
+        """
+    )
+
+    st.divider()
+    st.markdown("### 🎯 미드저니를 더 잘 쓰는 아이디어")
+    st.markdown(
+        """
+        - **클래스별 통일 디자인**: 같은 스타일 키워드(색감/선 두께/배경 톤)를 고정해서 3~5개 클래스를 한 세트로 만드세요.
+        - **오답 줄이기 아트 전략**: 정답 오브젝트를 **정면·측면·원근**으로 각각 1장씩 생성해서 학생 스케치 다양성을 유도해요.
+        - **게임 완성도 업**: 맞혔을 때 보여줄 `정답 보상 이미지`, 틀렸을 때 보여줄 `힌트 이미지`를 따로 만들어 두세요.
+        - **프롬프트 실험 노트**: 한 단어만 바꿨을 때 결과가 어떻게 달라지는지 3회 비교 기록해보세요.
         """
     )
 
@@ -376,6 +509,19 @@ elif page == "🔗 참고자료":
         예) `cute cat mascot, flat vector illustration, pastel colors, simple`
 
         만들 것: ① 게임 제목 로고 ② 정답 캐릭터(마스코트) ③ 배경
+        """
+    )
+
+    st.divider()
+    st.markdown("### 📦 저장 위치 확인(수집기/학습지 제출)")
+    st.markdown(
+        """
+        현재 제출은 **Google Drive 폴더 파일**이 아니라, 연결된 **Apps Script의 저장소(대부분 Google 스프레드시트)**로 들어갑니다.
+
+        확인 방법:
+        1. Apps Script 편집기에서 해당 웹앱 프로젝트 열기  
+        2. 코드에서 `SpreadsheetApp` 사용 여부 확인  
+        3. `openById(...)` 또는 `getActiveSpreadsheet()` 대상 스프레드시트를 Drive에서 열기
         """
     )
 
