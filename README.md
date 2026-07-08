@@ -67,6 +67,9 @@ streamlit run app.py
 6. Gradio로 게임 완성 + 펜마우스 테스트
 7. 발표 · 마무리 · 토론
 
+> 💡 노트북에는 **수집기 JSON 업로드(선택) 단계**가 포함되어 있어,
+> 수업 초반에 만든 `quickdraw_collector_dataset.json` 을 학습 데이터에 합쳐 실험할 수 있습니다.
+
 ## 🔗 참고 링크
 
 - Google Quick, Draw! — https://quickdraw.withgoogle.com
