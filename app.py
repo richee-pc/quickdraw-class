@@ -195,6 +195,38 @@ if page == "🌈 도입":
         """
     )
 
+    st.divider()
+    st.markdown("### 🧊 아이스 브레이킹: 팀 구성 + 쁘띠바크 게임")
+    st.caption("OT 시작 10~15분 활동으로 팀 분위기를 빠르게 만들어요.")
+    st.video("https://www.youtube.com/watch?v=ctsnCNBf7Dw")
+
+    g1, g2 = st.columns(2)
+    with g1:
+        st.markdown(
+            """
+            <div class="card">
+              <h3>진행 순서</h3>
+              <p>1) 4~5명 팀 구성<br>
+              2) 영상 규칙 확인<br>
+              3) 팀별 1~2라운드 진행<br>
+              4) 팀 구호/역할 정하기</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with g2:
+        st.markdown(
+            """
+            <div class="card">
+              <h3>교사 운영 팁</h3>
+              <p>• 시간 제한: 라운드당 3분<br>
+              • 팀별 기록자 1명 지정<br>
+              • 활동 후 \"협업 규칙\" 1개씩 발표</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
     c1, c2 = st.columns(2)
     with c1:
         st.markdown(
@@ -280,7 +312,7 @@ elif page == "🧩 데이터 학습·편향 (수집기)":
 # ------------------------------------------------------------------ 슬라이드
 elif page == "🖥️ 수업 슬라이드":
     st.markdown('<div class="section-chip">CLASS PRESENTATION</div>', unsafe_allow_html=True)
-    st.title("🖥️ 발표 슬라이드")
+    st.title("🖥️ 수업 슬라이드")
     st.caption("슬라이드를 한 번 클릭한 뒤, 키보드 ← → 방향키 또는 화면의 ◀ ▶ 버튼으로 넘기세요.")
     html = read_text(SLIDES_FILE)
     if html:
@@ -522,7 +554,7 @@ elif page == "🎤 발표·마무리":
     if slides_html:
         last_slide_html = slides_html.replace(
             "<body>",
-            "<body><script>window.SLIDE_START = 70;</script>",
+            "<body><script>window.SLIDE_START = 20;</script>",
             1,
         )
         st.caption("아래는 발표용 마지막 질문 슬라이드(자동 시작)입니다.")
