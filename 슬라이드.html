@@ -10,305 +10,35 @@
   * { box-sizing:border-box; margin:0; padding:0; }
   html, body { height:100%; }
   body { font-family:'Noto Sans KR','Malgun Gothic',system-ui,sans-serif; background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 58%,var(--bg3) 100%); color:var(--text); overflow:hidden; }
-  .slide { position:absolute; inset:0; display:none; flex-direction:column; justify-content:center; align-items:center; padding:6vh 8vw; text-align:center; animation:fade .35s ease; }
+  .slide { position:absolute; inset:0; display:none; flex-direction:column; justify-content:flex-start; align-items:stretch; padding:4.8vh 6vw; animation:fade .35s ease; }
   .slide.active { display:flex; }
   @keyframes fade { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
-  .kicker { color:#7e22ce; font-weight:700; letter-spacing:1.5px; font-size:clamp(12px,1.3vw,16px); margin-bottom:14px; }
-  h2 { font-family:'Gowun Dodum','Noto Sans KR',sans-serif; font-size:clamp(24px,4vw,46px); margin-bottom:20px; }
-  ul { list-style:none; max-width:980px; width:100%; }
-  li { margin:10px 0; padding:14px 18px; background:var(--card); border:1px solid var(--line); border-left:6px solid var(--accent); border-radius:14px; text-align:left; font-size:clamp(15px,2.1vw,24px); line-height:1.6; box-shadow:0 10px 22px rgba(59,130,246,.12); }
+  .meta { font-size:12px; color:#7e22ce; margin-bottom:10px; font-weight:700; }
+  h1,h2 { font-family:'Gowun Dodum','Noto Sans KR',sans-serif; }
+  h1 { font-size:clamp(32px,5vw,64px); margin-bottom:18px; }
+  h2 { font-size:clamp(24px,3.6vw,44px); margin-bottom:14px; }
+  ul { list-style:none; display:grid; gap:10px; }
+  li { background:var(--card); border:1px solid var(--line); border-left:6px solid var(--accent); border-radius:14px; padding:12px 14px; font-size:clamp(15px,1.8vw,24px); line-height:1.5; box-shadow:0 10px 20px rgba(59,130,246,.10); }
+  .two { display:grid; grid-template-columns:1.2fr 1fr; gap:16px; align-items:start; }
+  .badge { display:inline-block; align-self:flex-start; margin-bottom:8px; padding:4px 10px; border-radius:999px; background:linear-gradient(135deg,#e0f2fe,#fce7f3); color:#7e22ce; border:1px solid #c4b5fd; font-size:12px; font-weight:700; }
+  .illus { width:100%; height:auto; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 12px 24px rgba(236,72,153,.12); }
+  .illus rect { fill:#eff6ff; stroke:#bfdbfe; stroke-width:2; }
+  .illus circle { fill:#fce7f3; stroke:#f9a8d4; stroke-width:2; }
+  .illus path { stroke:#60a5fa; }
+  .illus text { fill:#334155; font-size:20px; font-family:'Noto Sans KR',sans-serif; font-weight:700; }
   .progress { position:fixed; top:0; left:0; height:4px; background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6); transition:width .25s; z-index:10; }
-  .counter { position:fixed; bottom:22px; left:20px; color:var(--muted); font-size:14px; z-index:10; }
-  .hint { position:fixed; top:12px; right:20px; color:var(--muted); font-size:13px; z-index:10; }
-  .nav { position:fixed; bottom:16px; right:20px; display:flex; gap:10px; z-index:10; }
-  .nav button { background:#fff; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:9px 14px; font-size:17px; cursor:pointer; }
+  .counter { position:fixed; bottom:20px; left:18px; color:var(--muted); font-size:14px; z-index:10; }
+  .hint { position:fixed; top:10px; right:18px; color:var(--muted); font-size:12px; z-index:10; }
+  .nav { position:fixed; bottom:14px; right:18px; display:flex; gap:8px; z-index:10; }
+  .nav button { background:#fff; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:9px 13px; font-size:16px; cursor:pointer; }
   .nav button:hover { background:var(--accent); color:#fff; }
+  @media (max-width:980px) { .two { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
 <div class="progress" id="progress"></div>
-<div class="hint">← → / 스페이스로 이동</div>
-<section class="slide active">
-  <div class="kicker">WELCOME</div>
-  <h2>01. 🎨 나만의 커스텀 퀵드로우</h2>
-  <ul><li>AI 분류 모델을 직접 만들고 발표까지 완성</li><li>오늘은 데이터·코드·디자인을 모두 경험합니다.</li></ul>
-</section><section class="slide">
-  <div class="kicker">오늘의 목표</div>
-  <h2>02. 수업이 끝나면 가능한 것</h2>
-  <ul><li>퀵드로우의 인공지능 원리를 설명할 수 있다.</li><li>파이썬 코드 일부를 직접 작성해 모델을 학습시킬 수 있다.</li><li>데이터 편향이 결과에 미치는 영향을 사례로 말할 수 있다.</li></ul>
-</section><section class="slide">
-  <div class="kicker">수업 안내</div>
-  <h2>03. 전체 6차시 흐름</h2>
-  <ul><li>1차시: 도입·핵심 개념</li><li>2차시: 데이터 학습/편향 체험</li><li>3차시: 미드저니 아트 + 퀵드로우 원리</li><li>4~5차시: Colab 코딩 실습 + 게임 완성</li><li>6차시: 발표·피드백·마무리</li></ul>
-</section><section class="slide">
-  <div class="kicker">AI 두 얼굴</div>
-  <h2>04. 생성형 vs 분류형</h2>
-  <ul><li>생성형: 새로운 결과물을 만든다 (예: 미드저니)</li><li>분류형: 입력을 구분해 이름을 맞힌다 (예: 퀵드로우)</li><li>오늘 핵심은 분류형 AI를 만드는 것</li></ul>
-</section><section class="slide">
-  <div class="kicker">퀵드로우란?</div>
-  <h2>05. Quick, Draw!의 핵심 아이디어</h2>
-  <ul><li>많은 사람이 빠르게 그린 낙서 데이터를 사용</li><li>28x28 픽셀 같은 작은 이미지로도 분류 가능</li><li>짧은 시간에 AI 학습 구조를 체험하기 좋음</li></ul>
-</section><section class="slide">
-  <div class="kicker">핵심 질문</div>
-  <h2>06. AI는 어떻게 그림을 맞힐까?</h2>
-  <ul><li>무엇을 보고 판단하는가?</li><li>왜 어떤 그림은 잘 맞히고, 어떤 그림은 틀릴까?</li><li>데이터를 바꾸면 결과도 달라질까?</li></ul>
-</section><section class="slide">
-  <div class="kicker">원리 1</div>
-  <h2>07. 데이터(Data)</h2>
-  <ul><li>학습의 재료</li><li>데이터가 다양할수록 일반화 성능이 좋아짐</li><li>데이터 부족/불균형은 오차를 키움</li></ul>
-</section><section class="slide">
-  <div class="kicker">원리 2</div>
-  <h2>08. 학습(Training)</h2>
-  <ul><li>정답이 있는 데이터로 패턴을 찾는 과정</li><li>모델의 파라미터(가중치)가 업데이트됨</li><li>학습 횟수(Epoch)가 너무 적거나 많으면 문제 발생</li></ul>
-</section><section class="slide">
-  <div class="kicker">원리 3</div>
-  <h2>09. 모델(Model)</h2>
-  <ul><li>입력을 받아 확률을 출력하는 수학적 함수</li><li>CNN은 이미지에서 특징을 단계적으로 추출</li><li>좋은 모델 + 좋은 데이터가 함께 필요</li></ul>
-</section><section class="slide">
-  <div class="kicker">원리 4</div>
-  <h2>10. 추론(Inference)</h2>
-  <ul><li>처음 보는 입력을 예측</li><li>학습 때 본 패턴과 비슷한지 비교</li><li>실전 성능은 추론 단계에서 확인</li></ul>
-</section><section class="slide">
-  <div class="kicker">시각 인식</div>
-  <h2>11. CNN이 보는 것</h2>
-  <ul><li>초기층: 선/점/모서리</li><li>중간층: 형태 조합</li><li>후반층: 클래스별 특징</li></ul>
-</section><section class="slide">
-  <div class="kicker">성능 지표</div>
-  <h2>12. 정확도(Accuracy)</h2>
-  <ul><li>전체 중 맞힌 비율</li><li>수업에서는 빠른 비교에 유용</li><li>하지만 클래스 불균형이면 오해 가능</li></ul>
-</section><section class="slide">
-  <div class="kicker">성능 지표</div>
-  <h2>13. 손실(Loss)</h2>
-  <ul><li>예측이 얼마나 틀렸는지 수치화</li><li>학습 중 loss는 내려가고 accuracy는 올라가길 기대</li><li>두 지표를 함께 확인해야 안정적</li></ul>
-</section><section class="slide">
-  <div class="kicker">학습 분할</div>
-  <h2>14. Train / Validation / Test</h2>
-  <ul><li>Train: 학습용</li><li>Validation: 학습 중 점검</li><li>Test: 최종 평가(처음 보는 데이터)</li></ul>
-</section><section class="slide">
-  <div class="kicker">과적합</div>
-  <h2>15. Overfitting이란?</h2>
-  <ul><li>학습 데이터만 너무 잘 맞는 상태</li><li>새로운 데이터에서 성능이 떨어짐</li><li>해결: 데이터 다양화, 모델 단순화, 정규화</li></ul>
-</section><section class="slide">
-  <div class="kicker">소프트웨어 원리</div>
-  <h2>16. 입력 → 처리 → 출력</h2>
-  <ul><li>입력: 학생 스케치</li><li>처리: 전처리 + 모델 예측</li><li>출력: 클래스 확률/결과 화면</li></ul>
-</section><section class="slide">
-  <div class="kicker">소프트웨어 원리</div>
-  <h2>17. 모듈화</h2>
-  <ul><li>기능을 함수/셀 단위로 분리</li><li>문제 발생 시 수정 지점 찾기 쉬움</li><li>협업과 재사용성 향상</li></ul>
-</section><section class="slide">
-  <div class="kicker">소프트웨어 원리</div>
-  <h2>18. 파이프라인 사고</h2>
-  <ul><li>데이터 수집 → 정제 → 학습 → 평가 → 배포</li><li>한 단계 오류가 다음 단계에 전파</li><li>단계별 검증이 중요</li></ul>
-</section><section class="slide">
-  <div class="kicker">소프트웨어 원리</div>
-  <h2>19. 버전 관리 감각</h2>
-  <ul><li>코드/파라미터 변경 이력 기록</li><li>정확도 변화 원인 추적</li><li>실험 노트 습관이 실력 차이를 만듦</li></ul>
-</section><section class="slide">
-  <div class="kicker">소프트웨어 원리</div>
-  <h2>20. 재현 가능성</h2>
-  <ul><li>같은 코드/같은 데이터/같은 설정이면 비슷한 결과</li><li>랜덤 시드로 변동성 줄이기</li><li>실험 결과를 신뢰할 수 있게 함</li></ul>
-</section><section class="slide">
-  <div class="kicker">소프트웨어 원리</div>
-  <h2>21. UI와 로직 분리</h2>
-  <ul><li>화면(Gradio/Streamlit)과 모델 로직 분리</li><li>디자인 변경 시 모델 영향 최소화</li><li>테스트 범위가 명확해짐</li></ul>
-</section><section class="slide">
-  <div class="kicker">소프트웨어 원리</div>
-  <h2>22. 에러 처리</h2>
-  <ul><li>예: 빈 입력일 때 예외 처리</li><li>친절한 메시지로 사용자 경험 향상</li><li>수업 중 진행 중단 방지</li></ul>
-</section><section class="slide">
-  <div class="kicker">소프트웨어 원리</div>
-  <h2>23. 성능/속도 균형</h2>
-  <ul><li>모델을 복잡하게 하면 정확도↑ 가능</li><li>하지만 학습 시간↑, 실습 몰입도↓</li><li>수업에 맞는 균형이 중요</li></ul>
-</section><section class="slide">
-  <div class="kicker">소프트웨어 원리</div>
-  <h2>24. 데이터 직렬화</h2>
-  <ul><li>JSON/NPY로 저장해 재사용</li><li>수집기 데이터와 Colab 연결</li><li>파일 포맷 이해는 실무 기본</li></ul>
-</section><section class="slide">
-  <div class="kicker">소프트웨어 원리</div>
-  <h2>25. API 개념</h2>
-  <ul><li>요청(Request)과 응답(Response)</li><li>수집기 제출 데이터가 서버로 이동</li><li>classId/objectName으로 데이터 구분</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>26. 변수(Variable)</h2>
-  <ul><li>값을 저장하는 이름표</li><li>예: categories, EPOCHS</li><li>좋은 변수명은 이해도를 높임</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>27. 리스트(List)</h2>
-  <ul><li>여러 값을 순서대로 보관</li><li>예: 클래스 이름 목록</li><li>반복문과 함께 자주 사용</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>28. 딕셔너리(Dictionary)</h2>
-  <ul><li>키-값 구조</li><li>예: {label: probability}</li><li>예측 결과 표현에 유용</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>29. 조건문(if)</h2>
-  <ul><li>상황에 따라 다른 동작</li><li>예: 값이 None이면 에러 안내</li><li>안전한 코드의 핵심</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>30. 반복문(for)</h2>
-  <ul><li>같은 작업을 자동 반복</li><li>예: 클래스별 데이터 로딩</li><li>코드 양을 크게 줄여줌</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>31. 함수(function)</h2>
-  <ul><li>작업 묶음</li><li>예: add_conv_block(), predict()</li><li>재사용성과 가독성 향상</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>32. 라이브러리 import</h2>
-  <ul><li>이미 만들어진 도구 사용</li><li>numpy, tensorflow, gradio</li><li>도구를 이해하고 적재적소에 사용</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>33. 배열/텐서 shape</h2>
-  <ul><li>데이터 모양이 다르면 오류</li><li>이미지 shape: (N, 28, 28, 1)</li><li>shape 확인 습관이 중요</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>34. 정규화(normalization)</h2>
-  <ul><li>0~255를 0~1로 스케일</li><li>학습 안정성과 수렴 속도 개선</li><li>전처리의 핵심 단계</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>35. 하이퍼파라미터</h2>
-  <ul><li>EPOCHS, batch_size, learning 관련 설정</li><li>성능과 속도에 큰 영향</li><li>실험적으로 조정</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>36. 함수형 사고</h2>
-  <ul><li>입력과 출력을 명확히</li><li>중간 단계 점검(print/shape)</li><li>디버깅 시간을 줄임</li></ul>
-</section><section class="slide">
-  <div class="kicker">코딩 개념</div>
-  <h2>37. 예외와 메시지</h2>
-  <ul><li>오류를 빨리 이해하게 안내</li><li>학생 실습에서는 특히 중요</li><li>힌트가 좋은 수업을 만든다</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 준비</div>
-  <h2>38. Colab 환경 체크</h2>
-  <ul><li>런타임 연결 확인</li><li>필수 패키지 설치</li><li>셀은 위에서 아래 순서대로 실행</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 1</div>
-  <h2>39. 카테고리 설정</h2>
-  <ul><li>3~5개 클래스를 영어로 선택</li><li>서로 너무 비슷한 클래스는 초반엔 피하기</li><li>예: cat, fish, apple, house</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 2</div>
-  <h2>40. 데이터 로딩</h2>
-  <ul><li>클래스별 .npy 파일 다운로드</li><li>N_PER_CLASS로 장수 조절</li><li>로딩 후 클래스별 개수 출력 확인</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 3</div>
-  <h2>41. 수집기 데이터 연결(선택)</h2>
-  <ul><li>USE_COLLECTOR_DATA=True</li><li>JSON 업로드 후 classes/X/y 업데이트</li><li>수집기와 본 학습이 연결됨</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 4</div>
-  <h2>42. 데이터 시각화</h2>
-  <ul><li>랜덤 샘플 확인</li><li>클래스 라벨이 의도대로인지 점검</li><li>깨진 데이터/이상치 확인</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 5</div>
-  <h2>43. 코드 작성 포인트 A</h2>
-  <ul><li>DIVISOR 값 채우기</li><li>CHANNELS 값 채우기</li><li>shape 출력으로 전처리 결과 검증</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 6</div>
-  <h2>44. 코드 작성 포인트 B</h2>
-  <ul><li>ACTIVATION / FILTERS 설정</li><li>add_conv_block() TODO 완성</li><li>모델 구조를 직접 구성</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 7</div>
-  <h2>45. 학습 실행</h2>
-  <ul><li>학습 로그에서 loss/accuracy 관찰</li><li>Validation 지표 함께 보기</li><li>너무 오래 걸리면 파라미터 조정</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 8</div>
-  <h2>46. 평가</h2>
-  <ul><li>test 정확도 확인</li><li>그래프에서 학습 곡선 읽기</li><li>개선 아이디어 기록</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 9</div>
-  <h2>47. Gradio 게임 배포</h2>
-  <ul><li>Sketchpad 입력</li><li>예측 확률 상위 3개 출력</li><li>친구들과 링크 공유 테스트</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 10</div>
-  <h2>48. Midjourney 아트 연결(선택)</h2>
-  <ul><li>정답 라벨별 이미지 업로드</li><li>예측 1등 라벨 아트 표시</li><li>게임 몰입감 상승</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 11</div>
-  <h2>49. 오류 해결 가이드</h2>
-  <ul><li>NameError: 위 셀 실행 여부 확인</li><li>shape 오류: reshape/채널 점검</li><li>예측 이상: 전처리/정규화 확인</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 12</div>
-  <h2>50. 속도 최적화</h2>
-  <ul><li>클래스 수 줄이기</li><li>N_PER_CLASS 조정</li><li>EPOCHS와 정확도 균형 맞추기</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 13</div>
-  <h2>51. 편향 실험</h2>
-  <ul><li>비슷한 그림만 넣고 성능 확인</li><li>다양한 그림 추가 후 재학습</li><li>전/후 성능 변화 기록</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 14</div>
-  <h2>52. 팀 미션</h2>
-  <ul><li>각 팀 테마 클래스 구성</li><li>가장 높은 정확도 팀</li><li>가장 창의적인 아트 팀</li></ul>
-</section><section class="slide">
-  <div class="kicker">실습 15</div>
-  <h2>53. 체크포인트</h2>
-  <ul><li>코드 TODO 모두 완료했는가</li><li>예측이 실제로 동작하는가</li><li>설명 가능한 결과를 얻었는가</li></ul>
-</section><section class="slide">
-  <div class="kicker">윤리와 책임</div>
-  <h2>54. 데이터 편향의 사회적 의미</h2>
-  <ul><li>데이터가 치우치면 사용자에게 불리할 수 있음</li><li>공정성과 다양성 고려는 필수</li><li>AI 성능뿐 아니라 영향까지 생각하기</li></ul>
-</section><section class="slide">
-  <div class="kicker">윤리와 책임</div>
-  <h2>55. 개인정보/저작권</h2>
-  <ul><li>필요 이상 정보 수집 금지</li><li>사용 이미지의 권리 확인</li><li>출처 표시 습관화</li></ul>
-</section><section class="slide">
-  <div class="kicker">윤리와 책임</div>
-  <h2>56. 투명성</h2>
-  <ul><li>모델이 완벽하지 않음을 명시</li><li>오류 가능성과 한계 공유</li><li>책임 있는 발표 태도</li></ul>
-</section><section class="slide">
-  <div class="kicker">발표 준비</div>
-  <h2>57. 발표 구조 템플릿</h2>
-  <ul><li>문제 정의: 무엇을 만들었나</li><li>방법: 어떤 데이터/코드 사용</li><li>결과: 정확도/오류/개선점</li></ul>
-</section><section class="slide">
-  <div class="kicker">발표 준비</div>
-  <h2>58. 데모 체크</h2>
-  <ul><li>인터넷/링크 확인</li><li>마이크/화면 준비</li><li>질문 예상 답변 준비</li></ul>
-</section><section class="slide">
-  <div class="kicker">발표 준비</div>
-  <h2>59. 피드백 기준</h2>
-  <ul><li>개념 이해도</li><li>코드 작성 참여도</li><li>실험/개선 시도</li><li>설명의 명확성</li></ul>
-</section><section class="slide">
-  <div class="kicker">정리</div>
-  <h2>60. 오늘의 핵심 5문장</h2>
-  <ul><li>AI 성능은 데이터의 질에 크게 좌우된다.</li><li>코드는 작은 TODO부터 직접 고치며 배운다.</li><li>편향을 줄이려면 다양한 데이터가 필요하다.</li><li>모델 정확도는 측정하고 비교해야 한다.</li><li>기술은 결과뿐 아니라 영향까지 생각해야 한다.</li></ul>
-</section><section class="slide">
-  <div class="kicker">마무리 질문</div>
-  <h2>61. 스스로 점검해보기</h2>
-  <ul><li>내 모델의 가장 큰 약점은 무엇인가?</li><li>다음 개선 1순위는 무엇인가?</li><li>실생활 적용 아이디어는 무엇인가?</li></ul>
-</section><section class="slide">
-  <div class="kicker">엔딩</div>
-  <h2>62. 수고했어요! 🎉</h2>
-  <ul><li>여러분은 오늘 데이터·코드·AI·디자인을 모두 경험했습니다.</li><li>이제 여러분만의 AI 프로젝트를 계속 확장해보세요!</li></ul>
-</section><section class="slide">
-  <div class="kicker">심화 1</div>
-  <h2>63. 합성곱(Convolution) 직관</h2>
-  <ul><li>작은 필터가 이미지를 훑으며 특징을 찾음</li><li>필터 값은 학습으로 정해짐</li><li>사람의 '윤곽 파악'과 유사한 느낌</li></ul>
-</section><section class="slide">
-  <div class="kicker">심화 2</div>
-  <h2>64. Pooling의 역할</h2>
-  <ul><li>특징 요약으로 계산량 감소</li><li>작은 위치 변화에 덜 민감</li><li>과적합 완화에 도움</li></ul>
-</section><section class="slide">
-  <div class="kicker">심화 3</div>
-  <h2>65. 왜 28x28인가?</h2>
-  <ul><li>가볍고 빠른 실습</li><li>핵심 구조 이해에 충분</li><li>고해상도는 후속 프로젝트에서 확장</li></ul>
-</section><section class="slide">
-  <div class="kicker">심화 4</div>
-  <h2>66. 클래스 설계 팁</h2>
-  <ul><li>모양이 너무 유사한 클래스는 분리 어려움</li><li>초반엔 차이가 큰 클래스 추천</li><li>난이도는 점진적으로 상승</li></ul>
-</section><section class="slide">
-  <div class="kicker">심화 5</div>
-  <h2>67. 실험 기록법</h2>
-  <ul><li>변경한 값 1개만 바꾸기</li><li>결과를 표로 기록</li><li>원인-결과를 연결해 설명</li></ul>
-</section><section class="slide">
-  <div class="kicker">심화 6</div>
-  <h2>68. 협업 역할 분담</h2>
-  <ul><li>데이터 담당</li><li>코드 담당</li><li>발표/디자인 담당</li></ul>
-</section><section class="slide">
-  <div class="kicker">심화 7</div>
-  <h2>69. 프로젝트 확장 아이디어</h2>
-  <ul><li>웹캠 입력 분류</li><li>손글씨 숫자 분류</li><li>학교 물품 분류 프로젝트</li></ul>
-</section><section class="slide">
-  <div class="kicker">심화 1</div>
-  <h2>70. 합성곱(Convolution) 직관</h2>
-  <ul><li>작은 필터가 이미지를 훑으며 특징을 찾음</li><li>필터 값은 학습으로 정해짐</li><li>사람의 '윤곽 파악'과 유사한 느낌</li></ul>
-</section>
+<div class="hint">← → / 스페이스 이동</div>
+<section class="slide active"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h1>나만의 커스텀 퀵드로우 만들기</h1><ul><li>A</li><li>I</li><li> </li><li>원</li><li>리</li><li> </li><li>+</li><li> </li><li>코</li><li>딩</li><li> </li><li>실</li><li>습</li><li> </li><li>+</li><li> </li><li>데</li><li>이</li><li>터</li><li> </li><li>편</li><li>향</li><li> </li><li>체</li><li>험</li><li> </li><li>+</li><li> </li><li>발</li><li>표</li><li>까</li><li>지</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>02. 오늘의 전체 로드맵</h2><ul><li>1</li><li>차</li><li>시</li><li> </li><li>도</li><li>입</li><li> </li><li>→</li><li> </li><li>2</li><li>차</li><li>시</li><li> </li><li>편</li><li>향</li><li> </li><li>체</li><li>험</li><li> </li><li>→</li><li> </li><li>3</li><li>차</li><li>시</li><li> </li><li>미</li><li>드</li><li>저</li><li>니</li><li> </li><li>→</li><li> </li><li>4</li><li>~</li><li>5</li><li>차</li><li>시</li><li> </li><li>코</li><li>랩</li><li> </li><li>실</li><li>습</li><li> </li><li>→</li><li> </li><li>6</li><li>차</li><li>시</li><li> </li><li>발</li><li>표</li></ul></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>03. AI의 두 얼굴: 생성형 vs 분류형</h2><div class="two"><ul><li>생성형 AI: 새로운 콘텐츠 생성</li><li>분류형 AI: 입력을 보고 카테고리 판단</li><li>오늘 핵심은 분류형 AI를 직접 만드는 것</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>04. 퀵드로우 프로젝트 목표</h2><div class="two"><ul><li>데이터가 모델 성능을 어떻게 바꾸는지 이해</li><li>코드의 핵심 부분을 직접 작성</li><li>완성한 AI를 친구들과 테스트</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>05. 퀵드로우 AI 4단계</h2><div class="two"><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="90" width="120" height="60" rx="14"/><rect x="170" y="90" width="120" height="60" rx="14"/><rect x="320" y="90" width="120" height="60" rx="14"/><rect x="470" y="90" width="120" height="60" rx="14"/><path d="M145 120h20 M295 120h20 M445 120h20" stroke-width="6" stroke-linecap="round"/><text x="80" y="126">데이터</text><text x="230" y="126">학습</text><text x="380" y="126">모델</text><text x="530" y="126">추론</text></svg></div><ul><li>데이터 수집</li><li>학습</li><li>모델 생성</li><li>추론/테스트</li></ul></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>06. 수집기 활동이 중요한 이유</h2><div class="two"><ul><li>학습 전에 데이터 품질을 먼저 체감</li><li>오인식 원인을 데이터 관점으로 설명</li><li>편향 완화 방법을 실험</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>07. 데이터 편향 사례</h2><div class="two"><ul><li>비슷한 모양만 학습하면 특정 입력만 맞춤</li><li>다른 각도/크기/위치에서 성능 하락</li><li>다양성 확보가 일반화 성능을 만듦</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>08. 2차시 수집기 실습 미션</h2><div class="badge">실습 포인트</div><ul><li>같은 물체를 자유롭게 15개 이상 그리기</li><li>학습 후 오인식 사례 3개 기록</li><li>다양한 형태를 추가해 재비교</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>09. 코딩 시작 전 꼭 알아둘 개념</h2><div class="two"><ul><li>변수: 값을 저장</li><li>리스트: 여러 값을 순서대로 저장</li><li>함수: 작업을 묶어 재사용</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>10. 이미지 데이터 기본 shape</h2><div class="two"><ul><li>원본: (N, 784)</li><li>변환 후: (N, 28, 28, 1)</li><li>shape가 맞지 않으면 학습 오류 발생</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>11. 전처리 핵심</h2><div class="two"><ul><li>0~255 픽셀값을 0~1로 정규화</li><li>Train/Test 분리로 공정한 평가</li><li>전처리 품질이 성능을 좌우</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>12. 모델 구성 핵심</h2><div class="two"><ul><li>Conv2D: 특징 추출</li><li>MaxPooling: 중요 특징 요약</li><li>Dense: 최종 분류</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>13. 하이퍼파라미터</h2><div class="two"><ul><li>EPOCHS: 학습 반복 횟수</li><li>N_PER_CLASS: 클래스당 데이터 수</li><li>FILTERS: 특징맵 개수</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>14. 4~5차시 실습 체크리스트</h2><div class="badge">실습 포인트</div><ul><li>TODO 코드 직접 채우기</li><li>학습 로그 확인</li><li>정확도/그래프 해석</li><li>Gradio 배포 링크 테스트</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>15. 정확도 해석 팁</h2><div class="two"><ul><li>정확도 1개 숫자만 보지 않기</li><li>어떤 클래스에서 틀렸는지 확인</li><li>편향 데이터 여부와 함께 분석</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>16. Loss와 Accuracy 함께 보기</h2><div class="two"><ul><li>Loss↓ Accuracy↑가 일반적으로 바람직</li><li>둘이 어긋나면 과적합/데이터 이슈 의심</li><li>학습 곡선으로 판단</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>17. 과적합 이해</h2><div class="two"><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="90" width="120" height="60" rx="14"/><rect x="170" y="90" width="120" height="60" rx="14"/><rect x="320" y="90" width="120" height="60" rx="14"/><rect x="470" y="90" width="120" height="60" rx="14"/><path d="M145 120h20 M295 120h20 M445 120h20" stroke-width="6" stroke-linecap="round"/><text x="80" y="126">데이터</text><text x="230" y="126">학습</text><text x="380" y="126">모델</text><text x="530" y="126">추론</text></svg></div><ul><li>학습 데이터엔 강하지만 새로운 데이터엔 약함</li><li>해결: 데이터 다양화</li><li>해결: 모델/파라미터 조정</li></ul></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>18. 오류 디버깅 가이드</h2><div class="badge">실습 포인트</div><ul><li>NameError: 위 셀 실행 여부 확인</li><li>shape 오류: reshape/채널 점검</li><li>예측 이상: 정규화/전처리 재점검</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>19. 미드저니 연계 포인트</h2><div class="two"><ul><li>정답 보상 이미지 제작</li><li>클래스별 통일된 톤/스타일 구성</li><li>힌트 이미지로 게임 난이도 조절</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>20. 미드저니 프롬프트 실험</h2><div class="badge">실습 포인트</div><ul><li>핵심 키워드 고정 후 1개 요소씩 변경</li><li>결과 비교표 작성</li><li>어떤 단어가 결과를 크게 바꾸는지 분석</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>21. 소프트웨어 설계 관점</h2><div class="two"><ul><li>입력-처리-출력 파이프라인</li><li>UI와 모델 로직 분리</li><li>재현 가능한 실험 구조</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>22. 모듈화의 장점</h2><div class="two"><ul><li>오류 위치 추적 쉬움</li><li>협업이 쉬움</li><li>기능 확장(아트 연동/로그 저장) 쉬움</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>23. 수집기 ↔ Apps Script ↔ 저장소</h2><div class="two"><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="90" width="120" height="60" rx="14"/><rect x="170" y="90" width="120" height="60" rx="14"/><rect x="320" y="90" width="120" height="60" rx="14"/><rect x="470" y="90" width="120" height="60" rx="14"/><path d="M145 120h20 M295 120h20 M445 120h20" stroke-width="6" stroke-linecap="round"/><text x="80" y="126">데이터</text><text x="230" y="126">학습</text><text x="380" y="126">모델</text><text x="530" y="126">추론</text></svg></div><ul><li>학생 입력 전송</li><li>classId/objectName으로 분리 저장</li><li>필요할 때 다시 조회/시각화</li></ul></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>24. 저장 분리 규칙</h2><div class="two"><ul><li>수집기: collector-submissions-2026</li><li>학습지: worksheet-submissions-2026</li><li>분리 키로 조회/분석이 명확해짐</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>25. 6차시 발표 템플릿</h2><div class="badge">실습 포인트</div><ul><li>문제: 무엇을 만들었나</li><li>방법: 데이터/코드/파라미터</li><li>결과: 정확도/오류/개선</li><li>회고: 다음 실험 계획</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>26. AI 윤리와 책임</h2><div class="two"><ul><li>데이터 편향은 사용자 경험을 왜곡</li><li>모델 한계를 솔직히 공개</li><li>공정성과 투명성 고려</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>27. 실생활 적용 아이디어</h2><div class="two"><ul><li>교육: 손그림 학습 도우미</li><li>접근성: 낙서 인식 입력 도구</li><li>콘텐츠: 미니 게임/인터랙티브 전시</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>28. 팀 프로젝트 미션</h2><div class="badge">실습 포인트</div><ul><li>역할 분담: 데이터/코드/디자인/발표</li><li>성과 기준: 정확도+설명력+창의성</li><li>발표 3분 + 질의응답 2분</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>29. 오늘의 핵심 정리</h2><ul><li>데이터가 모델 성능을 만든다</li><li>코드를 직접 바꿔야 진짜 내 모델이 된다</li><li>편향을 줄이는 실험이 AI 역량이다</li></ul></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h1>수고했어요! 🎉</h1><ul><li>조선대학교부속고등학교 AISW 교실</li><li>여러분은 오늘 AI 개발의 전 과정을 경험했습니다.</li><li>이제 여러분만의 프로젝트를 확장해보세요!</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>31. 심화: CNN 필터의 의미</h2><div class="two"><ul><li>필터는 작은 특징 검출기</li><li>학습 과정에서 최적화됨</li><li>필터 수가 많을수록 표현력 증가</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>32. 심화: 배치 학습</h2><div class="two"><ul><li>batch_size는 한 번에 보는 데이터 양</li><li>너무 작으면 불안정, 너무 크면 메모리 부담</li><li>실습에서는 64~128이 무난</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>33. 심화: 클래스 설계 전략</h2><div class="two"><ul><li>서로 비슷한 클래스는 난이도↑</li><li>초반엔 차이가 큰 클래스 권장</li><li>난이도는 단계적으로 상승</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>34. 심화 실험 과제</h2><div class="badge">실습 포인트</div><ul><li>FILTERS를 [16,32], [32,64], [64,128]로 비교</li><li>학습 시간/정확도/오류 유형 기록</li><li>가장 효율적인 조합 발표</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>35. 심화: 추론 흐름</h2><div class="two"><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="90" width="120" height="60" rx="14"/><rect x="170" y="90" width="120" height="60" rx="14"/><rect x="320" y="90" width="120" height="60" rx="14"/><rect x="470" y="90" width="120" height="60" rx="14"/><path d="M145 120h20 M295 120h20 M445 120h20" stroke-width="6" stroke-linecap="round"/><text x="80" y="126">데이터</text><text x="230" y="126">학습</text><text x="380" y="126">모델</text><text x="530" y="126">추론</text></svg></div><ul><li>스케치 입력</li><li>전처리</li><li>모델 예측</li><li>확률 출력</li><li>결과 시각화</li></ul></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>36. 심화: 재현 가능한 실험</h2><div class="two"><ul><li>변수 하나씩만 변경</li><li>실험 로그 표준화</li><li>결과의 원인 추적</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>37. 심화: 발표용 그래프 읽기</h2><div class="badge">실습 포인트</div><ul><li>epoch별 accuracy 변화</li><li>val accuracy와의 간격 확인</li><li>과적합 징후 판단</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>38. 심화: 사용자 경험(UX)</h2><div class="two"><ul><li>오류 메시지 친절성</li><li>입력 피드백 속도</li><li>결과 화면 가독성</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>39. 심화: CNN 필터의 의미</h2><div class="two"><ul><li>필터는 작은 특징 검출기</li><li>학습 과정에서 최적화됨</li><li>필터 수가 많을수록 표현력 증가</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>40. 심화: 배치 학습</h2><div class="two"><ul><li>batch_size는 한 번에 보는 데이터 양</li><li>너무 작으면 불안정, 너무 크면 메모리 부담</li><li>실습에서는 64~128이 무난</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>41. 심화: 클래스 설계 전략</h2><div class="two"><ul><li>서로 비슷한 클래스는 난이도↑</li><li>초반엔 차이가 큰 클래스 권장</li><li>난이도는 단계적으로 상승</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>42. 심화 실험 과제</h2><div class="badge">실습 포인트</div><ul><li>FILTERS를 [16,32], [32,64], [64,128]로 비교</li><li>학습 시간/정확도/오류 유형 기록</li><li>가장 효율적인 조합 발표</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>43. 심화: 추론 흐름</h2><div class="two"><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="90" width="120" height="60" rx="14"/><rect x="170" y="90" width="120" height="60" rx="14"/><rect x="320" y="90" width="120" height="60" rx="14"/><rect x="470" y="90" width="120" height="60" rx="14"/><path d="M145 120h20 M295 120h20 M445 120h20" stroke-width="6" stroke-linecap="round"/><text x="80" y="126">데이터</text><text x="230" y="126">학습</text><text x="380" y="126">모델</text><text x="530" y="126">추론</text></svg></div><ul><li>스케치 입력</li><li>전처리</li><li>모델 예측</li><li>확률 출력</li><li>결과 시각화</li></ul></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>44. 심화: 재현 가능한 실험</h2><div class="two"><ul><li>변수 하나씩만 변경</li><li>실험 로그 표준화</li><li>결과의 원인 추적</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>45. 심화: 발표용 그래프 읽기</h2><div class="badge">실습 포인트</div><ul><li>epoch별 accuracy 변화</li><li>val accuracy와의 간격 확인</li><li>과적합 징후 판단</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>46. 심화: 사용자 경험(UX)</h2><div class="two"><ul><li>오류 메시지 친절성</li><li>입력 피드백 속도</li><li>결과 화면 가독성</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>47. 심화: CNN 필터의 의미</h2><div class="two"><ul><li>필터는 작은 특징 검출기</li><li>학습 과정에서 최적화됨</li><li>필터 수가 많을수록 표현력 증가</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>48. 심화: 배치 학습</h2><div class="two"><ul><li>batch_size는 한 번에 보는 데이터 양</li><li>너무 작으면 불안정, 너무 크면 메모리 부담</li><li>실습에서는 64~128이 무난</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>49. 심화: 클래스 설계 전략</h2><div class="two"><ul><li>서로 비슷한 클래스는 난이도↑</li><li>초반엔 차이가 큰 클래스 권장</li><li>난이도는 단계적으로 상승</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>50. 심화 실험 과제</h2><div class="badge">실습 포인트</div><ul><li>FILTERS를 [16,32], [32,64], [64,128]로 비교</li><li>학습 시간/정확도/오류 유형 기록</li><li>가장 효율적인 조합 발표</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>51. 심화: 추론 흐름</h2><div class="two"><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="90" width="120" height="60" rx="14"/><rect x="170" y="90" width="120" height="60" rx="14"/><rect x="320" y="90" width="120" height="60" rx="14"/><rect x="470" y="90" width="120" height="60" rx="14"/><path d="M145 120h20 M295 120h20 M445 120h20" stroke-width="6" stroke-linecap="round"/><text x="80" y="126">데이터</text><text x="230" y="126">학습</text><text x="380" y="126">모델</text><text x="530" y="126">추론</text></svg></div><ul><li>스케치 입력</li><li>전처리</li><li>모델 예측</li><li>확률 출력</li><li>결과 시각화</li></ul></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>52. 심화: 재현 가능한 실험</h2><div class="two"><ul><li>변수 하나씩만 변경</li><li>실험 로그 표준화</li><li>결과의 원인 추적</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>53. 심화: 발표용 그래프 읽기</h2><div class="badge">실습 포인트</div><ul><li>epoch별 accuracy 변화</li><li>val accuracy와의 간격 확인</li><li>과적합 징후 판단</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>54. 심화: 사용자 경험(UX)</h2><div class="two"><ul><li>오류 메시지 친절성</li><li>입력 피드백 속도</li><li>결과 화면 가독성</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>55. 심화: CNN 필터의 의미</h2><div class="two"><ul><li>필터는 작은 특징 검출기</li><li>학습 과정에서 최적화됨</li><li>필터 수가 많을수록 표현력 증가</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>56. 심화: 배치 학습</h2><div class="two"><ul><li>batch_size는 한 번에 보는 데이터 양</li><li>너무 작으면 불안정, 너무 크면 메모리 부담</li><li>실습에서는 64~128이 무난</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>57. 심화: 클래스 설계 전략</h2><div class="two"><ul><li>서로 비슷한 클래스는 난이도↑</li><li>초반엔 차이가 큰 클래스 권장</li><li>난이도는 단계적으로 상승</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>58. 심화 실험 과제</h2><div class="badge">실습 포인트</div><ul><li>FILTERS를 [16,32], [32,64], [64,128]로 비교</li><li>학습 시간/정확도/오류 유형 기록</li><li>가장 효율적인 조합 발표</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>59. 심화: 추론 흐름</h2><div class="two"><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="90" width="120" height="60" rx="14"/><rect x="170" y="90" width="120" height="60" rx="14"/><rect x="320" y="90" width="120" height="60" rx="14"/><rect x="470" y="90" width="120" height="60" rx="14"/><path d="M145 120h20 M295 120h20 M445 120h20" stroke-width="6" stroke-linecap="round"/><text x="80" y="126">데이터</text><text x="230" y="126">학습</text><text x="380" y="126">모델</text><text x="530" y="126">추론</text></svg></div><ul><li>스케치 입력</li><li>전처리</li><li>모델 예측</li><li>확률 출력</li><li>결과 시각화</li></ul></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>60. 심화: 재현 가능한 실험</h2><div class="two"><ul><li>변수 하나씩만 변경</li><li>실험 로그 표준화</li><li>결과의 원인 추적</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>61. 심화: 발표용 그래프 읽기</h2><div class="badge">실습 포인트</div><ul><li>epoch별 accuracy 변화</li><li>val accuracy와의 간격 확인</li><li>과적합 징후 판단</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>62. 심화: 사용자 경험(UX)</h2><div class="two"><ul><li>오류 메시지 친절성</li><li>입력 피드백 속도</li><li>결과 화면 가독성</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>63. 심화: CNN 필터의 의미</h2><div class="two"><ul><li>필터는 작은 특징 검출기</li><li>학습 과정에서 최적화됨</li><li>필터 수가 많을수록 표현력 증가</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>64. 심화: 배치 학습</h2><div class="two"><ul><li>batch_size는 한 번에 보는 데이터 양</li><li>너무 작으면 불안정, 너무 크면 메모리 부담</li><li>실습에서는 64~128이 무난</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="40" y="30" width="540" height="180" rx="16"/><rect x="70" y="65" width="220" height="14" rx="7"/><rect x="70" y="95" width="300" height="14" rx="7"/><rect x="70" y="125" width="260" height="14" rx="7"/><rect x="70" y="155" width="180" height="14" rx="7"/><circle cx="520" cy="75" r="26"/><text x="509" y="83">{ }</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>65. 심화: 클래스 설계 전략</h2><div class="two"><ul><li>서로 비슷한 클래스는 난이도↑</li><li>초반엔 차이가 큰 클래스 권장</li><li>난이도는 단계적으로 상승</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>66. 심화 실험 과제</h2><div class="badge">실습 포인트</div><ul><li>FILTERS를 [16,32], [32,64], [64,128]로 비교</li><li>학습 시간/정확도/오류 유형 기록</li><li>가장 효율적인 조합 발표</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>67. 심화: 추론 흐름</h2><div class="two"><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="90" width="120" height="60" rx="14"/><rect x="170" y="90" width="120" height="60" rx="14"/><rect x="320" y="90" width="120" height="60" rx="14"/><rect x="470" y="90" width="120" height="60" rx="14"/><path d="M145 120h20 M295 120h20 M445 120h20" stroke-width="6" stroke-linecap="round"/><text x="80" y="126">데이터</text><text x="230" y="126">학습</text><text x="380" y="126">모델</text><text x="530" y="126">추론</text></svg></div><ul><li>스케치 입력</li><li>전처리</li><li>모델 예측</li><li>확률 출력</li><li>결과 시각화</li></ul></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>68. 심화: 재현 가능한 실험</h2><div class="two"><ul><li>변수 하나씩만 변경</li><li>실험 로그 표준화</li><li>결과의 원인 추적</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>69. 심화: 발표용 그래프 읽기</h2><div class="badge">실습 포인트</div><ul><li>epoch별 accuracy 변화</li><li>val accuracy와의 간격 확인</li><li>과적합 징후 판단</li></ul><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><rect x="60" y="55" width="220" height="130" rx="10"/><rect x="320" y="55" width="240" height="70" rx="10"/><circle cx="380" cy="170" r="20"/><circle cx="450" cy="170" r="20"/><circle cx="520" cy="170" r="20"/><text x="125" y="125">AI CLASS</text></svg></section><section class="slide"><div class="meta">조선대학교부속고등학교 · 2026 여름방학 고등학생 AISW 교실 · 김다은</div><h2>70. 심화: 사용자 경험(UX)</h2><div class="two"><ul><li>오류 메시지 친절성</li><li>입력 피드백 속도</li><li>결과 화면 가독성</li></ul><div><svg viewBox="0 0 620 240" class="illus"><rect x="20" y="20" width="580" height="200" rx="18"/><circle cx="150" cy="120" r="48"/><circle cx="310" cy="120" r="48"/><circle cx="470" cy="120" r="48"/><text x="115" y="127">AI</text><text x="275" y="127">SW</text><text x="430" y="127">LAB</text></svg></div></div></section>
 <div class="counter"><span id="cur">1</span> / <span id="total">70</span></div>
 <div class="nav"><button onclick="go(-1)">◀</button><button onclick="go(1)">▶</button></div>
 <script>
@@ -317,10 +47,7 @@
   const startFromQuery = Number(qs.get('start'));
   const startFromHash = Number((window.location.hash || '').replace('#',''));
   const startFromGlobal = Number(window.SLIDE_START);
-  const requestedStart =
-    Number.isFinite(startFromGlobal) && startFromGlobal > 0 ? startFromGlobal :
-    Number.isFinite(startFromQuery) && startFromQuery > 0 ? startFromQuery :
-    Number.isFinite(startFromHash) && startFromHash > 0 ? startFromHash : 1;
+  const requestedStart = Number.isFinite(startFromGlobal) && startFromGlobal > 0 ? startFromGlobal : Number.isFinite(startFromQuery) && startFromQuery > 0 ? startFromQuery : Number.isFinite(startFromHash) && startFromHash > 0 ? startFromHash : 1;
   let i = Math.max(0, requestedStart - 1);
   const total = slides.length;
   document.getElementById('total').textContent = total;
