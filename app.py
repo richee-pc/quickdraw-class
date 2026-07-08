@@ -36,10 +36,7 @@ COLAB_NOTEBOOK_URL = (
 
 # 미드저니 접속 주소
 MIDJOURNEY_URL = "https://www.midjourney.com/imagine"
-CUSTOM_QUICKDRAW_COLLECTOR_URL = (
-    "https://script.google.com/macros/s/"
-    "AKfycby3D7jPkdZstZYodHbJn7dAeS_CICRotWTxT0nNl10p4t9j92xTdkU90Yekpjenjl3a/exec"
-)
+COLLECTOR_FILE = "나만의_퀵드로우_수집기.html"
 
 
 def read_text(filename: str) -> str:
@@ -130,7 +127,17 @@ elif page == "🧩 나만의 퀵드로우 수집기":
         그 데이터로 인식 테스트를 해보며 **데이터 다양성과 편향의 영향**을 확인합니다.
         """
     )
-    st.link_button("🚀 나만의 퀵드로우 수집기 열기", CUSTOM_QUICKDRAW_COLLECTOR_URL, type="primary")
+    collector_html = read_text(COLLECTOR_FILE)
+    if collector_html:
+        st.download_button(
+            "⬇️ 수집기 파일 내려받기 (HTML)",
+            data=read_bytes(COLLECTOR_FILE),
+            file_name=COLLECTOR_FILE,
+            mime="text/html",
+        )
+        components.html(collector_html, height=1020, scrolling=True)
+    else:
+        st.error(f"{COLLECTOR_FILE} 파일을 찾을 수 없습니다.")
 
     st.divider()
     st.markdown("### 👀 무엇을 관찰하면 좋을까요?")

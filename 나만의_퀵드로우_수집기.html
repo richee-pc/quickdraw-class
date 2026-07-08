@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>나만의 퀵드로우 수집기</title>
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --text:#f1f5f9; --muted:#94a3b8; --accent:#818cf8; --ok:#22c55e; --warn:#f59e0b; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:18px; font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif; background:var(--bg); color:var(--text); }
+  .wrap { max-width:1100px; margin:0 auto; }
+  h1 { font-size:28px; margin:0 0 8px; }
+  .sub { color:var(--muted); margin:0 0 14px; }
+  .grid { display:grid; grid-template-columns:320px 1fr; gap:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+  input, select, button { width:100%; border-radius:10px; border:1px solid var(--line); background:#0b1222; color:var(--text); padding:10px 12px; font-size:14px; }
+  button { cursor:pointer; background:#111b34; }
+  button.primary { background:var(--accent); color:#0f172a; font-weight:700; border:none; }
+  button.good { background:var(--ok); color:#052e16; border:none; font-weight:700; }
+  .btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+  canvas { width:100%; max-width:420px; aspect-ratio:1; background:#fff; border-radius:10px; cursor:crosshair; touch-action:none; display:block; margin:0 auto; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .pill { display:inline-block; padding:3px 8px; border-radius:999px; background:#18213e; color:var(--muted); font-size:12px; margin-right:6px; }
+  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px; }
+  .stat { font-size:14px; margin:8px 0; }
+  .warn { color:var(--warn); }
+  .ok { color:var(--ok); }
+  .list { margin:8px 0 0; padding-left:18px; color:var(--muted); }
+  .box { background:#0b1222; border:1px solid var(--line); border-radius:10px; padding:10px; min-height:52px; }
+  @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧩 나만의 퀵드로우 수집기</h1>
+  <p class="sub">학생이 직접 데이터셋을 만들고, 분류 성능을 테스트하면서 데이터 편향을 체험하는 미니 웹앱</p>
+
+  <div class="grid">
+    <section class="card">
+      <label>학습할 물체 이름 (예: car)</label>
+      <input id="objectName" value="car" />
+
+      <div style="height:10px"></div>
+      <label>이번 샘플 유형 (각도/관점)</label>
+      <select id="viewType">
+        <option value="옆면">옆면</option>
+        <option value="앞면">앞면</option>
+        <option value="윗면">윗면</option>
+        <option value="기타">기타</option>
+      </select>
+
+      <div class="btns">
+        <button id="clearBtn">지우기</button>
+        <button id="addBtn" class="good">샘플 추가</button>
+      </div>
+      <div style="height:8px"></div>
+      <button id="trainBtn" class="primary">모델 학습(원형 프로토타입)</button>
+
+      <div style="height:12px"></div>
+      <div class="box">
+        <div class="stat">총 샘플 수: <span id="totalSamples" class="mono">0</span></div>
+        <div class="stat">옆면/앞면/윗면/기타: <span id="viewCounts" class="mono">0 / 0 / 0 / 0</span></div>
+        <div class="stat">편향 진단: <span id="biasState" class="mono warn">샘플을 모아주세요.</span></div>
+      </div>
+
+      <div style="height:10px"></div>
+      <button id="exportBtn">데이터셋 JSON 내려받기</button>
+      <ul class="list">
+        <li>먼저 옆면만 10개 수집 후 테스트해보세요.</li>
+        <li>그다음 앞면/윗면을 추가 수집하고 결과를 비교해보세요.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <canvas id="canvas" width="280" height="280"></canvas>
+      <div class="row" style="margin-top:10px;">
+        <div class="box">
+          <div class="pill">테스트 결과</div>
+          <div id="pred" class="mono">아직 테스트 전</div>
+        </div>
+        <div class="box">
+          <div class="pill">현재 그린 샘플 정보</div>
+          <div id="drawInfo" class="mono">획이 없습니다.</div>
+        </div>
+      </div>
+      <div style="height:10px"></div>
+      <button id="testBtn" class="primary">현재 그림 테스트</button>
+
+      <div style="height:10px"></div>
+      <div class="box">
+        <div class="pill">수업 질문</div>
+        <ol class="list">
+          <li>왜 한쪽 관점만 학습했을 때 오인식이 늘어났나요?</li>
+          <li>어떤 유형의 데이터를 더 추가했더니 좋아졌나요?</li>
+          <li>실생활 AI에서도 같은 문제가 생길 수 있을까요?</li>
+        </ol>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const objectNameEl = document.getElementById("objectName");
+  const viewTypeEl = document.getElementById("viewType");
+  const totalSamplesEl = document.getElementById("totalSamples");
+  const viewCountsEl = document.getElementById("viewCounts");
+  const biasStateEl = document.getElementById("biasState");
+  const predEl = document.getElementById("pred");
+  const drawInfoEl = document.getElementById("drawInfo");
+
+  let drawing = false;
+  let drawnPixels = 0;
+  let samples = [];
+  let model = null;
+
+  function resetCanvas() {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawnPixels = 0;
+    drawInfoEl.textContent = "획이 없습니다.";
+  }
+
+  function startDraw(x, y) {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+
+  function moveDraw(x, y) {
+    if (!drawing) return;
+    ctx.lineWidth = 10;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000000";
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    drawnPixels += 1;
+    drawInfoEl.textContent = `획 기록 중... (${drawnPixels})`;
+  }
+
+  function endDraw() {
+    drawing = false;
+    if (drawnPixels > 0) {
+      drawInfoEl.textContent = `그림 입력 완료 (획 카운트: ${drawnPixels})`;
+    }
+  }
+
+  function pointerPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+  }
+
+  canvas.addEventListener("pointerdown", (e) => {
+    const p = pointerPos(e);
+    startDraw(p.x, p.y);
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener("pointermove", (e) => {
+    const p = pointerPos(e);
+    moveDraw(p.x, p.y);
+  });
+  canvas.addEventListener("pointerup", endDraw);
+  canvas.addEventListener("pointercancel", endDraw);
+
+  function toVector28() {
+    const temp = document.createElement("canvas");
+    temp.width = 28;
+    temp.height = 28;
+    const tctx = temp.getContext("2d");
+    tctx.drawImage(canvas, 0, 0, 28, 28);
+    const data = tctx.getImageData(0, 0, 28, 28).data;
+    const vec = [];
+    for (let i = 0; i < data.length; i += 4) {
+      const gray = data[i];
+      vec.push((255 - gray) / 255);
+    }
+    return vec;
+  }
+
+  function l2(a, b) {
+    let s = 0;
+    for (let i = 0; i < a.length; i++) {
+      const d = a[i] - b[i];
+      s += d * d;
+    }
+    return Math.sqrt(s);
+  }
+
+  function meanVec(vectors) {
+    const out = new Array(vectors[0].length).fill(0);
+    for (const v of vectors) {
+      for (let i = 0; i < v.length; i++) out[i] += v[i];
+    }
+    for (let i = 0; i < out.length; i++) out[i] /= vectors.length;
+    return out;
+  }
+
+  function updateStats() {
+    const counts = { "옆면": 0, "앞면": 0, "윗면": 0, "기타": 0 };
+    for (const s of samples) counts[s.view] += 1;
+    totalSamplesEl.textContent = String(samples.length);
+    viewCountsEl.textContent = `${counts["옆면"]} / ${counts["앞면"]} / ${counts["윗면"]} / ${counts["기타"]}`;
+
+    const nonZeroViews = Object.values(counts).filter(v => v > 0).length;
+    const maxCount = Math.max(...Object.values(counts), 0);
+    const maxRatio = samples.length ? maxCount / samples.length : 0;
+    if (!samples.length) {
+      biasStateEl.textContent = "샘플을 모아주세요.";
+      biasStateEl.className = "mono warn";
+    } else if (samples.length < 8 || nonZeroViews < 2 || maxRatio > 0.75) {
+      biasStateEl.textContent = "편향 위험 높음 (유형 다양성 부족)";
+      biasStateEl.className = "mono warn";
+    } else {
+      biasStateEl.textContent = "편향 위험 낮음 (다양성 양호)";
+      biasStateEl.className = "mono ok";
+    }
+  }
+
+  function addSample() {
+    const vec = toVector28();
+    const ink = vec.reduce((a, b) => a + b, 0);
+    if (ink < 8) {
+      alert("그림이 너무 비어 있어요. 조금 더 진하게 그려주세요.");
+      return;
+    }
+    samples.push({
+      label: objectNameEl.value.trim() || "object",
+      view: viewTypeEl.value,
+      vec
+    });
+    updateStats();
+    predEl.textContent = `샘플 추가 완료 (${samples.length}개)`;
+  }
+
+  function train() {
+    if (samples.length < 3) {
+      alert("최소 3개 이상 샘플이 필요해요.");
+      return;
+    }
+    const vectors = samples.map(s => s.vec);
+    const center = meanVec(vectors);
+    const dists = vectors.map(v => l2(v, center)).sort((a, b) => a - b);
+    const q80 = dists[Math.floor(dists.length * 0.8)] || dists[dists.length - 1];
+    model = {
+      label: objectNameEl.value.trim() || "object",
+      center,
+      threshold: q80 * 1.2
+    };
+    predEl.textContent = `학습 완료! 임계값=${model.threshold.toFixed(3)} (데이터 ${samples.length}개)`;
+  }
+
+  function testNow() {
+    if (!model) {
+      alert("먼저 모델 학습 버튼을 눌러주세요.");
+      return;
+    }
+    const v = toVector28();
+    const dist = l2(v, model.center);
+    const score = Math.max(0, 1 - dist / (model.threshold * 2));
+    const predicted = dist <= model.threshold ? model.label : "자동차 아님/미학습 형태";
+    const verdict = dist <= model.threshold ? "인식 성공" : "인식 실패";
+    predEl.textContent = `${verdict} | 예측: ${predicted} | 유사도: ${(score * 100).toFixed(1)}% | 거리: ${dist.toFixed(3)}`;
+  }
+
+  function exportJson() {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      objectName: objectNameEl.value.trim() || "object",
+      sampleCount: samples.length,
+      samples: samples.map((s, i) => ({ id: i + 1, label: s.label, view: s.view, vec: s.vec }))
+    };
+    const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "quickdraw_collector_dataset.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  document.getElementById("clearBtn").addEventListener("click", resetCanvas);
+  document.getElementById("addBtn").addEventListener("click", addSample);
+  document.getElementById("trainBtn").addEventListener("click", train);
+  document.getElementById("testBtn").addEventListener("click", testNow);
+  document.getElementById("exportBtn").addEventListener("click", exportJson);
+
+  resetCanvas();
+  updateStats();
+</script>
+</body>
+</html>
