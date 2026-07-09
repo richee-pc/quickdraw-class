@@ -78,7 +78,7 @@ def post_json(url: str, payload: dict) -> tuple[bool, str]:
 
 def _init_principle_progress() -> None:
     if "principle_done" not in st.session_state:
-        st.session_state.principle_done = {f"m{i}": False for i in range(1, 6)}
+        st.session_state.principle_done = {f"m{i}": False for i in range(1, 7)}
 
 
 def _mark_principle_done(module_key: str) -> None:
@@ -92,6 +92,13 @@ def _principle_progress_ratio() -> float:
     return sum(1 for v in done.values() if v) / len(done)
 
 
+def _lesson_card(title: str, body: str) -> None:
+    st.markdown(
+        f'<div class="lesson-card"><h4>{title}</h4><p>{body}</p></div>',
+        unsafe_allow_html=True,
+    )
+
+
 def _quiz_block(
     module_key: str,
     quiz_key: str,
@@ -99,6 +106,8 @@ def _quiz_block(
     options: list[str],
     correct_idx: int,
     explanation: str,
+    *,
+    allow_retry: bool = True,
 ) -> None:
     st.markdown(f"**📝 퀴즈:** {question}")
     choice = st.radio(
@@ -113,7 +122,7 @@ def _quiz_block(
             st.success("정답! 🎉")
             st.info(explanation)
             _mark_principle_done(module_key)
-        else:
+        elif allow_retry:
             st.error("아쉽지만 오답이에요. 설명을 다시 읽고 한 번 더 도전해보세요!")
             st.caption(explanation)
 
@@ -181,6 +190,35 @@ st.markdown(
       .stTextInput input, .stTextArea textarea {
         border-radius: 12px !important;
         border-color: #a5b4fc !important;
+      }
+      .lesson-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+        border: 1px solid #93c5fd;
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+      }
+      .lesson-card h4 { color: #7c3aed; margin: 0 0 6px 0; font-size: 15px; }
+      .lesson-card p { margin: 0; color: #475569; font-size: 14px; line-height: 1.55; }
+      .mission-badge {
+        display: inline-block;
+        background: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fcd34d;
+        border-radius: 999px;
+        padding: 3px 11px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-right: 6px;
+      }
+      .link-chip {
+        display: inline-block;
+        background: #ede9fe;
+        color: #6d28d9;
+        border-radius: 8px;
+        padding: 2px 8px;
+        font-size: 12px;
+        margin-top: 4px;
       }
     </style>
     """,
@@ -413,193 +451,296 @@ elif page == "🧠 AI·코딩 핵심 원리":
     _init_principle_progress()
     st.markdown('<div class="section-chip">AI & CODING CORE · 30 MIN</div>', unsafe_allow_html=True)
     st.title("🧠 AI·코딩 핵심 원리")
-    st.caption("약 30분 · 5개 모듈 · 중간중간 퀴즈와 미니 실습으로 개념을 익혀요")
+    st.caption("약 30분 · 6개 미션 · 교재 핵심 개념 + 퀴즈·실습으로 재미있게 익혀요")
     st.markdown(
         """
         <div class="hero">
-          <h3>오늘 배울 핵심</h3>
-          <p>이미지 생성·인식 AI가 어떻게 작동하는지, 데이터 편향이 왜 중요한지, 코랩 실습에 필요한 코딩 개념까지 한 번에 정리해요.</p>
+          <h3>🎮 AI 탐험대 — 오늘의 미션</h3>
+          <p>규칙 AI vs 학습 AI, 이미지 인식(CNN), 데이터 편향, Colab 코딩까지!<br>
+          업로드해 주신 교재(파이썬·캐글·합성곱신경망·규칙기반 AI) 핵심을 수업용으로 재구성했어요.</p>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    st.progress(_principle_progress_ratio(), text=f"학습 진행률 {int(_principle_progress_ratio() * 100)}%")
+    st.progress(_principle_progress_ratio(), text=f"탐험 진행률 {int(_principle_progress_ratio() * 100)}%")
 
-    m1, m2, m3, m4, m5 = st.tabs(
-        ["1️⃣ AI 두 얼굴 (5분)", "2️⃣ AI 4단계 (5분)", "3️⃣ 이미지 인식 (8분)", "4️⃣ 데이터 편향 (7분)", "5️⃣ 코딩 기초 (5분)"]
+    m1, m2, m3, m4, m5, m6 = st.tabs(
+        [
+            "1️⃣ AI 3종류 (5분)",
+            "2️⃣ 학습 4단계 (5분)",
+            "3️⃣ 이미지 인식 (8분)",
+            "4️⃣ 데이터 편향 (5분)",
+            "5️⃣ 결과 분석 (3분)",
+            "6️⃣ 코딩 기초 (4분)",
+        ]
     )
 
     with m1:
-        st.markdown("### 생성형 AI vs 분류 AI")
-        c1, c2 = st.columns(2)
-        with c1:
-            st.markdown(
-                """
-                <div class="card">
-                  <h3>🖌️ 생성형 AI (Generative)</h3>
-                  <p><b>입력:</b> 글(프롬프트)<br>
-                  <b>출력:</b> 새로운 이미지/글<br>
-                  <b>예:</b> 미드저니, DALL·E</p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-        with c2:
-            st.markdown(
-                """
-                <div class="card">
-                  <h3>🔍 분류 AI (Classification)</h3>
-                  <p><b>입력:</b> 그림/사진<br>
-                  <b>출력:</b> 이름(라벨)<br>
-                  <b>예:</b> 퀵드로우, 얼굴 인식</p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-        st.info("오늘 수업: 미드저니(생성) + 퀵드로우(분류)를 모두 다룹니다. 같은 'AI'지만 하는 일이 완전히 달라요!")
+        st.markdown("### 🤖 AI는 '방식'마다 다르게 일해요")
+        _lesson_card(
+            "📏 규칙기반 AI (Rule-based)",
+            "사람이 <b>IF ~ THEN ~</b> 규칙을 직접 적어 둡니다.<br>"
+            "예: <i>IF 동그라미 모양 THEN 고양이</i> → 규칙에 없는 그림은 못 맞춤.<br>"
+            "늑대·염소·양배추 문제처럼 <b>정해진 규칙</b>으로 푸는 방식이에요.",
+        )
+        _lesson_card(
+            "📚 학습형 AI (Machine Learning)",
+            "사람이 규칙을 다 적지 않고, <b>데이터를 많이 보여주면</b> AI가 스스로 패턴을 찾아요.<br>"
+            "오늘 만드는 <b>퀵드로우</b>, Teachable Machine(개/고양이 분류)이 여기에 해당!",
+        )
+        _lesson_card(
+            "🎨 생성형 AI (Generative)",
+            "글(프롬프트)을 넣으면 <b>새로운 그림·글</b>을 만들어 줍니다.<br>"
+            "오늘 쓰는 <b>미드저니</b>가 대표예요. (Stable Diffusion도 같은 계열)",
+        )
+        st.markdown(
+            """
+            | AI 종류 | 입력 | 출력 | 오늘 수업 예시 |
+            |---|---|---|---|
+            | 규칙기반 | 상황·조건 | IF-THEN 답 | (개념 이해용) |
+            | 학습형(분류) | 그림/사진 | 이름(라벨) | 퀵드로우, 수집기 |
+            | 생성형 | 글(프롬프트) | 새 이미지 | 미드저니 |
+            """
+        )
+        st.markdown('<span class="mission-badge">미션 1</span> 아래 퀴즈를 풀어보세요!', unsafe_allow_html=True)
         _quiz_block(
             "m1",
             "quiz_m1",
-            "미드저니에 'cute cat'이라고 입력하면 어떤 일이 일어날까요?",
-            ["고양이 그림을 새로 만들어준다", "내가 그린 고양이를 맞춰준다", "고양이 사진을 삭제한다"],
+            "Teachable Machine에 개·고양이 사진 10장씩 넣고 'Train'을 누르면?",
+            [
+                "데이터를 보고 개/고양이를 구분하는 AI가 만들어진다",
+                "미드저니처럼 새 고양이 그림이 생성된다",
+                "IF-THEN 규칙 100개가 자동으로 작성된다",
+            ],
             0,
-            "생성형 AI는 텍스트를 받아 **새로운 이미지**를 만듭니다. 분류 AI는 이미 있는 그림을 보고 **이름을 맞춥니다**.",
+            "Teachable Machine은 **학습형(분류) AI**입니다. 데이터로 패턴을 익혀 '이건 개! 이건 고양이!'라고 맞춥니다.",
         )
 
     with m2:
-        st.markdown("### AI가 똑똑해지는 4단계")
+        st.markdown("### 🔄 AI가 똑똑해지는 4단계 + 시험 보는 법")
         s1, s2, s3, s4 = st.columns(4)
-        s1.success("**1. 데이터**\n\n예: 낙서 1000장")
-        s2.success("**2. 학습**\n\n패턴 찾기")
-        s3.success("**3. 모델**\n\n학습된 두뇌")
+        s1.success("**1. 데이터**\n\n교과서=학습용 그림")
+        s2.success("**2. 학습**\n\n패턴 익히기")
+        s3.success("**3. 모델**\n\n시험 전 두뇌")
         s4.success("**4. 추론**\n\n새 그림 맞히기")
+        _lesson_card(
+            "⚠️ 학습 ≠ 암기!",
+            "캐글 타이타닉 대회처럼, AI는 <b>train(학습용)</b> 데이터로 공부하고 "
+            "<b>test(시험용)</b> 데이터로 <b>일반화</b>를 확인해요.<br>"
+            "학습 데이터만 외우면 → 새 그림·새 상황에서 바로 틀립니다.",
+        )
         st.markdown(
             """
-            | 단계 | 비유 | 오늘 수업에서 |
+            | 단계 | 쉬운 비유 | 오늘 수업 |
             |---|---|---|
-            | 데이터 | 교과서 문제집 | 수집기에서 직접 그림 |
-            | 학습 | 문제 풀며 공부 | Colab에서 모델 학습 |
-            | 모델 | 시험 전 머릿속 | 학습 완료된 AI |
+            | 데이터 | 문제집 모으기 | 수집기에서 낙서 그리기 |
+            | 학습 | 문제 풀며 패턴 찾기 | Colab `model.fit()` |
+            | 모델 | 시험 전 정리된 두뇌 | 학습 완료된 CNN |
             | 추론 | 실전 시험 | 펜마우스로 그려서 테스트 |
             """
         )
-        st.markdown("**🧪 미니 실습:** 아래 단계를 올바른 순서로 배열해보세요.")
+        st.markdown("**🧪 미니 실습 ①:** 4단계 순서 맞추기")
         order_pick = st.multiselect(
-            "순서대로 클릭 (1→2→3→4)",
+            "순서대로 선택 (1→2→3→4)",
             ["추론", "데이터", "학습", "모델"],
             default=[],
             key="order_practice",
         )
         if st.button("순서 확인", key="order_check"):
             if order_pick == ["데이터", "학습", "모델", "추론"]:
-                st.success("완벽해요! AI는 항상 데이터 → 학습 → 모델 → 추론 순서로 진행됩니다.")
+                st.success("완벽! AI는 항상 데이터 → 학습 → 모델 → 추론 순서예요.")
+            else:
+                st.warning(f"현재: {' → '.join(order_pick) if order_pick else '(없음)'} · 정답: 데이터 → 학습 → 모델 → 추론")
+
+        st.markdown("**🧪 미니 실습 ②:** train / test 역할 고르기")
+        split_choice = st.radio(
+            "수집기에서 80장 그리고, 처음 보는 20장으로 테스트한다면?",
+            [
+                "80장=train(학습), 20장=test(시험) — 맞는 방법!",
+                "20장=train, 80장=test — 반대로 해야 한다",
+                "100장 전부 train — 시험은 필요 없다",
+            ],
+            key="split_choice",
+        )
+        if st.button("train/test 확인", key="split_check"):
+            if "80장=train" in split_choice:
+                st.success("정답! 새 데이터로 테스트해야 '진짜 실력'을 알 수 있어요.")
                 _mark_principle_done("m2")
             else:
-                st.warning(f"현재 선택: {' → '.join(order_pick) if order_pick else '(없음)'} · 정답: 데이터 → 학습 → 모델 → 추론")
+                st.error("힌트: 대부분은 학습용, 일부는 처음 보는 그림으로 시험봐요.")
 
     with m3:
-        st.markdown("### 컴퓨터는 그림을 어떻게 볼까?")
-        st.markdown(
-            """
-            1. **픽셀**: 그림은 작은 사각형(픽셀)의 모음. 각 픽셀은 0~255 밝기 값.
-            2. **정규화**: 0~255 → 0~1로 바꿔 학습을 안정적으로 (`÷ 255`).
-            3. **CNN(합성곱 신경망)**: 그림에서 **선·모양·패턴**을 단계적으로 찾는 AI 구조.
-            """
+        st.markdown("### 👁️ 컴퓨터는 그림을 '숫자'로 봐요")
+        _lesson_card(
+            "🔢 픽셀 & 정규화",
+            "그림 = 작은 사각형(픽셀)의 모음. 각 픽셀 밝기는 <b>0~255</b>.<br>"
+            "학습 전 <b>÷ 255</b>로 0~1로 바꾸면 AI가 더 안정적으로 공부해요. (Colab의 <code>DIVISOR = 255</code>)",
+        )
+        _lesson_card(
+            "🔍 합성곱(Convolution) — 3×3 돋보기",
+            "3×3 작은 필터를 그림 위에서 슬라이드하며 <b>선·곡선·에지</b>를 찾아요.<br>"
+            "딥러닝 CNN의 Conv2D 층이 바로 이 역할! (교재 7장 합성곱 신경망)",
         )
         st.code(
-            "# 28×28 흑백 그림 100장 → (100, 28, 28, 1)\n"
-            "shape = (N, height, width, channels)\n"
-            "normalized = image / 255.0",
+            "# MNIST·퀵드로우 공통: 28×28 흑백\n"
+            "x = image.reshape(-1, 28, 28, 1)  # (장수, 높이, 너비, 채널)\n"
+            "x = x / 255.0                     # 0~1 정규화\n"
+            "# Conv2D → MaxPooling → Flatten → Dense → '고양이!'",
             language="python",
         )
         st.markdown(
             """
-            **CNN 레이어 역할 (쉬운 비유)**
-            - `Conv2D`: 돋보기로 특징(선, 곡선) 찾기
-            - `MaxPooling`: 중요한 정보만 남기기
-            - `Flatten` + `Dense`: 찾은 특징으로 최종 답(라벨) 고르기
+            **CNN 레이어 — 게임 캐릭터 스킬 트리 🎮**
+            | 레이어 | 하는 일 | 게임 비유 |
+            |---|---|---|
+            | Conv2D | 선·모양 특징 찾기 | 🔍 탐색 스킬 |
+            | MaxPooling | 중요 정보만 남기기 | 🗜️ 압축 스킬 |
+            | Flatten + Dense | 최종 답 고르기 | 🎯 필살기 |
             """
         )
+        st.caption("참고: [Teachable Machine](https://teachablemachine.withgoogle.com) · 에포크·배치 크기 조절도 가능!")
         _quiz_block(
             "m3",
             "quiz_m3",
-            "28×28 흑백 그림 50장을 학습할 때, 올바른 shape는?",
-            ["(50, 28, 28, 1)", "(50, 28, 28)", "(28, 28, 50, 1)", "(1, 50, 28, 28)"],
+            "28×28 흑백 그림 50장을 CNN에 넣을 때 올바른 shape는?",
+            ["(50, 28, 28, 1)", "(50, 28, 28)", "(28, 28, 50)", "(1, 50, 28, 28)"],
             0,
-            "N=50장, 높이=28, 너비=28, 채널=1(흑백) → **(50, 28, 28, 1)** 이 맞습니다.",
+            "N=50장, 28×28 크기, 채널=1(흑백) → **(50, 28, 28, 1)**. Colab TODO에서 shape를 채울 때 기억하세요!",
         )
 
     with m4:
-        st.markdown("### 데이터 편향 — AI가 틀리는 대표 이유")
+        st.markdown("### ⚖️ 데이터 편향 — AI가 특정 그림만 잘 맞히는 이유")
+        _lesson_card(
+            "🚗 수집기 실험과 연결",
+            "자동차 <b>옆면만</b> 100장 → 앞면·윗면은 못 맞힘.<br>"
+            "Teachable Machine에서 <b>정면 고양이만</b> 200장 → 옆모습 고양이는 '개'로 오인식.<br>"
+            "→ <b>데이터가 한쪽으로 치우치면</b> AI도 한쪽만 잘 봐요!",
+        )
         st.markdown(
             """
-            **데이터 편향(Bias)**: 학습 데이터가 특정 유형에만 치우쳐 있을 때 발생.
-
-            | 상황 | 결과 |
-            |---|---|
-            | 자동차 옆면만 100장 | 앞면·윗면은 못 맞힘 |
-            | 큰 글씨만 학습 | 작은 글씨 오인식 |
-            | 한 사람 손글씨만 | 다른 사람 글씨 실패 |
+            | 편향 상황 | AI가 겪는 문제 | 해결 방법 |
+            |---|---|---|
+            | 한 각도만 많음 | 다른 각도 오인식 | 크기·방향·위치 다양하게 |
+            | 한 사람 그림만 | 다른 사람 그림 실패 | 여러 명이 함께 그리기 |
+            | 배경이 항상 같음 | 배경 바뀌면 실패 | 다양한 위치에 그리기 |
             """
         )
-        st.warning("수집기 체험에서 '같은 물체를 다양한 각도·크기로' 그리는 이유가 바로 편향을 줄이기 위해서예요!")
-        st.markdown("**🧪 시나리오 실습:** 팀 토론 후 답을 골라보세요.")
+        st.markdown("**🧪 팀 토론 실습:** 시나리오를 읽고 가장 좋은 해결책을 고르세요.")
         _quiz_block(
             "m4",
             "quiz_m4",
-            "고양이 정면 사진만 200장 학습했다면, 가장 가능성 높은 문제는?",
-            ["고양이 옆모습을 '개'로 착각", "정면 고양이는 잘 맞힘", "그림 생성 속도가 느려짐"],
+            "팀원 4명 모두 '옆모습 자동차'만 그렸다. AI가 앞모습을 못 맞힌다면?",
+            [
+                "다양한 각도·크기로 추가 데이터를 더 수집한다",
+                "에포크를 1000으로 늘린다",
+                "미드저니로 배경만 바꾼다",
+            ],
             0,
-            "한 각도/유형만 많으면 **다른 각도**에서 성능이 떨어집니다. 이것이 데이터 편향의 대표 사례예요.",
+            "정답은 **데이터 다양성**! 에포크를 늘려도 편향된 데이터면 근본 해결이 어려워요.",
         )
-        st.markdown("**✍️ 한 줄 실습:** 내 팀이 수집기에서 그릴 때 주의할 점 1가지")
-        bias_note = st.text_input("예: 크기와 방향을 다양하게 그리기", key="bias_note")
-        if st.button("실습 기록 저장", key="bias_note_save"):
+        st.markdown("**✍️ 우리 팀 다짐 한 줄**")
+        bias_note = st.text_input("수집기에서 지킬 규칙 1가지", key="bias_note", placeholder="예: 3가지 크기 + 2가지 방향으로 그리기")
+        if st.button("다짐 기록", key="bias_note_save"):
             if bias_note.strip():
-                st.success(f"기록됨: {bias_note.strip()}")
+                st.success(f"📝 기록됨: {bias_note.strip()}")
                 _mark_principle_done("m4")
             else:
                 st.warning("한 줄이라도 적어주세요!")
 
     with m5:
-        st.markdown("### Colab 실습에 꼭 필요한 코딩 4종")
+        st.markdown("### 📊 정확도만 보면 속을 수 있어요 — Confusion Matrix")
+        _lesson_card(
+            "🎯 Confusion Matrix란?",
+            "AI가 <b>정답(타깃)</b> vs <b>예측(출력)</b>을 표로 정리한 것.<br>"
+            "대각선 = 맞힌 횟수. 대각선 밖 = 틀린 횟수.<br>"
+            "교재 7장: 정확도 90%여도 <b>특정 클래스끼리만</b> 헷갈릴 수 있어요!",
+        )
         st.markdown(
             """
-            | 개념 | 역할 | 오늘 쓰는 곳 |
+            **예시:** 3-class 분류, 둘 다 정확도 90%
+            - **모델 A**: 에러가 골고루 → 전반적으로 보통
+            - **모델 B**: A↔B 사이에만 에러 집중 → **A와 B 데이터를 더 다양하게** 모으면 크게 개선!
+
+            👉 오늘 수집기에서 "어떤 모양끼리 헷갈리는지" 기록하면 Confusion Matrix 분석과 같아요!
+            """
+        )
+        st.markdown("**🧪 퀴즈:** Confusion Matrix 해석")
+        _quiz_block(
+            "m5",
+            "quiz_m5",
+            "정확도 85%인데 '고양이→개' 오인식만 집중된다면 가장 효과적인 조치는?",
+            [
+                "고양이·개 그림을 더 다양한 각도로 추가 수집",
+                "학습 에포크를 0으로 줄인다",
+                "프롬프트에 'cute'를 더 넣는다",
+            ],
+            0,
+            "Confusion Matrix에서 **특정 쌍**에 오류가 몰리면, 그 클래스의 **데이터를 더 다양하게** 모으는 게 핵심!",
+        )
+
+    with m6:
+        st.markdown("### 💻 Colab 실습 전 코딩 4종 세트")
+        _lesson_card(
+            "📚 라이브러리 = 도서관 책 이름표",
+            "numpy(배열), pandas(표), keras(CNN)처럼 <b>미리 만들어 둔 코드 묶음</b>이에요.<br>"
+            "<code>import numpy as np</code> → 도서관에서 'numpy' 책 꺼내 쓰기!",
+        )
+        st.markdown(
+            """
+            | 개념 | 역할 | Colab에서 쓰는 곳 |
             |---|---|---|
-            | **변수** | 값 저장 | `DIVISOR = 255` |
-            | **리스트** | 여러 값 묶기 | 클래스 이름 목록 |
+            | **변수** | 값 저장 (메모리 태그) | `DIVISOR = 255` |
+            | **리스트** | 여러 값 묶기 | `labels = ['cat','dog']` |
             | **함수** | 반복 코드 재사용 | `add_conv_block()` |
-            | **for / if** | 반복·조건 | 데이터 처리, 분기 |
+            | **for / if** | 반복·조건 분기 | 데이터 처리, 정규화 |
             """
         )
         st.code(
-            "DIVISOR = 255          # 변수\n"
-            "labels = ['cat', 'dog']  # 리스트\n"
-            "def normalize(x):      # 함수\n"
-            "    return x / DIVISOR\n"
-            "for img in images:     # 반복\n"
-            "    if img.max() > 1:  # 조건\n"
+            "DIVISOR = 255\n"
+            "labels = ['cat', 'apple', 'car']\n"
+            "def normalize(img):\n"
+            "    return img / DIVISOR\n"
+            "for img in images:\n"
+            "    if img.max() > 1:\n"
             "        img = normalize(img)",
             language="python",
         )
-        st.markdown("**🧪 빈칸 채우기:** 아래 코드에서 `???`에 들어갈 값은?")
-        fill_answer = st.text_input("정답 입력 (숫자만)", key="fill_divisor", placeholder="255")
-        if st.button("빈칸 확인", key="fill_check"):
+        st.markdown("**🧪 빈칸 챌우기 ①:** 픽셀 정규화")
+        fill_answer = st.text_input("DIVISOR = ?", key="fill_divisor", placeholder="숫자")
+        if st.button("정규화 확인", key="fill_check"):
             if fill_answer.strip() == "255":
-                st.success("맞아요! 255로 나누면 0~1 범위로 정규화됩니다.")
-                _mark_principle_done("m5")
+                st.success("맞아요! 0~255 → 0~1로 바꿔 CNN 학습이 안정적이에요.")
             else:
                 st.error("힌트: 픽셀 최대값은 255입니다.")
-        st.info("Colab 노트북의 TODO 칸을 채울 때, 위 4가지 개념을 떠올리면 훨씬 수월해요!")
+
+        st.markdown("**🧪 빈칸 채우기 ②:** for + if 조합")
+        loop_answer = st.radio(
+            "모든 이미지를 255로 나누려면?",
+            [
+                "for img in images: img = img / 255",
+                "if img > 0: print('hello')",
+                "labels = ['cat']",
+            ],
+            key="loop_answer",
+        )
+        if st.button("반복문 확인", key="loop_check"):
+            if "for img in images" in loop_answer:
+                st.success("정답! for 반복문으로 모든 이미지에 같은 처리를 적용해요.")
+                _mark_principle_done("m6")
+            else:
+                st.error("힌트: '모든 이미지' → for 반복문이 필요해요.")
+
+        st.info("Colab 노트북 TODO 칸을 채울 때: 변수 → 함수 → for/if 순서로 떠올려 보세요!")
 
     st.divider()
+    done_count = sum(1 for v in st.session_state.principle_done.values() if v)
+    st.markdown(f"**완료한 미션:** {done_count} / 6")
     if _principle_progress_ratio() >= 1.0:
         st.balloons()
-        st.success("🎓 5개 모듈을 모두 완료했어요! 이제 **수집기 체험**으로 데이터 편향을 직접 확인해보세요.")
+        st.success("🎓 6개 미션 클리어! 이제 **수집기 체험**으로 데이터 편향을 직접 실험해 보세요.")
     else:
-        remaining = [k for k, v in st.session_state.principle_done.items() if not v]
-        st.caption(f"아직 완료하지 않은 모듈: {', '.join(remaining)} · 각 탭의 퀴즈/실습을 마치면 진행률이 올라갑니다.")
+        remaining = [k.replace("m", "미션 ") for k, v in st.session_state.principle_done.items() if not v]
+        st.caption(f"남은 미션: {', '.join(remaining)} · 각 탭의 퀴즈/실습을 완료하면 진행률이 올라갑니다.")
 
 # ------------------------------------------------------------------ 수집기 체험
 elif page == "🧩 데이터 학습·편향 (수집기)":
