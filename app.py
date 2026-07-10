@@ -1091,7 +1091,7 @@ elif page == "📎 참고자료":
 
     st.divider()
     st.markdown("### 📘 학생용 강의원고 (6시간 · 70페이지)")
-    st.caption("웹앱 전체 내용을 담은 인쇄용 PDF입니다. 수업 전 배포하거나 필기용으로 활용하세요.")
+    st.caption("웹앱 전체 내용 · 16:9 슬라이드형 · 60페이지 · 인쇄·프로젝터용")
     ms_path = BASE / MANUSCRIPT_FILE
     if ms_path.exists():
         st.download_button(
