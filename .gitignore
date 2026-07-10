@@ -4,3 +4,4 @@ __pycache__/
 data/
 *.npy
 .venv/
+assets/manuscript/images/extracted/

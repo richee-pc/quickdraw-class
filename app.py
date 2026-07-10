@@ -26,6 +26,7 @@ st.set_page_config(
 NOTEBOOK_FILE = "커스텀_퀵드로우.ipynb"
 SLIDES_FILE = "슬라이드.html"
 WORKSHEET_FILE = "학습지.html"
+MANUSCRIPT_FILE = "학생용_강의원고_6시간_AISW_퀵드로우_2026.pdf"
 
 # GitHub 저장소 정보 — 이 노트북을 Colab에서 바로 열도록 자동 연결합니다.
 GITHUB_OWNER_REPO = "richee-pc/quickdraw-class"
@@ -1087,6 +1088,21 @@ elif page == "📎 참고자료":
         만들 것: ① 게임 제목 로고 ② 정답 캐릭터(마스코트) ③ 배경
         """
     )
+
+    st.divider()
+    st.markdown("### 📘 학생용 강의원고 (6시간 · 70페이지)")
+    st.caption("웹앱 전체 내용을 담은 인쇄용 PDF입니다. 수업 전 배포하거나 필기용으로 활용하세요.")
+    ms_path = BASE / MANUSCRIPT_FILE
+    if ms_path.exists():
+        st.download_button(
+            "⬇️ 강의원고 PDF 내려받기",
+            data=ms_path.read_bytes(),
+            file_name=MANUSCRIPT_FILE,
+            mime="application/pdf",
+            type="primary",
+        )
+    else:
+        st.info("강의원고 PDF 파일이 저장소에 없습니다.")
 
     st.divider()
     st.markdown("### 📦 저장 위치 확인(수집기/학습지 제출)")
