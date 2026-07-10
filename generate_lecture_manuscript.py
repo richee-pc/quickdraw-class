@@ -153,6 +153,28 @@ def wrap_text(text: str, max_chars: int) -> list[str]:
     return lines or [""]
 
 
+def wrap_line_width(text: str, font_name: str, font_size: float, max_w: float) -> list[str]:
+    """실제 글자 너비 기준 줄바꿈 (잘림 방지)."""
+
+    def width(s: str) -> float:
+        return pdfmetrics.stringWidth(s, font_name, font_size)
+
+    if width(text) <= max_w:
+        return [text]
+    words, lines, cur = text.split(), [], ""
+    for w in words:
+        test = f"{cur} {w}".strip()
+        if width(test) <= max_w:
+            cur = test
+        else:
+            if cur:
+                lines.append(cur)
+            cur = w
+    if cur:
+        lines.append(cur)
+    return lines or [text]
+
+
 def chars_per_line(text_w: float, font_size: float) -> int:
     """한글 기준 대략적인 한 줄 글자 수."""
     return max(8, int(text_w / (font_size * 0.55)))
@@ -345,16 +367,31 @@ class SlideRenderer:
         ty = top - ascent
         min_y = bottom + descent
 
+        rendered: list[str] = []
         for line in lines:
+            prefix = "• " if bullet and not line.startswith("•") else ""
+            for sub in wrap_line_width(prefix + line, fn, size, inner_w):
+                rendered.append(sub)
+
+        for text in rendered:
             if ty < min_y:
                 break
-            prefix = "• " if bullet and not line.startswith("•") else ""
-            text = prefix + line
-            while len(text) > 1 and c.stringWidth(text, fn, size) > inner_w:
-                text = text[:-2] + "…"
             c.drawString(inner_x, ty, text)
             ty -= leading
         c.restoreState()
+
+    def _draw_title(self, title: str, title_y: float, title_size: float, color) -> float:
+        """제목 줄바꿈 (최대 2줄), 사용한 세로 높이 반환."""
+        c = self.c
+        c.setFont(FONT_TITLE, title_size)
+        c.setFillColor(color)
+        max_w = SLIDE_W - MX * 2
+        cpl = chars_per_line(max_w, title_size)
+        title_lines = wrap_text(title, cpl)[:2]
+        lead = title_size * 1.28
+        for i, ln in enumerate(title_lines):
+            c.drawString(MX, title_y - i * lead, ln)
+        return len(title_lines) * lead
 
     def _text_block(
         self,
@@ -403,12 +440,10 @@ class SlideRenderer:
         title_y = chip_y - 52
         title_color = colors.white if hero else colors.HexColor("#0f172a")
         title_size = SZ_TITLE_HERO if hero else SZ_TITLE
-        c.setFont(FONT_TITLE, title_size)
-        c.setFillColor(title_color)
-        c.drawString(MX, title_y, title[:24])
+        title_used = self._draw_title(title, title_y, title_size, title_color)
 
-        # 제목 아래 충분한 간격 후 카드 시작 (대형 본문과 겹침 방지)
-        card_top = title_y - title_size - 24
+        # 제목 아래 충분한 간격 후 카드 시작
+        card_top = title_y - title_used - 16
         card_y = CARD_BOTTOM
         card_h = card_top - card_y
         content_w = SLIDE_W - MX * 2
@@ -447,15 +482,13 @@ class SlideRenderer:
             ascent = pdfmetrics.getAscent(FONT_BODY) / 1000.0 * hero_sz
             ty = card_y + card_h - PAD_IN - ascent
             min_y = card_y + PAD_IN
+            max_w = text_w - PAD_IN * 2
             for line in hero_lines:
-                if ty < min_y:
-                    break
-                text = line
-                max_w = text_w - PAD_IN * 2
-                while len(text) > 1 and c.stringWidth(text, FONT_BODY, hero_sz) > max_w:
-                    text = text[:-2] + "…"
-                c.drawString(MX + PAD_IN, ty, text)
-                ty -= hero_lead
+                for sub in wrap_line_width(line, FONT_BODY, hero_sz, max_w):
+                    if ty < min_y:
+                        break
+                    c.drawString(MX + PAD_IN, ty, sub)
+                    ty -= hero_lead
             c.restoreState()
             if img_path:
                 self._draw_image(img_path, img_x, card_y, img_w, card_h)
@@ -475,7 +508,7 @@ class SlideRenderer:
         if box:
             reserve_bottom += 82
         if tip:
-            tip_lines_tmp = wrap_text(f"💡 TIP  {tip}", chars_per_line(card_w - PAD_IN * 2, SZ_TIP))
+            tip_lines_tmp = wrap_text(f"TIP  {tip}", chars_per_line(card_w - PAD_IN * 2, SZ_TIP))
             reserve_bottom += 24 + len(tip_lines_tmp) * 20 + 8
 
         body_box_h = card_h - reserve_bottom
@@ -486,6 +519,27 @@ class SlideRenderer:
         if two_col_bullets:
             body_size = SZ_BODY if has_img else SZ_BODY_FULL
             body_leading = LEAD_BODY if has_img else LEAD_FULL
+            summary_h = 0
+            if body:
+                summary_lines, body_size, body_leading = fit_body_lines(
+                    body,
+                    inner_text_w,
+                    inner_text_h * 0.55,
+                    full_width=not has_img,
+                    is_bullet=False,
+                    allow_grow=False,
+                )
+                summary_h = len(summary_lines) * body_leading + 10
+                self._text_in_box(
+                    summary_lines,
+                    MX,
+                    card_y + reserve_bottom + body_box_h - summary_h,
+                    card_w,
+                    summary_h,
+                    size=body_size,
+                    leading=body_leading,
+                )
+            col_box_h = max(60, body_box_h - summary_h - 6)
             mid = (len(two_col_bullets) + 1) // 2
             col_w = inner_text_w / 2
             left_lines = []
@@ -496,13 +550,12 @@ class SlideRenderer:
             for item in two_col_bullets[mid:]:
                 for sub in wrap_text(item.lstrip("• "), chars_per_line(col_w - 8, body_size)):
                     right_lines.append(f"• {sub}")
-            half_h = inner_text_h
             self._text_in_box(
-                left_lines, MX, card_y + reserve_bottom, card_w / 2, body_box_h,
+                left_lines, MX, card_y + reserve_bottom, card_w / 2, col_box_h,
                 size=body_size, leading=body_leading, bullet=False,
             )
             self._text_in_box(
-                right_lines, MX + card_w / 2, card_y + reserve_bottom, card_w / 2, body_box_h,
+                right_lines, MX + card_w / 2, card_y + reserve_bottom, card_w / 2, col_box_h,
                 size=body_size, leading=body_leading, bullet=False,
             )
         else:
@@ -535,7 +588,7 @@ class SlideRenderer:
             self.c.roundRect(bx, by, box_w, box_h, 8, fill=1, stroke=1)
             c.setFont(FONT_TITLE, SZ_BOX_TITLE)
             c.setFillColor(colors.HexColor("#7c2d12"))
-            c.drawString(bx + 12, by + box_h - 22, f"🎯 {box[0]}")
+            c.drawString(bx + 12, by + box_h - 22, box[0])
             c.setFont(FONT_BODY, SZ_BOX_BODY)
             for i, ln in enumerate(wrap_text(box[1], chars_per_line(box_w - 24, SZ_BOX_BODY))[:2]):
                 c.drawString(bx + 12, by + box_h - 44 - i * 18, ln)
@@ -545,7 +598,7 @@ class SlideRenderer:
             self.c.saveState()
             self.c.setFillColor(C_TIP_BG)
             self.c.setStrokeColor(C_TIP_BORDER)
-            tip_lines = wrap_text(f"💡 TIP  {tip}", chars_per_line(card_w - PAD_IN * 2, SZ_TIP))
+            tip_lines = wrap_text(f"TIP  {tip}", chars_per_line(card_w - PAD_IN * 2, SZ_TIP))
             th = 24 + len(tip_lines) * 18
             ty0 = card_y + PAD_IN + (82 if box else 0)
             self.c.roundRect(MX + PAD_IN, ty0, card_w - PAD_IN * 2, th, 8, fill=1, stroke=1)
@@ -582,8 +635,8 @@ def build_slides() -> list[dict]:
     ], tip="실습은 Streamlit 웹앱 메뉴를 따라 진행하세요")
 
     add("목차", "60 슬라이드 개념 로드맵", [
-        "제1부  AI와 이미지 인텔리전스 개요 (5~12)",
-        "제2부  AI 학습의 4단계와 일반화 (13~22)",
+        "제1부  AI와 이미지 AI 개요 (5~12)",
+        "제2부  AI 학습 4단계와 일반화 (13~22)",
         "제3부  이미지 인식·분류 기술 (23~34)",
         "제4부  이미지 생성 AI 기술 (35~42)",
         "제5부  데이터 편향과 AI 윤리 (43~52)",
@@ -606,27 +659,27 @@ def build_slides() -> list[dict]:
     ], hero=True, img="ai_brain.jpg")
 
     add("제1부", "이미지 AI의 두 갈래", [
-        "🔍 인식·분류: 그림→이름 (퀵드로우, 얼굴인식)",
-        "🖌️ 생성: 글→새 그림 (미드저니, DALL·E)",
-        "입력과 출력이 정반대!",
+        "인식·분류: 그림 → 이름 (퀵드로우 등)",
+        "생성: 글 → 새 그림 (미드저니 등)",
+        "입력과 출력 방향이 정반대!",
     ], img="drawing_pad.jpg")
 
     add("제1부", "규칙 기반 AI", [
         "사람이 IF-THEN 규칙을 직접 작성",
-        "예: IF 동그라미 THEN 고양이",
-        "규칙 밖 상황은 처리 불가",
+        "예: IF 모양=동그라미 THEN 답=고양이",
+        "규칙에 없는 상황은 처리 어려움",
     ], img="pptx_6장_규칙기_s4_2")
 
-    add("제1부", "학습형 AI (Machine Learning)", [
+    add("제1부", "학습형 AI (ML)", [
         "데이터를 많이 보여주면 패턴을 스스로 학습",
-        "규칙을 일일이 적지 않아도 새 상황 대응",
+        "규칙을 일일이 적지 않아도 새 상황에 대응",
         "이미지 분류·인식의 핵심 방식",
     ], img="07_p6_3")
 
     add("제1부", "생성형 AI (Generative AI)", [
-        "텍스트·이미지 등에서 '새로운' 결과 생성",
+        "텍스트 등을 입력으로 새 콘텐츠 생성",
         "학습 데이터의 패턴을 바탕으로 창작",
-        "프롬프트(명령문)로 결과를 조절",
+        "프롬프트(명령문)로 결과 조절",
     ], img="pptx_6장_규칙기_s61_48")
 
     add("제1부", "세 가지 AI 비교", [
@@ -653,8 +706,8 @@ def build_slides() -> list[dict]:
 
     # ── 제2부: 학습 4단계 (10장) 13~22 ──
     add("제2부", "AI 학습 4단계", [
-        "1 데이터  2 학습  3 모델  4 추론",
-        "모든 학습형 AI의 공통 파이프라인",
+        "데이터 → 학습 → 모델 → 추론",
+        "모든 학습형 AI의 공통 흐름",
     ], hero=True, img="pptx_데이터 수집_s3_0")
 
     add("제2부", "1단계 — 데이터 (Data)", [
@@ -676,21 +729,21 @@ def build_slides() -> list[dict]:
     ], img="neural_net.png")
 
     add("제2부", "4단계 — 추론 (Inference)", [
-        "처음 보는 입력에 대해 결과 예측",
-        "학습 때 본 적 없는 그림도 테스트",
-        "실제 서비스에서 쓰는 단계",
+        "학습에 쓰이지 않은 새 데이터로 예측",
+        "실제 서비스·앱에서 동작하는 단계",
+        "모델 파일을 불러와 결과 출력",
     ], img="07_p40_1")
 
     add("제2부", "학습 vs 암기 — 일반화", [
-        "암기: 본 문제만 맞힘",
-        "일반화: 새 문제도 맞힘",
-        "train 데이터로 공부, test로 실력 검증",
-    ], tip="시험 문제를 미리 외우면 test 점수는 의미 없음")
+        "암기: train 데이터만 맞힘",
+        "일반화: 처음 보는 test도 맞힘",
+        "train으로 공부, test로 실력 검증",
+    ], tip="시험 문제를 미리 외우면 test 점수는 의미가 없어요")
 
     add("제2부", "train / test 분리", [
-        "train: AI가 공부하는 데이터",
-        "test: 처음 보는 시험 데이터",
-        "test 성능이 '진짜 실력'",
+        "train(훈련): AI가 공부하는 데이터",
+        "test(시험): 처음 보는 평가 데이터",
+        "test 성능이 '진짜 실력'에 가까움",
     ], img="07_p32_1")
 
     add("제2부", "에포크·배치·검증", [
@@ -767,7 +820,7 @@ def build_slides() -> list[dict]:
     ], img="07_p41_1")
 
     add("제3부", "Confusion Matrix", [
-        "정답(세로) vs 예측(가로) 표",
+        "실제 정답(세로) × 모델 예측(가로)",
         "대각선 = 맞힌 횟수",
         "어떤 클래스끼리 헷갈리는지 분석",
     ], img="07_p43_3")
@@ -793,15 +846,15 @@ def build_slides() -> list[dict]:
     ], hero=True, img="pptx_6장_규칙기_s61_48")
 
     add("제4부", "생성 AI 작동 원리 (개요)", [
-        "대량 이미지-텍스트 쌍으로 학습",
-        "텍스트 의미와 시각 패턴 연결",
+        "대량의 이미지-텍스트 쌍으로 학습",
+        "글의 의미와 시각 패턴을 연결",
         "새 프롬프트에 맞는 이미지 합성",
     ], img="pptx_6장_규칙기_s50_39")
 
     add("제4부", "프롬프트 (Prompt)", [
         "AI에게 내리는 자연어 명령",
-        "주제+스타일+색감이 결과 좌우",
-        "같은 단어 변경 → 다른 결과",
+        "주제 + 스타일 + 색감이 결과 좌우",
+        "단어 하나 바꿔도 결과가 달라짐",
     ], img="drawing_pad.jpg")
 
     add("제4부", "확산 모델 (Diffusion) 개념", [
@@ -851,9 +904,9 @@ def build_slides() -> list[dict]:
     ], img="pptx_데이터 수집_s9_13")
 
     add("제5부", "이미지 편향 사례", [
-        "옆면 사진만 → 다른 각도 실패",
-        "밝은 피부만 → 어두운 피부 오인식",
-        "큰 글씨만 → 작은 글씨 실패",
+        "옆모습만 많으면 → 다른 각도 실패",
+        "밝은 피부만 많으면 → 인식률 차이",
+        "큰 글씨만 많으면 → 작은 글씨 실패",
     ], img="pptx_데이터 수집_s17_27")
 
     add("제5부", "편향과 Confusion Matrix", [
@@ -948,7 +1001,7 @@ def build_slides() -> list[dict]:
     add("마무리", "개념 학습 완료!", [
         "이제 실습에서 개념이 살아납니다",
         "AI = 데이터 + 알고리즘 + 목적",
-        "궁금한 개념은 슬라이드로 복습하세요 📚",
+        "궁금한 개념은 슬라이드로 복습하세요",
     ], hero=True, img="neural_net.png")
 
     assert len(S) == 60, f"슬라이드 수 {len(S)} != 60"
