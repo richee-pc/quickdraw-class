@@ -16,7 +16,8 @@ from reportlab.pdfgen import canvas
 
 BASE = Path(__file__).parent
 ASSETS = BASE / "assets" / "manuscript"
-FONT_PATH = Path("/usr/share/fonts/truetype/wqy/wqy-microhei.ttc")
+FONT_TITLE_PATH = ASSETS / "fonts" / "GowunDodum-Regular.ttf"
+FONT_BODY_PATH = ASSETS / "fonts" / "GowunDodum-Regular.ttf"
 OUTPUT = BASE / "학생용_강의원고_6시간_AISW_퀵드로우_2026.pdf"
 EXTRACTED = ASSETS / "images" / "extracted"
 WEB = ASSETS / "images" / "web"
@@ -24,7 +25,15 @@ WEB = ASSETS / "images" / "web"
 # PowerPoint 16:9 와이드 (13.333" × 7.5")
 SLIDE_W = 960
 SLIDE_H = 540
-FONT = "WQY"
+FONT_TITLE = "GowunTitle"
+FONT_BODY = "GowunBody"
+
+# 여백 최소화 (풀블리드 레이아웃)
+MX = 14          # 좌우 마진
+MY_TOP = 10      # 상단
+FOOTER_Y = 12    # 하단 푸터
+HEADER_H = 78    # 칩+제목 영역
+CARD_BOTTOM = 34 # 푸터 위 카드 하단
 
 # 웹앱 테마 컬러
 C_SKY = colors.HexColor("#e0f2fe")
@@ -47,8 +56,16 @@ C_BOX_BORDER = colors.HexColor("#fdba74")
 
 
 def register_fonts() -> None:
-    if FONT not in pdfmetrics.getRegisteredFontNames():
-        pdfmetrics.registerFont(TTFont(FONT, str(FONT_PATH), subfontIndex=0))
+    FONT_TITLE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if not FONT_TITLE_PATH.exists():
+        import urllib.request
+
+        url = "https://github.com/google/fonts/raw/main/ofl/gowundodum/GowunDodum-Regular.ttf"
+        urllib.request.urlretrieve(url, FONT_TITLE_PATH)
+    if FONT_TITLE not in pdfmetrics.getRegisteredFontNames():
+        pdfmetrics.registerFont(TTFont(FONT_TITLE, str(FONT_TITLE_PATH)))
+    if FONT_BODY not in pdfmetrics.getRegisteredFontNames():
+        pdfmetrics.registerFont(TTFont(FONT_BODY, str(FONT_BODY_PATH if FONT_BODY_PATH.exists() else FONT_TITLE_PATH)))
 
 
 class ImagePool:
@@ -129,30 +146,31 @@ class SlideRenderer:
         c = self.c
         c.saveState()
         c.setFillColor(C_TEXT_LIGHT)
-        c.setFont(FONT, 8)
-        c.drawString(36, 18, "조선대학교부속고등학교 · 2026 AISW 교실 · 김다은")
-        c.drawRightString(SLIDE_W - 36, 18, f"{num} / {total}")
+        c.setFont(FONT_BODY, 7.5)
+        c.drawString(MX, FOOTER_Y, "조선대학교부속고등학교 · 2026 AISW 교실 · 김다은")
+        c.drawRightString(SLIDE_W - MX, FOOTER_Y, f"{num} / {total}")
         c.restoreState()
 
     def _chip(self, text: str, y: float) -> None:
         c = self.c
         c.saveState()
-        c.setFont(FONT, 9)
-        tw = c.stringWidth(text, FONT, 9)
-        x, h, pad = 36, 22, 12
+        c.setFont(FONT_BODY, 10)
+        tw = c.stringWidth(text, FONT_BODY, 10)
+        x, h, pad = MX, 24, 10
         c.setFillColor(C_CHIP_BG)
         c.setStrokeColor(colors.HexColor("#c4b5fd"))
-        c.roundRect(x, y, tw + pad * 2, h, 11, fill=1, stroke=1)
+        c.roundRect(x, y, tw + pad * 2, h, 12, fill=1, stroke=1)
         c.setFillColor(C_ACCENT)
-        c.drawString(x + pad, y + 6, text)
+        c.drawString(x + pad, y + 7, text)
         c.restoreState()
 
     def _card(self, x: float, y: float, w: float, h: float) -> None:
         c = self.c
         c.saveState()
-        c.setFillColor(C_CARD)
+        c.setFillColor(colors.Color(1, 1, 1, alpha=0.94))
         c.setStrokeColor(colors.HexColor("#c4b5fd"))
-        c.roundRect(x, y, w, h, 14, fill=1, stroke=1)
+        c.setLineWidth(1.2)
+        c.roundRect(x, y, w, h, 12, fill=1, stroke=1)
         c.restoreState()
 
     def _draw_image(self, path: Path | None, x: float, y: float, max_w: float, max_h: float) -> None:
@@ -162,13 +180,16 @@ class SlideRenderer:
 
         ir = ImageReader(str(path))
         iw, ih = ir.getSize()
-        scale = min(max_w / iw, max_h / ih, 1.0)
+        scale = min(max_w / iw, max_h / ih)  # 영역을 꽉 채우도록 확대 허용
         dw, dh = iw * scale, ih * scale
+        # 영역 내 중앙 정렬
+        ox = x + (max_w - dw) / 2
+        oy = y + (max_h - dh) / 2
         self.c.saveState()
         self.c.setStrokeColor(colors.HexColor("#a5b4fc"))
         self.c.setLineWidth(1.5)
-        self.c.roundRect(x - 2, y - 2, dw + 4, dh + 4, 10, fill=0, stroke=1)
-        self.c.drawImage(ir, x, y, width=dw, height=dh, mask="auto")
+        self.c.roundRect(ox - 3, oy - 3, dw + 6, dh + 6, 10, fill=0, stroke=1)
+        self.c.drawImage(ir, ox, oy, width=dw, height=dh, mask="auto")
         self.c.restoreState()
 
     def _text_block(
@@ -176,13 +197,15 @@ class SlideRenderer:
         lines: list[str],
         x: float,
         y: float,
-        size: float = 11,
+        size: float = 13.5,
         color=C_TEXT,
-        leading: float = 16,
+        leading: float = 21,
         bullet: bool = False,
+        font: str | None = None,
     ) -> float:
         c = self.c
-        c.setFont(FONT, size)
+        fn = font or FONT_BODY
+        c.setFont(fn, size)
         c.setFillColor(color)
         cy = y
         for line in lines:
@@ -207,66 +230,116 @@ class SlideRenderer:
         if num > 1:
             self.c.showPage()
         self._bg(hero=hero)
-        self._chip(chip, SLIDE_H - 52)
+        chip_y = SLIDE_H - MY_TOP - 26
+        self._chip(chip, chip_y)
         self._footer(num)
 
         c = self.c
+        title_y = chip_y - 36
         title_color = colors.white if hero else colors.HexColor("#0f172a")
-        c.setFont(FONT, 22 if hero else 20)
+        title_size = 30 if hero else 26
+        c.setFont(FONT_TITLE, title_size)
         c.setFillColor(title_color)
-        c.drawString(36, SLIDE_H - 88, title[:42])
+        c.drawString(MX, title_y, title[:30])
+
+        content_top = title_y - 12
+        card_y = CARD_BOTTOM
+        card_h = content_top - card_y - 8
+        gap = 10
 
         img = self.pool.pick(img_key)
-        img_x, img_y = SLIDE_W - 36 - 260, 70
         has_img = img is not None
-        card_x, card_y = 36, 52
-        card_w = 520 if has_img else SLIDE_W - 72
-        card_h = 340
 
         if hero:
-            c.setFont(FONT, 13)
+            body_x = MX + 8
+            body_y = content_top - 28
+            c.setFont(FONT_BODY, 16)
             c.setFillColor(colors.white)
-            for i, line in enumerate(body[:4]):
-                c.drawString(48, SLIDE_H - 130 - i * 20, line)
+            for i, line in enumerate(body[:5]):
+                c.drawString(body_x, body_y - i * 26, line)
             if img:
-                self._draw_image(img, SLIDE_W - 300, 120, 250, 200)
+                img_w = SLIDE_W * 0.42
+                img_h = card_h + 20
+                self._draw_image(img, SLIDE_W - MX - img_w, card_y - 6, img_w, img_h)
             return
 
-        self._card(card_x, card_y, card_w, card_h)
-        ty = card_y + card_h - 28
+        if has_img:
+            img_w = (SLIDE_W - MX * 2 - gap) * 0.44
+            text_w = SLIDE_W - MX * 2 - gap - img_w
+            card_x = MX
+        else:
+            text_w = SLIDE_W - MX * 2
+            card_x = MX
+            img_w = 0
+
+        self._card(card_x, card_y, text_w if has_img else SLIDE_W - MX * 2, card_h)
+        pad = 14
+        reserve_bottom = 0
+        if box:
+            reserve_bottom += 64
+        if tip:
+            tip_lines_tmp = wrap_text(f"💡 TIP  {tip}", 36 if has_img else 55)
+            reserve_bottom += 18 + len(tip_lines_tmp) * 16 + 8
+
+        ty = card_y + card_h - pad - 4
+        body_size = 13.5
+        body_leading = 21
+        max_lines = int((card_h - pad * 2 - reserve_bottom) / body_leading)
+        display_body = body[:max_lines] if max_lines > 0 else body[:4]
+
         if two_col_bullets:
             mid = (len(two_col_bullets) + 1) // 2
-            self._text_block(two_col_bullets[:mid], card_x + 18, ty, 10.5, bullet=True)
-            self._text_block(two_col_bullets[mid:], card_x + card_w // 2, ty, 10.5, bullet=True)
+            col_w = (text_w - pad * 2) / 2
+            self._text_block(
+                two_col_bullets[:mid], card_x + pad, ty, body_size, bullet=True, leading=body_leading
+            )
+            self._text_block(
+                two_col_bullets[mid:],
+                card_x + pad + col_w,
+                ty,
+                body_size,
+                bullet=True,
+                leading=body_leading,
+            )
         else:
-            ty = self._text_block(body, card_x + 18, ty, 10.5, bullet=any(b.startswith("•") for b in body))
+            self._text_block(
+                display_body,
+                card_x + pad,
+                ty,
+                body_size,
+                bullet=any(b.startswith("•") or b.startswith("□") for b in display_body),
+                leading=body_leading,
+            )
+
+        if box:
+            bx, by = card_x + pad, card_y + pad
+            box_h = 58
+            self.c.saveState()
+            self.c.setFillColor(C_BOX_BG)
+            self.c.setStrokeColor(C_BOX_BORDER)
+            self.c.roundRect(bx, by, text_w - pad * 2, box_h, 8, fill=1, stroke=1)
+            c.setFont(FONT_TITLE, 12)
+            c.setFillColor(colors.HexColor("#7c2d12"))
+            c.drawString(bx + 10, by + box_h - 18, f"🎯 {box[0]}")
+            c.setFont(FONT_BODY, 11.5)
+            for i, ln in enumerate(wrap_text(box[1], 34 if has_img else 52)[:2]):
+                c.drawString(bx + 10, by + box_h - 36 - i * 15, ln)
+            self.c.restoreState()
 
         if tip:
             self.c.saveState()
             self.c.setFillColor(C_TIP_BG)
             self.c.setStrokeColor(C_TIP_BORDER)
-            tip_lines = wrap_text(f"💡 TIP  {tip}", 52)
-            th = 16 + len(tip_lines) * 14
-            self.c.roundRect(card_x + 12, card_y + 12, card_w - 24, th, 8, fill=1, stroke=1)
-            self._text_block(tip_lines, card_x + 20, card_y + th - 4, 9.5, C_TEXT)
-            self.c.restoreState()
-
-        if box:
-            bx, by = card_x + 12, card_y + 12
-            self.c.saveState()
-            self.c.setFillColor(C_BOX_BG)
-            self.c.setStrokeColor(C_BOX_BORDER)
-            self.c.roundRect(bx, by, card_w - 24, 52, 8, fill=1, stroke=1)
-            c.setFont(FONT, 10)
-            c.setFillColor(colors.HexColor("#7c2d12"))
-            c.drawString(bx + 10, by + 34, f"🎯 {box[0]}")
-            c.setFont(FONT, 9.5)
-            for i, ln in enumerate(wrap_text(box[1], 48)[:2]):
-                c.drawString(bx + 10, by + 18 - i * 13, ln)
+            tip_lines = wrap_text(f"💡 TIP  {tip}", 36 if has_img else 55)
+            th = 18 + len(tip_lines) * 16
+            ty0 = card_y + pad + (64 if box else 0)
+            self.c.roundRect(card_x + pad, ty0, text_w - pad * 2, th, 8, fill=1, stroke=1)
+            self._text_block(tip_lines, card_x + pad + 6, ty0 + th - 10, 11, C_TEXT, leading=15)
             self.c.restoreState()
 
         if has_img:
-            self._draw_image(img, img_x, img_y, 260, 300)
+            img_x = SLIDE_W - MX - img_w
+            self._draw_image(img, img_x, card_y, img_w, card_h)
 
 
 def build_slides() -> list[dict]:
