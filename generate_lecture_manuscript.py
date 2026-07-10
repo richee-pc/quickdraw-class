@@ -29,23 +29,26 @@ SLIDE_H = 540
 FONT_TITLE = "GowunTitle"
 FONT_BODY = "GowunBody"
 
-# 여백 최소화 (울트라 풀블리드)
-MX = 8           # 좌우 마진
-MY_TOP = 6       # 상단
-FOOTER_Y = 8     # 하단 푸터
-CARD_BOTTOM = 26 # 카드 하단
+# 레이아웃 — 왼쪽·위 여유 간격 + 본문 대형 타이포
+MX = 28           # 좌측·우측 여백
+MY_TOP = 22       # 상단 여백
+FOOTER_Y = 10
+CARD_BOTTOM = 32
 
-# 타이포 스케일 (슬라이드 꽉 채움)
-SZ_CHIP = 11
-SZ_TITLE = 34
-SZ_TITLE_HERO = 40
-SZ_BODY = 17
-SZ_BODY_HERO = 21
-SZ_BOX_TITLE = 14
-SZ_BOX_BODY = 13.5
-SZ_TIP = 13
-LEAD_BODY = 26
-LEAD_HERO = 32
+# 타이포 (본문 기존 대비 약 2배)
+SZ_CHIP = 13
+SZ_TITLE = 32
+SZ_TITLE_HERO = 38
+SZ_BODY = 32           # 이미지 있는 슬라이드 본문
+SZ_BODY_FULL = 36      # 텍스트 전용 슬라이드 본문 (더 크게)
+SZ_BODY_HERO = 38
+SZ_BOX_TITLE = 18
+SZ_BOX_BODY = 16
+SZ_TIP = 16
+LEAD_BODY = 46
+LEAD_FULL = 52
+LEAD_HERO = 50
+PAD_IN = 18            # 카드 내부 패딩
 
 # 웹앱 테마 컬러
 C_SKY = colors.HexColor("#e0f2fe")
@@ -124,6 +127,53 @@ def wrap_text(text: str, max_chars: int) -> list[str]:
     if cur:
         lines.append(cur)
     return lines or [""]
+
+
+def chars_per_line(text_w: float, font_size: float) -> int:
+    """한글 기준 대략적인 한 줄 글자 수."""
+    return max(8, int(text_w / (font_size * 0.55)))
+
+
+def fit_body_lines(
+    body: list[str],
+    text_w: float,
+    avail_h: float,
+    *,
+    full_width: bool,
+    is_bullet: bool,
+) -> tuple[list[str], float, float]:
+    """본문을 카드 너비·높이에 맞게 줄바꿈·크기 조절."""
+    size = SZ_BODY_FULL if full_width else SZ_BODY
+    leading = LEAD_FULL if full_width else LEAD_BODY
+    cpl = chars_per_line(text_w, size)
+
+    wrapped: list[str] = []
+    for line in body:
+        raw = line.lstrip("•□ ").strip()
+        prefix = "• " if is_bullet or line.strip().startswith(("•", "□")) else ""
+        if line.strip().startswith("□"):
+            prefix = "□ "
+        for sub in wrap_text(raw, cpl):
+            wrapped.append(f"{prefix}{sub}" if prefix else sub)
+
+    # 높이에 맞을 때까지 (최소 24pt까지) 조절
+    while size >= 24:
+        if len(wrapped) * leading <= avail_h:
+            return wrapped, size, leading
+        size -= 1.5
+        leading = size * 1.42
+        cpl = chars_per_line(text_w, size)
+        wrapped = []
+        for line in body:
+            raw = line.lstrip("•□ ").strip()
+            prefix = "• " if is_bullet or line.strip().startswith(("•", "□")) else ""
+            if line.strip().startswith("□"):
+                prefix = "□ "
+            for sub in wrap_text(raw, cpl):
+                wrapped.append(f"{prefix}{sub}" if prefix else sub)
+
+    max_lines = max(1, int(avail_h / leading))
+    return wrapped[:max_lines], size, leading
 
 
 class SlideRenderer:
@@ -242,119 +292,125 @@ class SlideRenderer:
         if num > 1:
             self.c.showPage()
         self._bg(hero=hero)
-        chip_y = SLIDE_H - MY_TOP - 20
+        chip_y = SLIDE_H - MY_TOP - 24
         self._chip(chip, chip_y)
         self._footer(num)
 
         c = self.c
-        title_y = chip_y - 40
+        title_y = chip_y - 46
         title_color = colors.white if hero else colors.HexColor("#0f172a")
         title_size = SZ_TITLE_HERO if hero else SZ_TITLE
         c.setFont(FONT_TITLE, title_size)
         c.setFillColor(title_color)
-        c.drawString(MX, title_y, title[:28])
+        c.drawString(MX, title_y, title[:24])
 
-        content_top = title_y - 6
+        content_top = title_y - 10
         card_y = CARD_BOTTOM
-        card_h = content_top - card_y - 4
-        gap = 6
+        card_h = content_top - card_y - 6
+        gap = 12
 
-        img = self.pool.pick(img_key)
+        # img_key가 있을 때만 이미지 배치 (없으면 텍스트 전용 풀폭)
+        img = self.pool.pick(img_key) if img_key else None
         has_img = img is not None
 
         if hero:
-            body_x = MX + 4
-            body_y = content_top - 24
-            c.setFont(FONT_BODY, SZ_BODY_HERO)
+            body_x = MX + PAD_IN
+            hero_lines, hero_sz, hero_lead = fit_body_lines(
+                body[:5], SLIDE_W * 0.52, card_h, full_width=False, is_bullet=False
+            )
+            block_h = len(hero_lines) * hero_lead
+            body_y = card_y + (card_h + block_h) / 2 - hero_lead
+            c.setFont(FONT_BODY, hero_sz)
             c.setFillColor(colors.white)
-            for i, line in enumerate(body[:5]):
-                c.drawString(body_x, body_y - i * LEAD_HERO, line)
+            for i, line in enumerate(hero_lines):
+                c.drawString(body_x, body_y - i * hero_lead, line)
             if img:
-                img_w = SLIDE_W * 0.46
-                img_h = card_h + 28
-                self._draw_image(img, SLIDE_W - MX - img_w, card_y - 8, img_w, img_h)
+                img_w = SLIDE_W * 0.40
+                self._draw_image(img, SLIDE_W - MX - img_w, card_y, img_w, card_h)
             return
 
         if has_img:
-            img_w = (SLIDE_W - MX * 2 - gap) * 0.48
+            img_w = (SLIDE_W - MX * 2 - gap) * 0.46
             text_w = SLIDE_W - MX * 2 - gap - img_w
-            card_x = MX
         else:
             text_w = SLIDE_W - MX * 2
-            card_x = MX
             img_w = 0
 
-        self._card(card_x, card_y, text_w if has_img else SLIDE_W - MX * 2, card_h)
-        pad = 10
+        card_w = text_w if has_img else SLIDE_W - MX * 2
+        self._card(MX, card_y, card_w, card_h)
+
         reserve_bottom = 0
         if box:
-            reserve_bottom += 72
+            reserve_bottom += 82
         if tip:
-            tip_lines_tmp = wrap_text(f"💡 TIP  {tip}", 28 if has_img else 42)
-            reserve_bottom += 20 + len(tip_lines_tmp) * 18 + 6
+            tip_lines_tmp = wrap_text(f"💡 TIP  {tip}", chars_per_line(text_w - PAD_IN * 2, SZ_TIP))
+            reserve_bottom += 24 + len(tip_lines_tmp) * 20 + 8
 
-        ty = card_y + card_h - pad - 2
-        body_size = SZ_BODY
-        body_leading = LEAD_BODY
-        max_lines = int((card_h - pad * 2 - reserve_bottom) / body_leading)
-        display_body = body[:max_lines] if max_lines > 0 else body[:4]
+        avail_h = card_h - PAD_IN * 2 - reserve_bottom
+        is_bullet = any(b.startswith("•") or b.startswith("□") for b in body)
 
         if two_col_bullets:
+            body_size = SZ_BODY if has_img else SZ_BODY_FULL
+            body_leading = LEAD_BODY if has_img else LEAD_FULL
             mid = (len(two_col_bullets) + 1) // 2
-            col_w = (text_w - pad * 2) / 2
+            col_w = (text_w - PAD_IN * 2) / 2
+            ty = card_y + card_h - PAD_IN
             self._text_block(
-                two_col_bullets[:mid], card_x + pad, ty, body_size, bullet=True, leading=body_leading
+                two_col_bullets[:mid], MX + PAD_IN, ty, body_size, bullet=True, leading=body_leading
             )
             self._text_block(
-                two_col_bullets[mid:],
-                card_x + pad + col_w,
-                ty,
-                body_size,
-                bullet=True,
-                leading=body_leading,
+                two_col_bullets[mid:], MX + PAD_IN + col_w, ty, body_size, bullet=True, leading=body_leading
             )
+            display_body = []
+            body_size = body_size
+            body_leading = body_leading
         else:
+            display_body, body_size, body_leading = fit_body_lines(
+                body, text_w - PAD_IN * 2, avail_h, full_width=not has_img, is_bullet=is_bullet
+            )
+            block_h = len(display_body) * body_leading
             if not has_img:
-                body_size = SZ_BODY + 1.5
-                body_leading = LEAD_BODY + 2
+                # 텍스트 전용: 세로 중앙 정렬로 꽉 차 보이게
+                ty = card_y + (card_h + block_h) / 2 - body_leading
+            else:
+                ty = card_y + card_h - PAD_IN
             self._text_block(
                 display_body,
-                card_x + pad,
+                MX + PAD_IN,
                 ty,
                 body_size,
-                bullet=any(b.startswith("•") or b.startswith("□") for b in display_body),
+                bullet=False,
                 leading=body_leading,
             )
 
         if box:
-            bx, by = card_x + pad, card_y + pad
-            box_h = 68
+            bx, by = MX + PAD_IN, card_y + PAD_IN
+            box_h = 76
             self.c.saveState()
             self.c.setFillColor(C_BOX_BG)
             self.c.setStrokeColor(C_BOX_BORDER)
-            self.c.roundRect(bx, by, text_w - pad * 2, box_h, 8, fill=1, stroke=1)
+            self.c.roundRect(bx, by, text_w - PAD_IN * 2, box_h, 8, fill=1, stroke=1)
             c.setFont(FONT_TITLE, SZ_BOX_TITLE)
             c.setFillColor(colors.HexColor("#7c2d12"))
-            c.drawString(bx + 10, by + box_h - 20, f"🎯 {box[0]}")
+            c.drawString(bx + 12, by + box_h - 22, f"🎯 {box[0]}")
             c.setFont(FONT_BODY, SZ_BOX_BODY)
-            for i, ln in enumerate(wrap_text(box[1], 28 if has_img else 44)[:2]):
-                c.drawString(bx + 10, by + box_h - 40 - i * 17, ln)
+            for i, ln in enumerate(wrap_text(box[1], chars_per_line(text_w - PAD_IN * 2, SZ_BOX_BODY))[:2]):
+                c.drawString(bx + 12, by + box_h - 44 - i * 20, ln)
             self.c.restoreState()
 
         if tip:
             self.c.saveState()
             self.c.setFillColor(C_TIP_BG)
             self.c.setStrokeColor(C_TIP_BORDER)
-            tip_lines = wrap_text(f"💡 TIP  {tip}", 28 if has_img else 42)
-            th = 20 + len(tip_lines) * 18
-            ty0 = card_y + pad + (72 if box else 0)
-            self.c.roundRect(card_x + pad, ty0, text_w - pad * 2, th, 8, fill=1, stroke=1)
-            self._text_block(tip_lines, card_x + pad + 6, ty0 + th - 12, SZ_TIP, C_TEXT, leading=17)
+            tip_lines = wrap_text(f"💡 TIP  {tip}", chars_per_line(text_w - PAD_IN * 2, SZ_TIP))
+            th = 24 + len(tip_lines) * 20
+            ty0 = card_y + PAD_IN + (82 if box else 0)
+            self.c.roundRect(MX + PAD_IN, ty0, text_w - PAD_IN * 2, th, 8, fill=1, stroke=1)
+            self._text_block(tip_lines, MX + PAD_IN + 8, ty0 + th - 14, SZ_TIP, C_TEXT, leading=19)
             self.c.restoreState()
 
         if has_img:
-            img_x = SLIDE_W - MX - img_w
-            self._draw_image(img, img_x, card_y, img_w, card_h)
+            self._draw_image(img, SLIDE_W - MX - img_w, card_y, img_w, card_h)
 
 
 def build_slides() -> list[dict]:
