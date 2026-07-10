@@ -17,7 +17,7 @@
 | `나만의_퀵드로우_수집기.html` | 데이터 학습·편향 사전 체험 웹앱 | `app.py` 메뉴에서 실행 또는 브라우저로 직접 열기 |
 | `앱스크립트_수집기_연동_가이드.md` | 수집기 데이터를 구글 스프레드시트에 저장하는 방법 | 가이드 문서 열기 |
 | `app.py` | **Streamlit 학생 실습 홈페이지** (학생 학습용 화면만 포함) | `streamlit run app.py` 또는 클라우드 배포 |
-| `학생용_강의원고_6시간_AISW_퀵드로우_2026.pdf` | **학생 배포용 강의원고** (6시간·60슬라이드·16:9 PDF) | 웹앱 참고자료 탭 또는 PDF 직접 열기 |
+| `학생용_개념학습_강의원고_AI이미지기술_2026.pdf` | **학생 개념 학습용 슬라이드** (실습 제외·60장·16:9) | 웹앱 참고자료 탭 |
 | `generate_lecture_manuscript.py` | 강의원고 PDF 재생성 스크립트 | `python3 generate_lecture_manuscript.py` |
 | `requirements.txt` | 배포에 필요한 패키지 | — |
 | `.streamlit/config.toml` | 홈페이지 테마 설정 | — |
