@@ -30,25 +30,28 @@ FONT_TITLE = "GowunTitle"
 FONT_BODY = "GowunBody"
 
 # 레이아웃 — 왼쪽·위 여유 간격 + 본문 대형 타이포
-MX = 28           # 좌측·우측 여백
-MY_TOP = 22       # 상단 여백
+MX = 36           # 좌측·우측 여백
+MY_TOP = 30       # 상단 여백
 FOOTER_Y = 10
-CARD_BOTTOM = 32
+CARD_BOTTOM = 34
 
-# 타이포 (본문 기존 대비 약 2배)
-SZ_CHIP = 13
-SZ_TITLE = 32
-SZ_TITLE_HERO = 38
-SZ_BODY = 32           # 이미지 있는 슬라이드 본문
-SZ_BODY_FULL = 36      # 텍스트 전용 슬라이드 본문 (더 크게)
-SZ_BODY_HERO = 38
-SZ_BOX_TITLE = 18
-SZ_BOX_BODY = 16
-SZ_TIP = 16
-LEAD_BODY = 46
-LEAD_FULL = 52
-LEAD_HERO = 50
-PAD_IN = 18            # 카드 내부 패딩
+# 타이포 (본문 기존 대비 약 2배, 텍스트 전용은 카드에 맞게 더 키움)
+SZ_CHIP = 14
+SZ_TITLE = 34
+SZ_TITLE_HERO = 40
+SZ_BODY = 34           # 이미지 있는 슬라이드 본문
+SZ_BODY_FULL = 42      # 텍스트 전용 슬라이드 본문
+SZ_BODY_MAX = 40       # 이미지 슬라이드 최대 본문
+SZ_BODY_FULL_MAX = 50  # 텍스트 전용 최대 본문
+SZ_BODY_HERO = 40
+SZ_BOX_TITLE = 20
+SZ_BOX_BODY = 18
+SZ_TIP = 18
+LEAD_BODY = 48
+LEAD_FULL = 58
+LEAD_HERO = 54
+PAD_IN = 20            # 카드 내부 패딩
+MIN_BODY = 22
 
 # 웹앱 테마 컬러
 C_SKY = colors.HexColor("#e0f2fe")
@@ -134,19 +137,15 @@ def chars_per_line(text_w: float, font_size: float) -> int:
     return max(8, int(text_w / (font_size * 0.55)))
 
 
-def fit_body_lines(
+def _wrap_body_lines(
     body: list[str],
     text_w: float,
-    avail_h: float,
+    size: float,
     *,
-    full_width: bool,
     is_bullet: bool,
 ) -> tuple[list[str], float, float]:
-    """본문을 카드 너비·높이에 맞게 줄바꿈·크기 조절."""
-    size = SZ_BODY_FULL if full_width else SZ_BODY
-    leading = LEAD_FULL if full_width else LEAD_BODY
+    leading = size * 1.42
     cpl = chars_per_line(text_w, size)
-
     wrapped: list[str] = []
     for line in body:
         raw = line.lstrip("•□ ").strip()
@@ -155,22 +154,35 @@ def fit_body_lines(
             prefix = "□ "
         for sub in wrap_text(raw, cpl):
             wrapped.append(f"{prefix}{sub}" if prefix else sub)
+    return wrapped, size, leading
 
-    # 높이에 맞을 때까지 (최소 24pt까지) 조절
-    while size >= 24:
-        if len(wrapped) * leading <= avail_h:
-            return wrapped, size, leading
+
+def fit_body_lines(
+    body: list[str],
+    text_w: float,
+    avail_h: float,
+    *,
+    full_width: bool,
+    is_bullet: bool,
+) -> tuple[list[str], float, float]:
+    """본문을 카드 너비·높이에 맞게 줄바꿈·크기 조절 (부족하면 키움)."""
+    max_size = SZ_BODY_FULL_MAX if full_width else SZ_BODY_MAX
+    size = SZ_BODY_FULL if full_width else SZ_BODY
+    wrapped, size, leading = _wrap_body_lines(body, text_w, size, is_bullet=is_bullet)
+
+    while size >= MIN_BODY and len(wrapped) * leading > avail_h:
         size -= 1.5
-        leading = size * 1.42
-        cpl = chars_per_line(text_w, size)
-        wrapped = []
-        for line in body:
-            raw = line.lstrip("•□ ").strip()
-            prefix = "• " if is_bullet or line.strip().startswith(("•", "□")) else ""
-            if line.strip().startswith("□"):
-                prefix = "□ "
-            for sub in wrap_text(raw, cpl):
-                wrapped.append(f"{prefix}{sub}" if prefix else sub)
+        wrapped, size, leading = _wrap_body_lines(body, text_w, size, is_bullet=is_bullet)
+
+    # 줄 수가 적을 때 카드 높이를 채우도록 글씨 키우기
+    while size + 2 <= max_size:
+        test_wrapped, test_size, test_leading = _wrap_body_lines(
+            body, text_w, size + 2, is_bullet=is_bullet
+        )
+        if len(test_wrapped) * test_leading <= avail_h * 0.92:
+            wrapped, size, leading = test_wrapped, test_size, test_leading
+        else:
+            break
 
     max_lines = max(1, int(avail_h / leading))
     return wrapped[:max_lines], size, leading
@@ -235,6 +247,18 @@ class SlideRenderer:
         c.roundRect(x, y, w, h, 12, fill=1, stroke=1)
         c.restoreState()
 
+    def _image_usable(self, path: Path | None, max_w: float, max_h: float) -> bool:
+        """너무 작거나 가느다란 이미지는 텍스트 전용 레이아웃으로 전환."""
+        if not path or not path.exists():
+            return False
+        from reportlab.lib.utils import ImageReader
+
+        iw, ih = ImageReader(str(path)).getSize()
+        if iw < 80 or ih < 80:
+            return False
+        scale = min(max_w / iw, max_h / ih)
+        return ih * scale >= max_h * 0.28 and iw * scale >= max_w * 0.28
+
     def _draw_image(self, path: Path | None, x: float, y: float, max_w: float, max_h: float) -> None:
         if not path or not path.exists():
             return
@@ -297,21 +321,25 @@ class SlideRenderer:
         self._footer(num)
 
         c = self.c
-        title_y = chip_y - 46
+        title_y = chip_y - 52
         title_color = colors.white if hero else colors.HexColor("#0f172a")
         title_size = SZ_TITLE_HERO if hero else SZ_TITLE
         c.setFont(FONT_TITLE, title_size)
         c.setFillColor(title_color)
         c.drawString(MX, title_y, title[:24])
 
-        content_top = title_y - 10
+        # 제목 아래 충분한 간격 후 카드 시작 (대형 본문과 겹침 방지)
+        card_top = title_y - title_size - 24
         card_y = CARD_BOTTOM
-        card_h = content_top - card_y - 6
+        card_h = card_top - card_y
         gap = 12
 
-        # img_key가 있을 때만 이미지 배치 (없으면 텍스트 전용 풀폭)
+        # img_key가 있을 때만 이미지 배치 (없거나 너무 작으면 텍스트 전용 풀폭)
         img = self.pool.pick(img_key) if img_key else None
-        has_img = img is not None
+        probe_w = (SLIDE_W - MX * 2 - gap) * 0.46
+        has_img = self._image_usable(img, probe_w, card_h) if img else False
+        if img and not has_img:
+            img = None
 
         if hero:
             body_x = MX + PAD_IN
@@ -369,11 +397,7 @@ class SlideRenderer:
                 body, text_w - PAD_IN * 2, avail_h, full_width=not has_img, is_bullet=is_bullet
             )
             block_h = len(display_body) * body_leading
-            if not has_img:
-                # 텍스트 전용: 세로 중앙 정렬로 꽉 차 보이게
-                ty = card_y + (card_h + block_h) / 2 - body_leading
-            else:
-                ty = card_y + card_h - PAD_IN
+            ty = card_y + card_h - PAD_IN
             self._text_block(
                 display_body,
                 MX + PAD_IN,

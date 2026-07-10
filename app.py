@@ -1097,6 +1097,11 @@ elif page == "📎 참고자료":
     if not ms_path.exists():
         ms_path = BASE / MANUSCRIPT_LEGACY
     if ms_path.exists():
+        from datetime import datetime
+
+        mtime = datetime.fromtimestamp(ms_path.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+        size_mb = ms_path.stat().st_size / (1024 * 1024)
+        st.caption(f"파일: {ms_path.name} · {size_mb:.1f}MB · 최종 갱신 {mtime}")
         st.download_button(
             "⬇️ 개념 학습 슬라이드 PDF",
             data=ms_path.read_bytes(),
