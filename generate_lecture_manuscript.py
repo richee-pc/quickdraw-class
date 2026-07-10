@@ -28,12 +28,23 @@ SLIDE_H = 540
 FONT_TITLE = "GowunTitle"
 FONT_BODY = "GowunBody"
 
-# 여백 최소화 (풀블리드 레이아웃)
-MX = 14          # 좌우 마진
-MY_TOP = 10      # 상단
-FOOTER_Y = 12    # 하단 푸터
-HEADER_H = 78    # 칩+제목 영역
-CARD_BOTTOM = 34 # 푸터 위 카드 하단
+# 여백 최소화 (울트라 풀블리드)
+MX = 8           # 좌우 마진
+MY_TOP = 6       # 상단
+FOOTER_Y = 8     # 하단 푸터
+CARD_BOTTOM = 26 # 카드 하단
+
+# 타이포 스케일 (슬라이드 꽉 채움)
+SZ_CHIP = 11
+SZ_TITLE = 34
+SZ_TITLE_HERO = 40
+SZ_BODY = 17
+SZ_BODY_HERO = 21
+SZ_BOX_TITLE = 14
+SZ_BOX_BODY = 13.5
+SZ_TIP = 13
+LEAD_BODY = 26
+LEAD_HERO = 32
 
 # 웹앱 테마 컬러
 C_SKY = colors.HexColor("#e0f2fe")
@@ -154,9 +165,9 @@ class SlideRenderer:
     def _chip(self, text: str, y: float) -> None:
         c = self.c
         c.saveState()
-        c.setFont(FONT_BODY, 10)
-        tw = c.stringWidth(text, FONT_BODY, 10)
-        x, h, pad = MX, 24, 10
+        c.setFont(FONT_BODY, SZ_CHIP)
+        tw = c.stringWidth(text, FONT_BODY, SZ_CHIP)
+        x, h, pad = MX, 22, 8
         c.setFillColor(C_CHIP_BG)
         c.setStrokeColor(colors.HexColor("#c4b5fd"))
         c.roundRect(x, y, tw + pad * 2, h, 12, fill=1, stroke=1)
@@ -230,41 +241,41 @@ class SlideRenderer:
         if num > 1:
             self.c.showPage()
         self._bg(hero=hero)
-        chip_y = SLIDE_H - MY_TOP - 26
+        chip_y = SLIDE_H - MY_TOP - 20
         self._chip(chip, chip_y)
         self._footer(num)
 
         c = self.c
-        title_y = chip_y - 36
+        title_y = chip_y - 40
         title_color = colors.white if hero else colors.HexColor("#0f172a")
-        title_size = 30 if hero else 26
+        title_size = SZ_TITLE_HERO if hero else SZ_TITLE
         c.setFont(FONT_TITLE, title_size)
         c.setFillColor(title_color)
-        c.drawString(MX, title_y, title[:30])
+        c.drawString(MX, title_y, title[:28])
 
-        content_top = title_y - 12
+        content_top = title_y - 6
         card_y = CARD_BOTTOM
-        card_h = content_top - card_y - 8
-        gap = 10
+        card_h = content_top - card_y - 4
+        gap = 6
 
         img = self.pool.pick(img_key)
         has_img = img is not None
 
         if hero:
-            body_x = MX + 8
-            body_y = content_top - 28
-            c.setFont(FONT_BODY, 16)
+            body_x = MX + 4
+            body_y = content_top - 24
+            c.setFont(FONT_BODY, SZ_BODY_HERO)
             c.setFillColor(colors.white)
             for i, line in enumerate(body[:5]):
-                c.drawString(body_x, body_y - i * 26, line)
+                c.drawString(body_x, body_y - i * LEAD_HERO, line)
             if img:
-                img_w = SLIDE_W * 0.42
-                img_h = card_h + 20
-                self._draw_image(img, SLIDE_W - MX - img_w, card_y - 6, img_w, img_h)
+                img_w = SLIDE_W * 0.46
+                img_h = card_h + 28
+                self._draw_image(img, SLIDE_W - MX - img_w, card_y - 8, img_w, img_h)
             return
 
         if has_img:
-            img_w = (SLIDE_W - MX * 2 - gap) * 0.44
+            img_w = (SLIDE_W - MX * 2 - gap) * 0.48
             text_w = SLIDE_W - MX * 2 - gap - img_w
             card_x = MX
         else:
@@ -273,17 +284,17 @@ class SlideRenderer:
             img_w = 0
 
         self._card(card_x, card_y, text_w if has_img else SLIDE_W - MX * 2, card_h)
-        pad = 14
+        pad = 10
         reserve_bottom = 0
         if box:
-            reserve_bottom += 64
+            reserve_bottom += 72
         if tip:
-            tip_lines_tmp = wrap_text(f"💡 TIP  {tip}", 36 if has_img else 55)
-            reserve_bottom += 18 + len(tip_lines_tmp) * 16 + 8
+            tip_lines_tmp = wrap_text(f"💡 TIP  {tip}", 28 if has_img else 42)
+            reserve_bottom += 20 + len(tip_lines_tmp) * 18 + 6
 
-        ty = card_y + card_h - pad - 4
-        body_size = 13.5
-        body_leading = 21
+        ty = card_y + card_h - pad - 2
+        body_size = SZ_BODY
+        body_leading = LEAD_BODY
         max_lines = int((card_h - pad * 2 - reserve_bottom) / body_leading)
         display_body = body[:max_lines] if max_lines > 0 else body[:4]
 
@@ -302,6 +313,9 @@ class SlideRenderer:
                 leading=body_leading,
             )
         else:
+            if not has_img:
+                body_size = SZ_BODY + 1.5
+                body_leading = LEAD_BODY + 2
             self._text_block(
                 display_body,
                 card_x + pad,
@@ -313,28 +327,28 @@ class SlideRenderer:
 
         if box:
             bx, by = card_x + pad, card_y + pad
-            box_h = 58
+            box_h = 68
             self.c.saveState()
             self.c.setFillColor(C_BOX_BG)
             self.c.setStrokeColor(C_BOX_BORDER)
             self.c.roundRect(bx, by, text_w - pad * 2, box_h, 8, fill=1, stroke=1)
-            c.setFont(FONT_TITLE, 12)
+            c.setFont(FONT_TITLE, SZ_BOX_TITLE)
             c.setFillColor(colors.HexColor("#7c2d12"))
-            c.drawString(bx + 10, by + box_h - 18, f"🎯 {box[0]}")
-            c.setFont(FONT_BODY, 11.5)
-            for i, ln in enumerate(wrap_text(box[1], 34 if has_img else 52)[:2]):
-                c.drawString(bx + 10, by + box_h - 36 - i * 15, ln)
+            c.drawString(bx + 10, by + box_h - 20, f"🎯 {box[0]}")
+            c.setFont(FONT_BODY, SZ_BOX_BODY)
+            for i, ln in enumerate(wrap_text(box[1], 28 if has_img else 44)[:2]):
+                c.drawString(bx + 10, by + box_h - 40 - i * 17, ln)
             self.c.restoreState()
 
         if tip:
             self.c.saveState()
             self.c.setFillColor(C_TIP_BG)
             self.c.setStrokeColor(C_TIP_BORDER)
-            tip_lines = wrap_text(f"💡 TIP  {tip}", 36 if has_img else 55)
-            th = 18 + len(tip_lines) * 16
-            ty0 = card_y + pad + (64 if box else 0)
+            tip_lines = wrap_text(f"💡 TIP  {tip}", 28 if has_img else 42)
+            th = 20 + len(tip_lines) * 18
+            ty0 = card_y + pad + (72 if box else 0)
             self.c.roundRect(card_x + pad, ty0, text_w - pad * 2, th, 8, fill=1, stroke=1)
-            self._text_block(tip_lines, card_x + pad + 6, ty0 + th - 10, 11, C_TEXT, leading=15)
+            self._text_block(tip_lines, card_x + pad + 6, ty0 + th - 12, SZ_TIP, C_TEXT, leading=17)
             self.c.restoreState()
 
         if has_img:
