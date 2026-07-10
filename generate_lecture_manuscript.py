@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import random
 from datetime import date
 from pathlib import Path
 
@@ -88,35 +87,55 @@ def register_fonts() -> None:
         pdfmetrics.registerFont(TTFont(FONT_BODY, str(FONT_BODY_PATH if FONT_BODY_PATH.exists() else FONT_TITLE_PATH)))
 
 
-class ImagePool:
-    def __init__(self) -> None:
-        self.extracted = sorted(
-            p for p in EXTRACTED.glob("*") if p.suffix.lower() in {".png", ".jpg", ".jpeg"}
-        )
-        self.web = sorted(WEB.glob("*"))
-        random.seed(42)
-        random.shuffle(self.extracted)
-        self._i = 0
-        self._used: set[str] = set()
+class ImageCatalog:
+    """슬라이드별 교재·웹 이미지를 정확한 파일명으로 지정."""
 
-    def pick(self, keyword: str = "") -> Path | None:
-        if keyword:
-            for p in self.web:
-                if keyword.lower() in p.name.lower() and str(p) not in self._used:
-                    self._used.add(str(p))
-                    return p
-            hits = [p for p in self.extracted if keyword.lower() in p.name.lower()]
-            for p in hits:
-                if str(p) not in self._used and p.stat().st_size > 4000:
-                    self._used.add(str(p))
-                    return p
-        while self._i < len(self.extracted):
-            p = self.extracted[self._i]
-            self._i += 1
-            if str(p) not in self._used and p.stat().st_size > 4000:
-                self._used.add(str(p))
-                return p
-        return self.web[0] if self.web else None
+    def __init__(self) -> None:
+        self._cache: dict[str, Path | None] = {}
+        self._files = [
+            p
+            for base in (WEB, EXTRACTED)
+            for p in base.iterdir()
+            if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg"}
+        ]
+
+    def resolve(self, spec: str) -> Path | None:
+        if not spec:
+            return None
+        if spec in self._cache:
+            return self._cache[spec]
+        path = self._find(spec)
+        self._cache[spec] = path
+        return path
+
+    def _find(self, spec: str) -> Path | None:
+        for base in (WEB, EXTRACTED):
+            exact = base / spec
+            if exact.is_file() and exact.stat().st_size > 4000:
+                return exact
+
+        hits: list[Path] = []
+        if "_s" in spec and "pptx" in spec:
+            slide_key = "_s" + spec.rsplit("_s", 1)[-1]
+            hits = [p for p in self._files if f"{slide_key}." in p.name and "pptx_" in p.name]
+            if "데이터" in spec:
+                hits = [p for p in hits if "데이터" in p.name or "데이터" in p.name]
+            elif "6장" in spec or "규칙" in spec:
+                hits = [p for p in hits if "6장" in p.name or "6장" in p.name or "규칙" in p.name]
+        elif "_p" in spec and spec[0].isdigit():
+            doc_prefix, page_part = spec.split("_p", 1)
+            hits = [
+                p
+                for p in self._files
+                if p.name.startswith(f"{doc_prefix}_") and f"_p{page_part}." in p.name
+            ]
+        else:
+            hits = [p for p in self._files if spec in p.name or p.name.endswith(spec)]
+
+        hits = [p for p in hits if p.stat().st_size > 4000]
+        if not hits:
+            return None
+        return max(hits, key=lambda p: p.stat().st_size)
 
 
 def wrap_text(text: str, max_chars: int) -> list[str]:
@@ -193,9 +212,9 @@ def fit_body_lines(
 
 
 class SlideRenderer:
-    def __init__(self, c: canvas.Canvas, pool: ImagePool) -> None:
+    def __init__(self, c: canvas.Canvas, catalog: ImageCatalog) -> None:
         self.c = c
-        self.pool = pool
+        self.catalog = catalog
 
     def _bg(self, hero: bool = False) -> None:
         c = self.c
@@ -368,6 +387,7 @@ class SlideRenderer:
         *,
         hero: bool = False,
         img_key: str = "",
+        img: str = "",
         tip: str = "",
         box: tuple[str, str] | None = None,
         two_col_bullets: list[str] | None = None,
@@ -393,17 +413,18 @@ class SlideRenderer:
         card_h = card_top - card_y
         content_w = SLIDE_W - MX * 2
 
-        # img_key가 있을 때만 이미지 배치 (없거나 너무 작으면 텍스트 전용 풀폭)
-        img = self.pool.pick(img_key) if img_key else None
+        # 슬라이드별 지정 이미지 (없거나 너무 작으면 텍스트 전용 풀폭)
+        img_spec = img or img_key
+        img_path = self.catalog.resolve(img_spec) if img_spec else None
         img_w = content_w * IMG_COL_RATIO
         probe_w = img_w
-        has_img = self._image_usable(img, probe_w, card_h) if img else False
-        if img and not has_img:
-            img = None
+        has_img = self._image_usable(img_path, probe_w, card_h) if img_path else False
+        if img_path and not has_img:
+            img_path = None
             has_img = False
 
         if hero:
-            if img:
+            if img_path:
                 text_w = content_w - img_w - TEXT_IMG_GAP
                 img_x = MX + text_w + TEXT_IMG_GAP
             else:
@@ -413,9 +434,9 @@ class SlideRenderer:
                 body[:5],
                 text_w - PAD_IN * 2,
                 card_h - PAD_IN * 2,
-                full_width=not bool(img),
+                full_width=not bool(img_path),
                 is_bullet=False,
-                allow_grow=not bool(img),
+                allow_grow=not bool(img_path),
             )
             c.saveState()
             clip = c.beginPath()
@@ -436,8 +457,8 @@ class SlideRenderer:
                 c.drawString(MX + PAD_IN, ty, text)
                 ty -= hero_lead
             c.restoreState()
-            if img:
-                self._draw_image(img, img_x, card_y, img_w, card_h)
+            if img_path:
+                self._draw_image(img_path, img_x, card_y, img_w, card_h)
             return
 
         if has_img:
@@ -534,8 +555,8 @@ class SlideRenderer:
             )
             self.c.restoreState()
 
-        if has_img and img:
-            self._draw_image(img, img_x, card_y, img_w, card_h)
+        if has_img and img_path:
+            self._draw_image(img_path, img_x, card_y, img_w, card_h)
 
 
 def build_slides() -> list[dict]:
@@ -551,7 +572,7 @@ def build_slides() -> list[dict]:
         "이미지 인식 · 분류 · 생성 & 데이터 편향",
         "조선대학교부속고등학교 · 2026 AISW 교실",
         f"담당 김다은 · {date.today().year}",
-    ], hero=True, img_key="neural")
+    ], hero=True, img="neural_net.png")
 
     add("안내", "이 슬라이드는 무엇을 위한 자료인가요?", [
         "• 실습 절차(수집기·Colab·미드저니)는 제외",
@@ -567,7 +588,7 @@ def build_slides() -> list[dict]:
         "제4부  이미지 생성 AI 기술 (35~42)",
         "제5부  데이터 편향과 AI 윤리 (43~52)",
         "제6부  프로그래밍 기초 개념 (53~60)",
-    ], img_key="07_")
+    ], img="07_p2_1")
 
     add("학습목표", "이 자료를 마치면 설명할 수 있어요", [
         "생성형 AI와 분류 AI의 차이",
@@ -582,31 +603,31 @@ def build_slides() -> list[dict]:
         "사람처럼 학습·추론하는 컴퓨터 시스템",
         "규칙을 직접 짜기도, 데이터로 스스로 배우기도 함",
         "오늘 초점: 이미지를 다루는 AI",
-    ], hero=True, img_key="ai_brain")
+    ], hero=True, img="ai_brain.jpg")
 
     add("제1부", "이미지 AI의 두 갈래", [
         "🔍 인식·분류: 그림→이름 (퀵드로우, 얼굴인식)",
         "🖌️ 생성: 글→새 그림 (미드저니, DALL·E)",
         "입력과 출력이 정반대!",
-    ], img_key="07_")
+    ], img="drawing_pad.jpg")
 
     add("제1부", "규칙 기반 AI", [
         "사람이 IF-THEN 규칙을 직접 작성",
         "예: IF 동그라미 THEN 고양이",
         "규칙 밖 상황은 처리 불가",
-    ], img_key="6장")
+    ], img="pptx_6장_규칙기_s4_2")
 
     add("제1부", "학습형 AI (Machine Learning)", [
         "데이터를 많이 보여주면 패턴을 스스로 학습",
         "규칙을 일일이 적지 않아도 새 상황 대응",
         "이미지 분류·인식의 핵심 방식",
-    ], img_key="07_")
+    ], img="07_p6_3")
 
     add("제1부", "생성형 AI (Generative AI)", [
         "텍스트·이미지 등에서 '새로운' 결과 생성",
         "학습 데이터의 패턴을 바탕으로 창작",
         "프롬프트(명령문)로 결과를 조절",
-    ], img_key="pptx")
+    ], img="pptx_6장_규칙기_s61_48")
 
     add("제1부", "세 가지 AI 비교", [
         "규칙: 명시적 규칙 · 유연성 낮음",
@@ -615,7 +636,7 @@ def build_slides() -> list[dict]:
     ], two_col_bullets=[
         "전문가 시스템", "CNN 분류",
         "의료 영상 판독 보조", "텍스트→이미지",
-    ])
+    ], img="07_p29_1")
 
     add("제1부", "개념 퀴즈 ①", [
         "Q. 그린 고양이 그림을 '고양이'라고 맞추는 AI?",
@@ -634,31 +655,31 @@ def build_slides() -> list[dict]:
     add("제2부", "AI 학습 4단계", [
         "1 데이터  2 학습  3 모델  4 추론",
         "모든 학습형 AI의 공통 파이프라인",
-    ], hero=True)
+    ], hero=True, img="pptx_데이터 수집_s3_0")
 
     add("제2부", "1단계 — 데이터 (Data)", [
         "AI가 배우는 '교과서' = 학습 데이터",
         "이미지+라벨 쌍 (예: 고양이 그림+'cat')",
         "양과 질이 성능을 좌우",
-    ], img_key="04_")
+    ], img="pptx_데이터 수집_s10_14")
 
     add("제2부", "2단계 — 학습 (Training)", [
         "데이터에서 패턴·특징을 찾는 과정",
         "코드로 수천~수만 번 반복 계산",
         "학습 ≠ 암기 (아래에서 설명)",
-    ])
+    ], img="07_p35_1")
 
     add("제2부", "3단계 — 모델 (Model)", [
         "학습이 끝난 AI의 '두뇌'",
         "가중치·구조가 저장된 결과물",
         "파일로 저장·불러오기 가능",
-    ])
+    ], img="neural_net.png")
 
     add("제2부", "4단계 — 추론 (Inference)", [
         "처음 보는 입력에 대해 결과 예측",
         "학습 때 본 적 없는 그림도 테스트",
         "실제 서비스에서 쓰는 단계",
-    ])
+    ], img="07_p40_1")
 
     add("제2부", "학습 vs 암기 — 일반화", [
         "암기: 본 문제만 맞힘",
@@ -670,19 +691,19 @@ def build_slides() -> list[dict]:
         "train: AI가 공부하는 데이터",
         "test: 처음 보는 시험 데이터",
         "test 성능이 '진짜 실력'",
-    ], img_key="04_")
+    ], img="07_p32_1")
 
     add("제2부", "에포크·배치·검증", [
         "Epoch: 전체 데이터 반복 학습 횟수",
         "Batch: 한 번에 처리하는 샘플 수",
         "Validation: 학습 중 실력 중간 점검",
-    ])
+    ], img="07_p41_1")
 
     add("제2부", "과적합·과소적합", [
         "과소적합: 너무 못 배움 (underfitting)",
         "과적합: train만 외움 (overfitting)",
         "적절한 학습이 일반화의 열쇠",
-    ])
+    ], img="07_p42_1")
 
     add("제2부", "제2부 정리", [
         "데이터→학습→모델→추론 순서 기억",
@@ -695,61 +716,61 @@ def build_slides() -> list[dict]:
         "컴퓨터가 그림 속 대상을 식별",
         "얼굴 인식, 자율주행, 의료 영상 등",
         "딥러닝(CNN)이 핵심 기술",
-    ], hero=True, img_key="07_")
+    ], hero=True, img="07_p3_1")
 
     add("제3부", "픽셀 — 컴퓨터의 눈", [
         "그림 = 작은 사각형(픽셀)의 배열",
         "흑백: 0(검정)~255(흰색) 밝기 값",
         "컬러: R·G·B 채널",
-    ], img_key="07_")
+    ], img="07_p17_3")
 
     add("제3부", "정규화 (Normalization)", [
         "0~255 → 0~1로 스케일 조정",
         "학습 안정성·수렴 속도 향상",
         "예: image / 255.0",
-    ], box=("개념", "DIVISOR=255의 의미"))
+    ], box=("개념", "DIVISOR=255의 의미"), img="07_p34_1")
 
     add("제3부", "이미지 shape 이해", [
         "(장수, 높이, 너비, 채널)",
         "흑백 28×28 50장 → (50,28,28,1)",
         "채널 1=흑백, 3=RGB",
-    ], img_key="07_")
+    ], img="07_p31_1")
 
     add("제3부", "합성곱 (Convolution)", [
         "3×3 필터를 이미지 위에서 이동",
         "선·곡선·에지 등 특징 추출",
         "사람 눈의 특징 찾기를 수학으로",
-    ], img_key="07_")
+    ], img="07_p14_3")
 
     add("제3부", "CNN 구조 한눈에", [
         "Conv2D: 특징 추출 (돋보기)",
         "MaxPooling: 정보 압축 (요약)",
         "Flatten+Dense: 최종 분류 (판단)",
-    ], img_key="neural")
+    ], img="07_p27_3")
 
     add("제3부", "활성화 함수", [
         "ReLU: 음수 제거, 특징 강조",
         "Softmax: 여러 클래스 확률 출력",
         "출력층에서 '고양이 87%' 형태",
-    ])
+    ], img="07_p39_1")
 
     add("제3부", "정확도 (Accuracy)", [
         "맞힌 수 / 전체 수",
         "직관적이지만 만능은 아님",
         "클래스 불균형 시 오해 가능",
-    ])
+    ], img="07_p40_3")
 
     add("제3부", "손실 함수 (Loss)", [
         "틀린 정도를 숫자로 표현",
         "학습 목표: loss를 줄이는 방향",
         "accuracy와 함께 모니터링",
-    ])
+    ], img="07_p41_1")
 
     add("제3부", "Confusion Matrix", [
         "정답(세로) vs 예측(가로) 표",
         "대각선 = 맞힌 횟수",
         "어떤 클래스끼리 헷갈리는지 분석",
-    ], img_key="07_")
+    ], img="07_p43_3")
 
     add("제3부", "개념 퀴즈 ②", [
         "Q. 28×28 흑백 100장 shape?",
@@ -769,31 +790,31 @@ def build_slides() -> list[dict]:
         "텍스트·다른 이미지에서 새 그림 생성",
         "미드저니, Stable Diffusion, DALL·E",
         "분류 AI와 입력·출력이 반대",
-    ], hero=True, img_key="pptx")
+    ], hero=True, img="pptx_6장_규칙기_s61_48")
 
     add("제4부", "생성 AI 작동 원리 (개요)", [
         "대량 이미지-텍스트 쌍으로 학습",
         "텍스트 의미와 시각 패턴 연결",
         "새 프롬프트에 맞는 이미지 합성",
-    ])
+    ], img="pptx_6장_규칙기_s50_39")
 
     add("제4부", "프롬프트 (Prompt)", [
         "AI에게 내리는 자연어 명령",
         "주제+스타일+색감이 결과 좌우",
         "같은 단어 변경 → 다른 결과",
-    ])
+    ], img="drawing_pad.jpg")
 
     add("제4부", "확산 모델 (Diffusion) 개념", [
         "노이즈를 점점 제거하며 이미지 생성",
         "Stable Diffusion·Midjourney 계열",
         "고품질 이미지 생성에 널리 사용",
-    ], img_key="pptx")
+    ], img="pptx_6장_규칙기_s38_30")
 
     add("제4부", "GAN 개념 (맛보기)", [
         "생성기 vs 판별기가 경쟁하며 학습",
         "가짜 이미지를 점점 진짜처럼",
         "역사적으로 중요한 생성 모델",
-    ])
+    ], img="neural_net.png")
 
     add("제4부", "생성 vs 분류 비교", [
         "분류: 이미지→라벨 (인식)",
@@ -821,31 +842,31 @@ def build_slides() -> list[dict]:
         "학습 데이터가 특정 유형에 치우침",
         "AI도 그 편향을 그대로 학습",
         "공정성·정확도 문제의 핵심 원인",
-    ], hero=True, img_key="04_")
+    ], hero=True, img="pptx_데이터 수집_s26_42")
 
     add("제5부", "편향이 생기는 이유", [
         "수집 환경·도구·참여자의 한계",
         "특정 각도·인종·성별만 많은 경우",
         "라벨링 오류·주관적 기준",
-    ])
+    ], img="pptx_데이터 수집_s9_13")
 
     add("제5부", "이미지 편향 사례", [
         "옆면 사진만 → 다른 각도 실패",
         "밝은 피부만 → 어두운 피부 오인식",
         "큰 글씨만 → 작은 글씨 실패",
-    ], img_key="07_")
+    ], img="pptx_데이터 수집_s17_27")
 
     add("제5부", "편향과 Confusion Matrix", [
         "특정 클래스 쌍에 오류 집중",
         "정확도는 높아도 특정 그룹 불리",
         "표를 보면 편향 패턴 발견",
-    ])
+    ], img="07_p44_1")
 
     add("제5부", "데이터 다양성", [
         "크기·각도·위치·조명·스타일",
         "다양할수록 일반화 성능 향상",
         "'같은 라벨, 다른 모양'이 핵심",
-    ])
+    ], img="pptx_데이터 수집_s36_64")
 
     add("제5부", "대표성 (Representation)", [
         "데이터가 실제 세계를 대표해야 함",
@@ -883,37 +904,37 @@ def build_slides() -> list[dict]:
         "컴퓨터에 명령을 내리는 언어",
         "AI 구현·학습에 파이썬이 널리 쓰임",
         "개념만 이해해도 AI 원리가 보임",
-    ], hero=True, img_key="03_")
+    ], hero=True, img="colab.png")
 
     add("제6부", "변수 (Variable)", [
         "값을 저장하는 이름표",
         "예: DIVISOR = 255",
         "반복 계산·결과 재사용에 필수",
-    ])
+    ], img="03_p21_1")
 
     add("제6부", "함수 (Function)", [
         "반복 코드를 묶어 재사용",
         "입력→처리→출력",
         "예: def normalize(img): return img/255",
-    ])
+    ], img="03_p31_1")
 
     add("제6부", "조건문·반복문", [
         "if: 조건에 따라 분기",
         "for: 같은 작업 반복",
         "예: for img in images: 정규화",
-    ])
+    ], img="03_p6_3")
 
     add("제6부", "리스트·배열", [
         "여러 값을 한 번에 관리",
         "labels = ['cat','dog','car']",
         "numpy 배열: 이미지 데이터 처리",
-    ], img_key="03_")
+    ], img="03_p49_1")
 
     add("제6부", "라이브러리 & API", [
         "라이브러리: 미리 만든 코드 묶음",
         "import numpy, tensorflow 등",
         "API: 프로그램 간 데이터 주고받기",
-    ])
+    ], img="04_p6_3")
 
     add("부록", "핵심 용어 사전", [
         "CNN·에포크·배치·정규화",
@@ -928,7 +949,7 @@ def build_slides() -> list[dict]:
         "이제 실습에서 개념이 살아납니다",
         "AI = 데이터 + 알고리즘 + 목적",
         "궁금한 개념은 슬라이드로 복습하세요 📚",
-    ], hero=True)
+    ], hero=True, img="neural_net.png")
 
     assert len(S) == 60, f"슬라이드 수 {len(S)} != 60"
     return S
@@ -937,14 +958,14 @@ def build_slides() -> list[dict]:
 def build_manuscript() -> Path:
     register_fonts()
     EXTRACTED.mkdir(parents=True, exist_ok=True)
-    pool = ImagePool()
+    catalog = ImageCatalog()
     slides = build_slides()
 
     c = canvas.Canvas(str(OUTPUT), pagesize=(SLIDE_W, SLIDE_H))
     c.setTitle("학생용 개념학습 강의원고 — AI 이미지 기술")
     c.setAuthor("김다은")
 
-    renderer = SlideRenderer(c, pool)
+    renderer = SlideRenderer(c, catalog)
     for i, s in enumerate(slides, 1):
         renderer.render(
             i,
@@ -952,7 +973,7 @@ def build_manuscript() -> Path:
             s["title"],
             s["body"],
             hero=s.get("hero", False),
-            img_key=s.get("img_key", ""),
+            img=s.get("img", ""),
             tip=s.get("tip", ""),
             box=s.get("box"),
             two_col_bullets=s.get("two_col_bullets"),
