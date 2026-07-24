@@ -42,6 +42,8 @@ COLAB_NOTEBOOK_URL = (
 
 # 미드저니 접속 주소
 MIDJOURNEY_URL = "https://www.midjourney.com/imagine"
+CURSOR_MAKER_URL = "https://www.cursor.cc/?action=import_request"
+FOLDER_ICON_URL = "https://www.icoconverter.com/"
 COLLECTOR_FILE = "나만의_퀵드로우_수집기.html"
 COLLECTOR_API_URL = "https://script.google.com/macros/s/AKfycbzPP6GHuqSHltZxutD8qyt8-TW_F5HNU1-2jLtkxEMPa-H8ufKdMzbl6GnCC1Lnq3pA/exec"
 COLLECTOR_CLASS_ID = "collector-submissions-2026"
@@ -413,12 +415,12 @@ with st.sidebar:
     page = st.radio(
         "메뉴",
         [
-            "🌈 1. OT·쁘띠빠크 (9:00)",
-            "🧠 2. AI 원리·퀵드로우 (10:00)",
-            "🧩 3. 데이터 편향 실습 (11:00)",
-            "🎀 4. 미드저니 아트 (11:00·13:00)",
-            "💻 5. Colab 퀵드로우 (14:20)",
-            "🖼️ 6. 작품 공유·발표 (15:30)",
+            "🌈 1. OT·쁘띠빠크",
+            "🧠 2. AI 원리·퀵드로우",
+            "🧩 3. 데이터 편향 실습",
+            "🎀 4. 미드저니 아트",
+            "💻 5. Colab 퀵드로우",
+            "🖼️ 6. 작품 공유·발표",
             "📝 학습지",
             "🖥️ 수업 슬라이드",
             "📎 참고자료",
@@ -438,7 +440,7 @@ with st.sidebar:
 
 
 # ------------------------------------------------------------------ 도입
-if page == "🌈 1. OT·쁘띠빠크 (9:00)":
+if page == "🌈 1. OT·쁘띠빠크":
     st.title("나만의 커스텀 퀵 드로우 만들기")
     st.subheader("그림을 알아맞히는 AI를 직접 만들고, 펜마우스로 게임해봐요!")
     st.markdown(
@@ -627,7 +629,7 @@ if page == "🌈 1. OT·쁘띠빠크 (9:00)":
     )
 
 # ------------------------------------------------------------------ AI·코딩 핵심 원리 (30분 이론+퀴즈)
-elif page == "🧠 2. AI 원리·퀵드로우 (10:00)":
+elif page == "🧠 2. AI 원리·퀵드로우":
     _init_principle_progress()
     st.markdown('<div class="section-chip">AI & CODING CORE · 30 MIN</div>', unsafe_allow_html=True)
     st.title("🧠 AI·코딩 핵심 원리")
@@ -959,11 +961,11 @@ elif page == "🧠 2. AI 원리·퀵드로우 (10:00)":
         st.caption(f"남은 미션: {', '.join(remaining)} · 각 탭의 퀴즈/실습을 완료하면 진행률이 올라갑니다.")
 
 # ------------------------------------------------------------------ 수집기 체험
-elif page == "🧩 3. 데이터 편향 실습 (11:00)":
+elif page == "🧩 3. 데이터 편향 실습":
     st.markdown('<div class="section-chip">DATA BIAS LAB</div>', unsafe_allow_html=True)
     st.title("🧩 데이터 편향 실습 (수집기)")
-    st.caption("11:00 · 수집기로 편향 체험 → 이어서 미드저니 계정·사용법 안내")
-    st.info("이 시간 후반에는 **4. 미드저니 아트** 탭의 「내 계정 찾기」「사용법 안내」로 이동하세요.")
+    st.caption("수집기로 편향 체험 → 이어서 미드저니 계정·사용법 안내")
+    st.info("이 활동 뒤에는 **4. 미드저니 아트** 탭의 「내 계정 찾기」「사용법 안내」로 이동하세요.")
     st.subheader("직접 데이터를 만들며 학습과 편향의 의미를 먼저 체험해요")
     st.markdown(
         """
@@ -1117,13 +1119,12 @@ elif page == "📝 학습지":
                 st.caption(msg[:200])
 
 # ------------------------------------------------------------------ 미드저니
-elif page == "🎀 4. 미드저니 아트 (11:00·13:00)":
+elif page == "🎀 4. 미드저니 아트":
     st.markdown('<div class="section-chip">MIDJOURNEY CREATOR</div>', unsafe_allow_html=True)
-    st.title("🖌️ 미드저니로 게임 아트 만들기")
-    st.caption("11:00 계정·사용법 안내 → 13:00 작품 만들기 실습")
+    st.title("🖌️ 미드저니로 나만의 디지털 아트 만들기")
     st.markdown(
         "미드저니는 **글(프롬프트)을 쓰면 그림을 만들어 주는 AI**예요. "
-        "내 게임에 쓸 ① 제목 로고 ② 정답 캐릭터(마스코트) ③ 배경을 만들어 봅시다."
+        "오늘은 **내 노트북을 나만의 스타일로 꾸미는** 작품을 만들어 봅시다!"
     )
 
     tab_account, tab_guide, tab_make = st.tabs(
@@ -1144,15 +1145,15 @@ elif page == "🎀 4. 미드저니 아트 (11:00·13:00)":
                 st.error("해당 번호의 계정을 찾지 못했어요. 기수·번호를 다시 확인해주세요.")
             else:
                 st.success(f"{acc['label']} 계정입니다.")
-                st.markdown(f"**이메일**")
+                st.markdown("**이메일**")
                 st.code(acc["email"], language="text")
-                st.markdown(f"**비밀번호**")
+                st.markdown("**비밀번호**")
                 st.code(acc["password"], language="text")
                 st.caption("로그인 후 Discord/Midjourney 안내에 따라 사용하세요. 비밀번호를 바꾸지 말아 주세요.")
         st.link_button("🎨 미드저니 열기", MIDJOURNEY_URL, type="secondary")
 
     with tab_guide:
-        st.subheader("미드저니 사용법 (수업용)")
+        st.subheader("미드저니 사용법 + 노트북 커스터마이징")
         st.markdown(
             """
             ### 1) 접속·로그인
@@ -1163,47 +1164,108 @@ elif page == "🎀 4. 미드저니 아트 (11:00·13:00)":
             ### 2) 그림 만들기 (`/imagine`)
             1. 입력창에 **프롬프트(영어 설명)** 붙여넣기
             2. 생성되면 이미지 4장이 한 세트로 나옵니다
-            3. 마음에 드는 장을 고르고 **확대(U)** / **변형(V)** 를 사용
+            3. 마음에 드는 장을 고르고 **확대(U)** / **변형(V)** 사용
             4. 완성 이미지를 **다운로드**
 
-            ### 3) 프롬프트 공식
-            `주제 + 용도 + 스타일 + 색감 + --ar 비율`
-
-            예) `cute cat mascot, flat vector illustration, pastel colors, simple, white background --ar 1:1`
-
-            ### 4) 오늘 만들 것 (추천 3종)
-            | 작품 | 용도 | 비율 추천 |
+            ### 3) 오늘 미션 — 내 노트북 꾸미기 🎒
+            | 작품 | 어디에 쓰나요? | 비율 |
             |---|---|---|
-            | 게임 제목 로고 | 시작 화면 | 16:9 또는 1:1 |
-            | 정답 캐릭터(마스코트) | 맞혔을 때 | 1:1 |
-            | 배경 | 게임 배경 | 16:9 |
+            | 노트북 바탕화면 | Windows/Mac 배경화면 | 16:9 |
+            | 프로필 사진 | 구글·인스타 프로필 | 1:1 |
+            | 마우스 커서 아이콘 | 커서 파일로 변환 후 적용 | 1:1 |
+            | 폴더 아이콘 | ICO로 변환 후 폴더에 적용 | 1:1 |
+
+            ### 4) 적용 방법 (간단)
+            - **바탕화면**: 다운로드 → 우클릭 → 배경으로 설정
+            - **프로필**: 구글/인스타 설정에서 사진 변경
+            - **마우스 커서**: 투명 배경 PNG 생성 → [cursor.cc](https://www.cursor.cc/?action=import_request)에서 커서 파일로 변환
+            - **폴더 아이콘**: PNG 생성 → [icoconverter.com](https://www.icoconverter.com/)에서 `.ico` 변환 후 폴더 아이콘으로 지정
 
             ### 5) 수업 팁
             - Fast 시간이 제한될 수 있어요 → **꼭 필요한 4~6장만** 생성
-            - 한 단어만 바꿔가며 3번 비교해 보세요 (실험 노트)
-            - 같은 스타일 키워드를 고정하면 클래스 디자인이 통일돼요
+            - 커서/폴더 아이콘은 **단순·선명·투명 배경**이 중요해요
             - 완성 작품은 **6. 작품 공유·발표** 탭에 올려 친구들과 나눠요
             """
         )
+        l1, l2 = st.columns(2)
+        with l1:
+            st.link_button("🖱️ 마우스 커서 제작", CURSOR_MAKER_URL, type="primary")
+        with l2:
+            st.link_button("📁 폴더 아이콘 제작", FOLDER_ICON_URL, type="primary")
 
     with tab_make:
         st.subheader("✨ 프롬프트 자동 만들기")
-        st.caption("아래에서 고르면 미드저니에 넣을 영어 프롬프트가 자동으로 만들어져요. 복사해서 붙여넣으세요!")
+        st.caption("만들고 싶은 용도를 고르면, 그에 맞는 영어 프롬프트가 자동으로 만들어져요!")
         st.link_button("🎨 미드저니 열기", MIDJOURNEY_URL, type="primary")
+
+        purpose_presets = {
+            "노트북 바탕화면": {
+                "hint": "desktop wallpaper, wide landscape composition, no text, high resolution",
+                "ratio": "16:9 (가로)",
+                "extras_default": ["simple", "high detail"],
+                "subject_default": "cozy desk with plants and soft light",
+                "tip": "16:9로 만들고 노트북 배경화면으로 설정해 보세요.",
+                "tool": None,
+            },
+            "구글·인스타 프로필": {
+                "hint": "profile picture avatar, centered face or character, circular crop friendly, clean background",
+                "ratio": "1:1 (정사각)",
+                "extras_default": ["simple", "white background", "kawaii"],
+                "subject_default": "cute cat face",
+                "tip": "1:1 정사각으로 만들고 구글/인스타 프로필에 올려 보세요.",
+                "tool": None,
+            },
+            "마우스 커서 아이콘": {
+                "hint": "mouse cursor icon, single small icon, transparent background, crisp edges, minimal, no shadow clutter",
+                "ratio": "1:1 (정사각)",
+                "extras_default": ["simple", "minimal", "white background"],
+                "subject_default": "pixel arrow cursor with star tip",
+                "tip": "단순하고 선명한 아이콘으로 만든 뒤, 아래 링크로 커서 파일을 만드세요.",
+                "tool": ("🖱️ 마우스 커서 제작 바로가기", CURSOR_MAKER_URL),
+            },
+            "폴더 아이콘": {
+                "hint": "folder icon, app icon style, centered, transparent background, crisp vector edges",
+                "ratio": "1:1 (정사각)",
+                "extras_default": ["simple", "minimal", "logo"],
+                "subject_default": "pastel folder with cat sticker",
+                "tip": "아이콘을 만든 뒤 ICO로 변환해 폴더에 적용해 보세요.",
+                "tool": ("📁 폴더 아이콘 제작 바로가기", FOLDER_ICON_URL),
+            },
+            "게임 마스코트": {
+                "hint": "mascot character, full body, cute",
+                "ratio": "1:1 (정사각)",
+                "extras_default": ["simple", "white background", "mascot"],
+                "subject_default": "cat",
+                "tip": "퀵드로우 게임 정답 캐릭터로도 쓸 수 있어요.",
+                "tool": None,
+            },
+            "직접 입력": {
+                "hint": "",
+                "ratio": "1:1 (정사각)",
+                "extras_default": ["simple"],
+                "subject_default": "cat",
+                "tip": "원하는 용도에 맞게 키워드를 자유롭게 조합해 보세요.",
+                "tool": None,
+            },
+        }
 
         purpose = st.selectbox(
             "무엇을 만들까요?",
-            ["정답 캐릭터(마스코트)", "게임 제목 로고", "배경", "직접 입력"],
+            list(purpose_presets.keys()),
             key="mj_purpose",
         )
+        preset = purpose_presets[purpose]
+        st.info(f"💡 {preset['tip']}")
+        if preset["tool"]:
+            st.link_button(preset["tool"][0], preset["tool"][1], type="secondary")
 
         col1, col2 = st.columns(2)
         with col1:
             subject = st.text_input(
-                "주제 (영어로 쓰면 더 잘 돼요)",
-                value="cat",
-                help="예: cat, apple, robot, space ...",
-                key="mj_subject",
+                "주제 / 모티프 (영어로 쓰면 더 잘 돼요)",
+                value=preset["subject_default"],
+                help="예: cute fox, neon city, my initials 'DK' ...",
+                key=f"mj_subject_{purpose}",
             )
         with col2:
             style = st.selectbox(
@@ -1217,7 +1279,7 @@ elif page == "🎀 4. 미드저니 아트 (11:00·13:00)":
                     "simple line art",
                     "sticker design",
                 ],
-                key="mj_style",
+                key=f"mj_style_{purpose}",
             )
 
         col3, col4 = st.columns(2)
@@ -1225,30 +1287,47 @@ elif page == "🎀 4. 미드저니 아트 (11:00·13:00)":
             color = st.selectbox(
                 "색감/분위기",
                 ["pastel colors", "vivid colors", "bright and cheerful", "black and white", "neon"],
-                key="mj_color",
+                key=f"mj_color_{purpose}",
             )
         with col4:
+            ratio_options = ["1:1 (정사각)", "16:9 (가로)", "9:16 (세로)"]
+            default_ratio_idx = ratio_options.index(preset["ratio"]) if preset["ratio"] in ratio_options else 0
             ratio = st.selectbox(
                 "그림 비율 (--ar)",
-                ["1:1 (정사각)", "16:9 (가로)", "9:16 (세로)"],
-                key="mj_ratio",
+                ratio_options,
+                index=default_ratio_idx,
+                key=f"mj_ratio_{purpose}",
             )
 
         extras = st.multiselect(
             "추가 옵션 (선택)",
-            ["simple", "minimal", "white background", "kawaii", "logo", "mascot", "high detail"],
-            default=["simple", "white background"],
-            key="mj_extras",
+            [
+                "simple",
+                "minimal",
+                "white background",
+                "transparent background",
+                "kawaii",
+                "logo",
+                "mascot",
+                "high detail",
+                "no text",
+                "centered",
+            ],
+            default=preset["extras_default"],
+            key=f"mj_extras_{purpose}",
         )
 
-        purpose_hint = {
-            "정답 캐릭터(마스코트)": "mascot character",
-            "게임 제목 로고": "game logo, text",
-            "배경": "background scene",
-            "직접 입력": "",
-        }[purpose]
+        personal = st.text_input(
+            "나만의 키워드 (선택)",
+            placeholder="예: my name initial D, favorite color mint, soft glow",
+            key=f"mj_personal_{purpose}",
+        )
+
         ratio_code = {"1:1 (정사각)": "1:1", "16:9 (가로)": "16:9", "9:16 (세로)": "9:16"}[ratio]
-        parts = [subject.strip(), purpose_hint, style, color] + extras
+        parts = [subject.strip(), preset["hint"], style, color, personal.strip()] + extras
+        # 커서/폴더 아이콘은 투명·선명 강조
+        if purpose in {"마우스 커서 아이콘", "폴더 아이콘"}:
+            parts += ["icon only", "no watermark"]
         prompt_text = ", ".join([p for p in parts if p]).strip(", ")
         prompt_text = f"{prompt_text} --ar {ratio_code}"
 
@@ -1256,17 +1335,28 @@ elif page == "🎀 4. 미드저니 아트 (11:00·13:00)":
         st.code(prompt_text, language="text")
 
         st.markdown(
-            """
+            f"""
             ### 💡 실습 순서
-            1. **내 계정 찾기**로 로그인 정보 확인
+            1. **내 계정 찾기**로 로그인
             2. 위 프롬프트를 복사해 `/imagine`에 붙여넣기
             3. 마음에 드는 그림 다운로드
-            4. **6. 작품 공유·발표** 탭에 업로드
+            4. {"커서/폴더 변환 링크로 파일 만들기" if purpose in {"마우스 커서 아이콘", "폴더 아이콘"} else "내 노트북·프로필에 바로 적용"}
+            5. **6. 작품 공유·발표** 탭에 업로드
             """
         )
 
+        with st.expander("📌 용도별 추천 프롬프트 예시 보기"):
+            st.markdown(
+                """
+                - **바탕화면**: `aurora night sky over quiet mountains, desktop wallpaper, wide landscape, no text, pastel colors --ar 16:9`
+                - **프로필**: `cute fox avatar, centered face, circular crop friendly, clean pastel background --ar 1:1`
+                - **마우스 커서**: `pixel star cursor icon, transparent background, crisp edges, minimal, icon only --ar 1:1`
+                - **폴더 아이콘**: `pastel folder icon with cat sticker, app icon style, transparent background, vector --ar 1:1`
+                """
+            )
+
 # ------------------------------------------------------------------ 실습
-elif page == "💻 5. Colab 퀵드로우 (14:20)":
+elif page == "💻 5. Colab 퀵드로우":
     st.markdown('<div class="section-chip">PYTHON BUILD ZONE</div>', unsafe_allow_html=True)
     st.title("🧪 실습 — 나만의 AI 만들기")
     st.markdown(
@@ -1305,10 +1395,10 @@ elif page == "💻 5. Colab 퀵드로우 (14:20)":
     )
 
 # ------------------------------------------------------------------ 작품 공유·발표·만족도
-elif page == "🖼️ 6. 작품 공유·발표 (15:30)":
+elif page == "🖼️ 6. 작품 공유·발표":
     st.markdown('<div class="section-chip">SHOWCASE · SURVEY</div>', unsafe_allow_html=True)
     st.title("🖼️ 작품 공유 · 발표 · 만족도")
-    st.caption("3:30~3:50 · 친구 작품을 보고, 발표하고, 오늘 수업을 남겨 주세요")
+    st.caption("친구 작품을 보고, 발표하고, 오늘 수업을 남겨 주세요")
 
     share_tab, gallery_tab, talk_tab, survey_tab = st.tabs(
         ["📤 내 작품 올리기", "👀 친구 작품 보기", "🎤 발표 질문", "😊 만족도 조사"]
@@ -1323,9 +1413,9 @@ elif page == "🖼️ 6. 작품 공유·발표 (15:30)":
             g_name = st.text_input("닉네임/이름 (선택)", placeholder="예: 다은")
             g_kind = st.selectbox(
                 "작품 종류",
-                ["미드저니 로고", "미드저니 마스코트", "미드저니 배경", "Colab 퀵드로우", "기타"],
+                ["노트북 바탕화면", "프로필 사진", "마우스 커서", "폴더 아이콘", "게임 마스코트", "Colab 퀵드로우", "기타"],
             )
-            g_title = st.text_input("작품 제목", placeholder="예: 파스텔 고양이 마스코트")
+            g_title = st.text_input("작품 제목", placeholder="예: 민트빛 고양이 프로필")
             g_desc = st.text_area("한 줄 설명", placeholder="어떤 프롬프트/아이디어였나요?")
             g_url = st.text_input("이미지 링크 (선택)", placeholder="https://...")
             g_file = st.file_uploader("이미지 파일 업로드 (png/jpg)", type=["png", "jpg", "jpeg", "webp"])
@@ -1375,7 +1465,7 @@ elif page == "🖼️ 6. 작품 공유·발표 (15:30)":
         else:
             filter_kind = st.multiselect(
                 "종류 필터",
-                ["미드저니 로고", "미드저니 마스코트", "미드저니 배경", "Colab 퀵드로우", "기타"],
+                ["노트북 바탕화면", "프로필 사진", "마우스 커서", "폴더 아이콘", "게임 마스코트", "Colab 퀵드로우", "기타"],
                 default=[],
             )
             shown = [w for w in works if not filter_kind or w.get("kind") in filter_kind]
