@@ -55,16 +55,25 @@ GALLERY_FILE = BASE / "assets" / "gallery" / "works.json"
 GALLERY_IMG_DIR = BASE / "assets" / "gallery" / "images"
 PRE_SURVEY_QR = BASE / "assets" / "survey" / "pre_survey_qr.png"
 POST_SURVEY_QR = BASE / "assets" / "survey" / "post_survey_qr.png"
+PRE_SURVEY_URL = (
+    "https://docs.google.com/forms/d/e/"
+    "1FAIpQLScbVMtwaj4T3rg_UTZEm8TPENLX0d3W0BvOm4bS3cDtfFzi0w/viewform"
+)
+POST_SURVEY_URL = (
+    "https://docs.google.com/forms/d/e/"
+    "1FAIpQLSdMAEoJZfGDIpM3-F0lKsxttJAWmDvFnQAuk9SN0AyG5R2FSw/viewform"
+)
 
 
-def show_survey_qr(path: Path, caption: str, width: int = 420) -> None:
-    """설문 QR 이미지를 가운데 정렬로 보여줍니다."""
-    if path.exists():
-        left, mid, right = st.columns([1, 2, 1])
-        with mid:
+def show_survey_qr(path: Path, caption: str, url: str, width: int = 420) -> None:
+    """설문 QR 이미지와 바로가기 링크를 가운데 정렬로 보여줍니다."""
+    left, mid, right = st.columns([1, 2, 1])
+    with mid:
+        if path.exists():
             st.image(str(path), caption=caption, width=width)
-    else:
-        st.warning(f"QR 이미지를 찾을 수 없어요: `{path.name}`")
+        else:
+            st.warning(f"QR 이미지를 찾을 수 없어요: `{path.name}`")
+        st.link_button("설문 바로 열기", url, use_container_width=True, type="primary")
 
 
 def read_text(filename: str) -> str:
@@ -456,7 +465,7 @@ if page == "🌈 1. OT·쁘띠빠크":
     st.markdown('<div class="section-chip">PRE-SURVEY</div>', unsafe_allow_html=True)
     st.subheader("📋 수업 시작 전 · 사전 설문 조사")
     st.caption("1교시 시작 전에 QR을 스캔해 참여해 주세요")
-    show_survey_qr(PRE_SURVEY_QR, "사전 설문 조사 QR", width=460)
+    show_survey_qr(PRE_SURVEY_QR, "사전 설문 조사 QR", PRE_SURVEY_URL, width=460)
     st.divider()
 
     st.title("나만의 커스텀 퀵 드로우 만들기")
@@ -1619,8 +1628,8 @@ elif page == "🖼️ 6. 작품 공유·발표":
     with survey_tab:
         st.subheader("오늘 수업 만족도 조사")
         st.caption("수업이 끝나면 QR을 스캔해 참여해 주세요")
-        show_survey_qr(POST_SURVEY_QR, "만족도 조사 QR", width=420)
-        st.info("휴대폰 카메라로 QR을 비추면 설문으로 이동해요. 참여해 줘서 고마워요! 🎓")
+        show_survey_qr(POST_SURVEY_QR, "만족도 조사 QR", POST_SURVEY_URL, width=420)
+        st.info("QR을 스캔하거나 위 버튼으로 설문에 참여해 주세요. 고마워요! 🎓")
 
 # ------------------------------------------------------------------ 참고자료
 elif page == "📎 참고자료":
