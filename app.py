@@ -50,10 +50,21 @@ COLLECTOR_API_URL = "https://script.google.com/macros/s/AKfycbzPP6GHuqSHltZxutD8
 COLLECTOR_CLASS_ID = "collector-submissions-2026"
 WORKSHEET_CLASS_ID = "worksheet-submissions-2026"
 GALLERY_CLASS_ID = "gallery-submissions-2026"
-SURVEY_CLASS_ID = "satisfaction-survey-2026"
 MJ_ACCOUNTS_FILE = BASE / "assets" / "midjourney" / "student_accounts.json"
 GALLERY_FILE = BASE / "assets" / "gallery" / "works.json"
 GALLERY_IMG_DIR = BASE / "assets" / "gallery" / "images"
+PRE_SURVEY_QR = BASE / "assets" / "survey" / "pre_survey_qr.png"
+POST_SURVEY_QR = BASE / "assets" / "survey" / "post_survey_qr.png"
+
+
+def show_survey_qr(path: Path, caption: str, width: int = 420) -> None:
+    """설문 QR 이미지를 가운데 정렬로 보여줍니다."""
+    if path.exists():
+        left, mid, right = st.columns([1, 2, 1])
+        with mid:
+            st.image(str(path), caption=caption, width=width)
+    else:
+        st.warning(f"QR 이미지를 찾을 수 없어요: `{path.name}`")
 
 
 def read_text(filename: str) -> str:
@@ -442,6 +453,12 @@ with st.sidebar:
 
 # ------------------------------------------------------------------ 도입
 if page == "🌈 1. OT·쁘띠빠크":
+    st.markdown('<div class="section-chip">PRE-SURVEY</div>', unsafe_allow_html=True)
+    st.subheader("📋 수업 시작 전 · 사전 설문 조사")
+    st.caption("1교시 시작 전에 QR을 스캔해 참여해 주세요")
+    show_survey_qr(PRE_SURVEY_QR, "사전 설문 조사 QR", width=460)
+    st.divider()
+
     st.title("나만의 커스텀 퀵 드로우 만들기")
     st.subheader("그림을 알아맞히는 AI를 직접 만들고, 펜마우스로 게임해봐요!")
     st.markdown(
@@ -1490,7 +1507,7 @@ elif page == "💻 5. Colab 퀵드로우":
 elif page == "🖼️ 6. 작품 공유·발표":
     st.markdown('<div class="section-chip">SHOWCASE · SURVEY</div>', unsafe_allow_html=True)
     st.title("🖼️ 작품 공유 · 발표 · 만족도")
-    st.caption("친구 작품을 보고, 발표하고, 오늘 수업을 남겨 주세요")
+    st.caption("친구 작품을 보고, 발표하고, 만족도 조사 QR로 오늘 수업을 남겨 주세요")
 
     share_tab, gallery_tab, talk_tab, survey_tab = st.tabs(
         ["📤 내 작품 올리기", "👀 친구 작품 보기", "🎤 발표 질문", "😊 만족도 조사"]
@@ -1601,45 +1618,9 @@ elif page == "🖼️ 6. 작품 공유·발표":
 
     with survey_tab:
         st.subheader("오늘 수업 만족도 조사")
-        with st.form("satisfaction_form"):
-            s_cohort = st.selectbox("기수", ["7기", "8기"], key="sv_cohort")
-            s_number = st.number_input("번호", min_value=1, max_value=20, value=1, key="sv_num")
-            s_score = st.slider("전반적 만족도", 1, 5, 4)
-            s_fun = st.slider("재미있었나요?", 1, 5, 4)
-            s_learn = st.slider("AI·코딩 개념이 이해됐나요?", 1, 5, 4)
-            s_best = st.selectbox(
-                "가장 좋았던 활동",
-                ["쁘띠빠크", "AI 원리 퀴즈", "수집기(편향)", "미드저니", "Colab", "작품 공유"],
-            )
-            s_comment = st.text_area("남기고 싶은 말 (선택)")
-            s_ok = st.form_submit_button("제출하기", type="primary")
-        if s_ok:
-            payload = {
-                "classId": SURVEY_CLASS_ID,
-                "type": "satisfaction",
-                "cohort": s_cohort,
-                "number": int(s_number),
-                "score": int(s_score),
-                "fun": int(s_fun),
-                "learn": int(s_learn),
-                "best": s_best,
-                "comment": s_comment.strip(),
-                "submittedAt": datetime.now(timezone.utc).isoformat(),
-            }
-            ok, msg = post_json(COLLECTOR_API_URL, payload)
-            # local backup
-            survey_file = BASE / "assets" / "gallery" / "surveys.json"
-            try:
-                surveys = json.loads(survey_file.read_text(encoding="utf-8")) if survey_file.exists() else []
-            except Exception:
-                surveys = []
-            surveys.append(payload)
-            survey_file.write_text(json.dumps(surveys, ensure_ascii=False, indent=2), encoding="utf-8")
-            if ok:
-                st.success("제출 완료! 오늘 수고했어요 🎓")
-            else:
-                st.success("로컬에 저장했어요. (원격 전송은 잠시 후 다시 시도될 수 있어요)")
-                st.caption(msg[:160])
+        st.caption("수업이 끝나면 QR을 스캔해 참여해 주세요")
+        show_survey_qr(POST_SURVEY_QR, "만족도 조사 QR", width=420)
+        st.info("휴대폰 카메라로 QR을 비추면 설문으로 이동해요. 참여해 줘서 고마워요! 🎓")
 
 # ------------------------------------------------------------------ 참고자료
 elif page == "📎 참고자료":
@@ -1693,7 +1674,6 @@ elif page == "📎 참고자료":
         - 수집기: `classId=collector-submissions-2026`
         - 학습지: `classId=worksheet-submissions-2026`
         - 작품 공유: `classId=gallery-submissions-2026`
-        - 만족도: `classId=satisfaction-survey-2026`
 
         확인 방법:
         1. Apps Script 편집기에서 해당 웹앱 프로젝트 열기  
