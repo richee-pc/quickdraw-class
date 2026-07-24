@@ -663,7 +663,7 @@ elif page == "🧠 2. AI 원리·퀵드로우":
     _init_principle_progress()
     st.markdown('<div class="section-chip">AI & CODING CORE · 30 MIN</div>', unsafe_allow_html=True)
     st.title("🧠 AI·코딩 핵심 원리")
-    st.caption("약 30분 · 6개 미션 · 교재 핵심 개념 + 퀴즈·실습으로 재미있게 익혀요")
+    st.caption("약 30분 · 6개 미션 + 펜마우스 퀵드로우 실습 · 교재 핵심 개념을 퀴즈·실습으로 익혀요")
     st.markdown(
         """
         <div class="hero">
