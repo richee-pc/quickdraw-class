@@ -847,6 +847,10 @@ elif page == "🧠 AI·코딩 핵심 원리":
             with st.expander(snippet["title"], expanded=(sid == "var_print")):
                 st.caption(snippet["hint"])
                 code_key = f"lab_code_{sid}"
+                reset_flag = f"lab_reset_flag_{sid}"
+                # 위젯 생성 전에 복원 플래그 적용 (생성 후 같은 key 수정 시 Streamlit 오류)
+                if st.session_state.pop(reset_flag, False):
+                    st.session_state[code_key] = snippet["code"]
                 if code_key not in st.session_state:
                     st.session_state[code_key] = snippet["code"]
                 edited = st.text_area(
@@ -887,7 +891,7 @@ elif page == "🧠 AI·코딩 핵심 원리":
                             st.error(result)
                 with c_reset:
                     if st.button("↺ 원본 복원", key=f"lab_reset_btn_{sid}"):
-                        st.session_state[code_key] = snippet["code"]
+                        st.session_state[reset_flag] = True
                         st.rerun()
 
         solved_runs = sum(1 for s in CODING_LAB_SNIPPETS if f"{s['id']}_run" in st.session_state.coding_lab_solved)
