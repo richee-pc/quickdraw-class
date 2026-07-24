@@ -662,7 +662,7 @@ elif page == "🧠 2. AI 원리·퀵드로우":
     _init_principle_progress()
     st.markdown('<div class="section-chip">AI & CODING CORE · 30 MIN</div>', unsafe_allow_html=True)
     st.title("🧠 AI·코딩 핵심 원리")
-    st.caption("약 30분 · 6개 미션 + 펜마우스 퀵드로우 실습 · 교재 핵심 개념을 퀴즈·실습으로 익혀요")
+    st.caption("약 30분 · 개념 미션 6개 + 마지막 퀵드로우 실습 · 교재 핵심 개념을 퀴즈·실습으로 익혀요")
     st.markdown(
         """
         <div class="hero">
@@ -675,7 +675,7 @@ elif page == "🧠 2. AI 원리·퀵드로우":
     )
     st.progress(_principle_progress_ratio(), text=f"탐험 진행률 {int(_principle_progress_ratio() * 100)}%")
 
-    m1, m2, m3, m4, m5, m6 = st.tabs(
+    m1, m2, m3, m4, m5, m6, m7 = st.tabs(
         [
             "1️⃣ AI 3종류 (5분)",
             "2️⃣ 학습 4단계 (5분)",
@@ -683,6 +683,7 @@ elif page == "🧠 2. AI 원리·퀵드로우":
             "4️⃣ 데이터 편향 (5분)",
             "5️⃣ 결과 분석 (3분)",
             "6️⃣ 코딩 기초 (4분)",
+            "7️⃣ 퀵드로우 실습",
         ]
     )
 
@@ -979,83 +980,82 @@ elif page == "🧠 2. AI 원리·퀵드로우":
 
         st.info("Colab 노트북 TODO 칸을 채울 때: 변수 → 함수 → for/if 순서로 떠올려 보세요!")
 
-    st.divider()
-    done_count = sum(1 for v in st.session_state.principle_done.values() if v)
-    st.markdown(f"**완료한 미션:** {done_count} / 6")
-    if _principle_progress_ratio() >= 1.0:
-        st.balloons()
-        st.success("🎓 6개 미션 클리어! 이제 아래 **펜마우스 + 퀵드로우 실습**으로 바로 체험해 보세요.")
-    else:
-        remaining = [k.replace("m", "미션 ") for k, v in st.session_state.principle_done.items() if not v]
-        st.caption(f"남은 미션: {', '.join(remaining)} · 각 탭의 퀴즈/실습을 완료하면 진행률이 올라갑니다.")
+    with m7:
+        st.markdown('<div class="section-chip">HANDS-ON · QUICK DRAW</div>', unsafe_allow_html=True)
+        st.subheader("🖊️ 펜마우스 + Google 퀵드로우 실습")
+        st.caption("원리를 배웠으니, 펜마우스로 직접 그려 보며 AI가 그림을 맞히는 경험을 해 봐요!")
 
-    # ---- 펜마우스 안내 + Google Quick, Draw! 실습 ----
-    st.divider()
-    st.markdown('<div class="section-chip">HANDS-ON · QUICK DRAW</div>', unsafe_allow_html=True)
-    st.subheader("🖊️ 펜마우스 + Google 퀵드로우 실습")
-    st.caption("원리를 배웠으니, 펜마우스로 직접 그려 보며 AI가 그림을 맞히는 경험을 해 봐요!")
+        pm1, pm2 = st.columns([1.15, 1])
+        with pm1:
+            st.markdown("#### 📦 수업용 펜마우스")
+            st.markdown(
+                """
+                <div class="card">
+                  <h3>수업용 펜마우스</h3>
+                  <p>펜처럼 잡고 그릴 수 있어 퀵드로우 실습에 편해요.<br>
+                  일반 마우스보다 <b>선·곡선</b>을 그리기 수월합니다.</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            st.link_button("▶️ 공식 사용설명 영상", PEN_MOUSE_MANUAL_URL, use_container_width=True)
+        with pm2:
+            st.markdown("#### ⚙️ 연결·사용법 (빠른 안내)")
+            st.markdown(
+                """
+                1. **USB 동글(수신기)**을 노트북 USB 포트에 꽂아요.  
+                   *(유선 모델이면 케이블만 연결하면 됩니다.)*
+                2. 무선이면 **처음 사용 전 10분 이상 충전** 후 LED가 켜지면 사용해요.
+                3. **펜 잡듯이** 가볍게 잡고, 책상·마우스패드 위에서 움직여요.
+                4. **왼쪽 클릭** = 펜 끝을 바닥에 살짝 누르기  
+                   **오른쪽 클릭 / 스크롤** = 펜 옆 버튼·휠 사용
+                5. 커서가 안 움직이면 → USB 다시 꽂기 / 다른 USB 포트 / 배터리·충전 확인
+                """
+            )
 
-    pm1, pm2 = st.columns([1.15, 1])
-    with pm1:
-        st.markdown("#### 📦 수업용 펜마우스")
+        st.markdown("#### ✏️ 퀵드로우에서 잘 그리는 팁")
+        tip_a, tip_b, tip_c = st.columns(3)
+        tip_a.info("손목보다 **팔 전체**로 크게 움직여요")
+        tip_b.info("선은 한 번에, **너무 세게 누르지 않기**")
+        tip_c.info("제한 시간 안에 **간단하게** 그리는 게 핵심!")
+
+        st.markdown("#### 🎮 Google Quick, Draw! 바로 실습")
         st.markdown(
             """
-            <div class="card">
-              <h3>G마켓 펜마우스</h3>
-              <p>펜처럼 잡고 그릴 수 있어 퀵드로우 실습에 편해요.<br>
-              일반 마우스보다 <b>선·곡선</b>을 그리기 수월합니다.</p>
+            <div class="hero">
+              <h3>AI가 내 그림을 맞힐까?</h3>
+              <p>아래 버튼으로 공식 퀵드로우를 열고, 펜마우스로 그려 보세요.<br>
+              (보안 정책 때문에 페이지 안에 직접 끼워 넣을 수는 없어, 새 탭으로 열려요.)</p>
             </div>
             """,
             unsafe_allow_html=True,
         )
-        st.link_button("▶️ 공식 사용설명 영상", PEN_MOUSE_MANUAL_URL, use_container_width=True)
-    with pm2:
-        st.markdown("#### ⚙️ 연결·사용법 (빠른 안내)")
+        qd1, qd2 = st.columns([1, 1])
+        with qd1:
+            st.link_button("🚀 퀵드로우 시작하기", QUICKDRAW_URL, use_container_width=True, type="primary")
+        with qd2:
+            st.link_button("📂 그림 데이터 구경하기", "https://quickdraw.withgoogle.com/data", use_container_width=True)
+
         st.markdown(
             """
-            1. **USB 동글(수신기)**을 노트북 USB 포트에 꽂아요.  
-               *(유선 모델이면 케이블만 연결하면 됩니다.)*
-            2. 무선이면 **처음 사용 전 10분 이상 충전** 후 LED가 켜지면 사용해요.
-            3. **펜 잡듯이** 가볍게 잡고, 책상·마우스패드 위에서 움직여요.
-            4. **왼쪽 클릭** = 펜 끝을 바닥에 살짝 누르기  
-               **오른쪽 클릭 / 스크롤** = 펜 옆 버튼·휠 사용
-            5. 커서가 안 움직이면 → USB 다시 꽂기 / 다른 USB 포트 / 배터리·충전 확인
+            **실습 순서**
+            1. 위 **퀵드로우 시작하기** → `Let's Draw!` 클릭  
+            2. 화면에 나온 단어(예: cat, apple…)를 **펜마우스**로 20초 안에 그리기  
+            3. AI가 맞히면 다음 그림으로! 6개를 그려 보세요  
+            4. 끝난 뒤: *어떤 그림은 잘 맞히고, 어떤 그림은 헷갈렸을까?* 한 줄로 이야기해 보기
             """
         )
+        st.success("이 경험이 바로 **학습형 AI(분류)**가 데이터를 보고 답을 고르는 과정이에요. → 이어서 **3. 데이터 편향 실습**으로!")
 
-    st.markdown("#### ✏️ 퀵드로우에서 잘 그리는 팁")
-    tip_a, tip_b, tip_c = st.columns(3)
-    tip_a.info("손목보다 **팔 전체**로 크게 움직여요")
-    tip_b.info("선은 한 번에, **너무 세게 누르지 않기**")
-    tip_c.info("제한 시간 안에 **간단하게** 그리는 게 핵심!")
-
-    st.markdown("#### 🎮 Google Quick, Draw! 바로 실습")
-    st.markdown(
-        """
-        <div class="hero">
-          <h3>AI가 내 그림을 맞힐까?</h3>
-          <p>아래 버튼으로 공식 퀵드로우를 열고, 펜마우스로 그려 보세요.<br>
-          (보안 정책 때문에 페이지 안에 직접 끼워 넣을 수는 없어, 새 탭으로 열려요.)</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    qd1, qd2 = st.columns([1, 1])
-    with qd1:
-        st.link_button("🚀 퀵드로우 시작하기", QUICKDRAW_URL, use_container_width=True, type="primary")
-    with qd2:
-        st.link_button("📂 그림 데이터 구경하기", "https://quickdraw.withgoogle.com/data", use_container_width=True)
-
-    st.markdown(
-        """
-        **실습 순서**
-        1. 위 **퀵드로우 시작하기** → `Let's Draw!` 클릭  
-        2. 화면에 나온 단어(예: cat, apple…)를 **펜마우스**로 20초 안에 그리기  
-        3. AI가 맞히면 다음 그림으로! 6개를 그려 보세요  
-        4. 끝난 뒤: *어떤 그림은 잘 맞히고, 어떤 그림은 헷갈렸을까?* 한 줄로 이야기해 보기
-        """
-    )
-    st.success("이 경험이 바로 **학습형 AI(분류)**가 데이터를 보고 답을 고르는 과정이에요. → 이어서 **3. 데이터 편향 실습**으로!")
+    st.divider()
+    done_count = sum(1 for v in st.session_state.principle_done.values() if v)
+    st.markdown(f"**완료한 개념 미션:** {done_count} / 6")
+    if _principle_progress_ratio() >= 1.0:
+        st.balloons()
+        st.success("🎓 개념 미션 클리어! 마지막 탭 **7️⃣ 퀵드로우 실습**에서 펜마우스로 체험해 보세요.")
+    else:
+        remaining = [k.replace("m", "미션 ") for k, v in st.session_state.principle_done.items() if not v]
+        st.caption(f"남은 개념 미션: {', '.join(remaining)} · 각 탭의 퀴즈/실습을 완료하면 진행률이 올라갑니다.")
 
 # ------------------------------------------------------------------ 수집기 체험
 elif page == "🧩 3. 데이터 편향 실습":
