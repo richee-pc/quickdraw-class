@@ -44,6 +44,7 @@ COLAB_NOTEBOOK_URL = (
 MIDJOURNEY_URL = "https://www.midjourney.com/imagine"
 CURSOR_MAKER_URL = "https://www.cursor.cc/?action=import_request"
 FOLDER_ICON_URL = "https://www.icoconverter.com/"
+REMOVE_BG_URL = "https://www.remove.bg/ko"
 COLLECTOR_FILE = "나만의_퀵드로우_수집기.html"
 COLLECTOR_API_URL = "https://script.google.com/macros/s/AKfycbzPP6GHuqSHltZxutD8qyt8-TW_F5HNU1-2jLtkxEMPa-H8ufKdMzbl6GnCC1Lnq3pA/exec"
 COLLECTOR_CLASS_ID = "collector-submissions-2026"
@@ -1127,8 +1128,8 @@ elif page == "🎀 4. 미드저니 아트":
         "오늘은 **내 노트북을 나만의 스타일로 꾸미는** 작품을 만들어 봅시다!"
     )
 
-    tab_account, tab_guide, tab_make = st.tabs(
-        ["🔑 내 계정 찾기", "📖 사용법 안내", "✨ 프롬프트·작품 만들기"]
+    tab_account, tab_guide, tab_make, tab_apply = st.tabs(
+        ["🔑 내 계정 찾기", "📖 사용법 안내", "✨ 프롬프트·작품 만들기", "🖥️ 적용 방법"]
     )
 
     with tab_account:
@@ -1154,6 +1155,11 @@ elif page == "🎀 4. 미드저니 아트":
 
     with tab_guide:
         st.subheader("미드저니 사용법 + 노트북 커스터마이징")
+        st.warning(
+            "중요: 미드저니는 **진짜 투명(알파) 배경 PNG를 바로 만들지 못해요.** "
+            "커서·폴더 아이콘은 **흰색/단색 배경**으로 생성한 뒤, "
+            "[remove.bg](https://www.remove.bg/ko)로 배경을 지워 투명 PNG를 만듭니다."
+        )
         st.markdown(
             """
             ### 1) 접속·로그인
@@ -1168,30 +1174,32 @@ elif page == "🎀 4. 미드저니 아트":
             4. 완성 이미지를 **다운로드**
 
             ### 3) 오늘 미션 — 내 노트북 꾸미기 🎒
-            | 작품 | 어디에 쓰나요? | 비율 |
-            |---|---|---|
-            | 노트북 바탕화면 | Windows/Mac 배경화면 | 16:9 |
-            | 프로필 사진 | 구글·인스타 프로필 | 1:1 |
-            | 마우스 커서 아이콘 | 커서 파일로 변환 후 적용 | 1:1 |
-            | 폴더 아이콘 | ICO로 변환 후 폴더에 적용 | 1:1 |
+            | 작품 | 어디에 쓰나요? | 비율 | 배경 팁 |
+            |---|---|---|---|
+            | 노트북 바탕화면 | Windows/Mac 배경화면 | 16:9 | 배경 그대로 OK |
+            | 프로필 사진 | 구글·인스타 프로필 | 1:1 | 깔끔한 단색 배경 OK |
+            | 마우스 커서 아이콘 | 커서 파일로 변환 후 적용 | 1:1 | **흰 배경 → 배경 제거 필수** |
+            | 폴더 아이콘 | ICO로 변환 후 적용 | 1:1 | **흰 배경 → 배경 제거 필수** |
 
-            ### 4) 적용 방법 (간단)
-            - **바탕화면**: 다운로드 → 우클릭 → 배경으로 설정
-            - **프로필**: 구글/인스타 설정에서 사진 변경
-            - **마우스 커서**: 투명 배경 PNG 생성 → [cursor.cc](https://www.cursor.cc/?action=import_request)에서 커서 파일로 변환
-            - **폴더 아이콘**: PNG 생성 → [icoconverter.com](https://www.icoconverter.com/)에서 `.ico` 변환 후 폴더 아이콘으로 지정
+            ### 4) 커서·폴더용 투명 배경 만드는 법
+            1. 미드저니에서 **pure white background** 프롬프트로 생성
+            2. 다운로드
+            3. [remove.bg](https://www.remove.bg/ko)에 올려 배경 제거 → 투명 PNG 저장
+            4. 커서: [cursor.cc](https://www.cursor.cc/?action=import_request) / 폴더: [icoconverter.com](https://www.icoconverter.com/)
 
             ### 5) 수업 팁
             - Fast 시간이 제한될 수 있어요 → **꼭 필요한 4~6장만** 생성
-            - 커서/폴더 아이콘은 **단순·선명·투명 배경**이 중요해요
+            - 커서/폴더는 **단순·선명·흰 배경**이 중요해요 (`transparent background`만 쓰면 가짜 바둑판이 나올 수 있음)
             - 완성 작품은 **6. 작품 공유·발표** 탭에 올려 친구들과 나눠요
             """
         )
-        l1, l2 = st.columns(2)
+        l1, l2, l3 = st.columns(3)
         with l1:
-            st.link_button("🖱️ 마우스 커서 제작", CURSOR_MAKER_URL, type="primary")
+            st.link_button("🧹 배경 제거 (remove.bg)", REMOVE_BG_URL, type="primary")
         with l2:
-            st.link_button("📁 폴더 아이콘 제작", FOLDER_ICON_URL, type="primary")
+            st.link_button("🖱️ 마우스 커서 제작", CURSOR_MAKER_URL)
+        with l3:
+            st.link_button("📁 폴더 아이콘 제작", FOLDER_ICON_URL)
 
     with tab_make:
         st.subheader("✨ 프롬프트 자동 만들기")
@@ -1202,42 +1210,58 @@ elif page == "🎀 4. 미드저니 아트":
             "노트북 바탕화면": {
                 "hint": "desktop wallpaper, wide landscape composition, no text, high resolution",
                 "ratio": "16:9 (가로)",
-                "extras_default": ["simple", "high detail"],
+                "extras_default": ["simple", "high detail", "no text"],
                 "subject_default": "cozy desk with plants and soft light",
-                "tip": "16:9로 만들고 노트북 배경화면으로 설정해 보세요.",
+                "tip": "16:9로 만들고 「적용 방법」 탭의 바탕화면 설정을 따라 적용하세요.",
                 "tool": None,
+                "suffix": "",
             },
             "구글·인스타 프로필": {
-                "hint": "profile picture avatar, centered face or character, circular crop friendly, clean background",
+                "hint": "profile picture avatar, centered face or character, circular crop friendly, clean solid background",
                 "ratio": "1:1 (정사각)",
-                "extras_default": ["simple", "white background", "kawaii"],
+                "extras_default": ["simple", "white background", "kawaii", "centered"],
                 "subject_default": "cute cat face",
                 "tip": "1:1 정사각으로 만들고 구글/인스타 프로필에 올려 보세요.",
                 "tool": None,
+                "suffix": "",
             },
             "마우스 커서 아이콘": {
-                "hint": "mouse cursor icon, single small icon, transparent background, crisp edges, minimal, no shadow clutter",
+                "hint": (
+                    "mouse cursor icon, single small icon only, isolated on pure white background, "
+                    "studio flat lighting, no shadows, no reflections, crisp edges, minimal"
+                ),
                 "ratio": "1:1 (정사각)",
-                "extras_default": ["simple", "minimal", "white background"],
+                "extras_default": ["simple", "minimal", "white background", "centered"],
                 "subject_default": "pixel arrow cursor with star tip",
-                "tip": "단순하고 선명한 아이콘으로 만든 뒤, 아래 링크로 커서 파일을 만드세요.",
+                "tip": (
+                    "미드저니는 진짜 투명 PNG를 바로 못 만들어요. "
+                    "흰 배경으로 만든 뒤 remove.bg로 배경을 지우고, cursor.cc에서 커서 파일로 바꾸세요."
+                ),
                 "tool": ("🖱️ 마우스 커서 제작 바로가기", CURSOR_MAKER_URL),
+                "suffix": " --no background, scenery, shadow, reflection, blur",
             },
             "폴더 아이콘": {
-                "hint": "folder icon, app icon style, centered, transparent background, crisp vector edges",
+                "hint": (
+                    "folder icon, app icon style, centered, isolated on pure white background, "
+                    "studio flat lighting, no shadows, crisp vector edges"
+                ),
                 "ratio": "1:1 (정사각)",
-                "extras_default": ["simple", "minimal", "logo"],
+                "extras_default": ["simple", "minimal", "white background", "logo", "centered"],
                 "subject_default": "pastel folder with cat sticker",
-                "tip": "아이콘을 만든 뒤 ICO로 변환해 폴더에 적용해 보세요.",
+                "tip": (
+                    "흰 배경으로 생성 → remove.bg로 투명 PNG → icoconverter.com에서 .ico 변환 → 폴더에 적용."
+                ),
                 "tool": ("📁 폴더 아이콘 제작 바로가기", FOLDER_ICON_URL),
+                "suffix": " --no background, scenery, shadow, reflection, blur",
             },
             "게임 마스코트": {
-                "hint": "mascot character, full body, cute",
+                "hint": "mascot character, full body, cute, isolated on pure white background",
                 "ratio": "1:1 (정사각)",
                 "extras_default": ["simple", "white background", "mascot"],
                 "subject_default": "cat",
                 "tip": "퀵드로우 게임 정답 캐릭터로도 쓸 수 있어요.",
                 "tool": None,
+                "suffix": "",
             },
             "직접 입력": {
                 "hint": "",
@@ -1246,6 +1270,7 @@ elif page == "🎀 4. 미드저니 아트":
                 "subject_default": "cat",
                 "tip": "원하는 용도에 맞게 키워드를 자유롭게 조합해 보세요.",
                 "tool": None,
+                "suffix": "",
             },
         }
 
@@ -1256,6 +1281,8 @@ elif page == "🎀 4. 미드저니 아트":
         )
         preset = purpose_presets[purpose]
         st.info(f"💡 {preset['tip']}")
+        if purpose in {"마우스 커서 아이콘", "폴더 아이콘"}:
+            st.link_button("🧹 배경 제거 (remove.bg)", REMOVE_BG_URL, type="secondary")
         if preset["tool"]:
             st.link_button(preset["tool"][0], preset["tool"][1], type="secondary")
 
@@ -1305,7 +1332,7 @@ elif page == "🎀 4. 미드저니 아트":
                 "simple",
                 "minimal",
                 "white background",
-                "transparent background",
+                "pure white background",
                 "kawaii",
                 "logo",
                 "mascot",
@@ -1324,36 +1351,101 @@ elif page == "🎀 4. 미드저니 아트":
         )
 
         ratio_code = {"1:1 (정사각)": "1:1", "16:9 (가로)": "16:9", "9:16 (세로)": "9:16"}[ratio]
-        parts = [subject.strip(), preset["hint"], style, color, personal.strip()] + extras
-        # 커서/폴더 아이콘은 투명·선명 강조
+        # 'transparent background'는 가짜 바둑판을 만들 수 있어 아이콘용으로는 제외
+        safe_extras = [e for e in extras if e != "transparent background"]
+        parts = [subject.strip(), preset["hint"], style, color, personal.strip()] + safe_extras
         if purpose in {"마우스 커서 아이콘", "폴더 아이콘"}:
-            parts += ["icon only", "no watermark"]
+            parts += ["icon only", "no watermark", "isolated subject"]
         prompt_text = ", ".join([p for p in parts if p]).strip(", ")
-        prompt_text = f"{prompt_text} --ar {ratio_code}"
+        prompt_text = f"{prompt_text} --ar {ratio_code}{preset.get('suffix', '')}"
 
         st.markdown("**👇 이 프롬프트를 복사해서 미드저니에 붙여넣으세요**")
         st.code(prompt_text, language="text")
 
-        st.markdown(
-            f"""
-            ### 💡 실습 순서
-            1. **내 계정 찾기**로 로그인
-            2. 위 프롬프트를 복사해 `/imagine`에 붙여넣기
-            3. 마음에 드는 그림 다운로드
-            4. {"커서/폴더 변환 링크로 파일 만들기" if purpose in {"마우스 커서 아이콘", "폴더 아이콘"} else "내 노트북·프로필에 바로 적용"}
-            5. **6. 작품 공유·발표** 탭에 업로드
-            """
-        )
+        if purpose in {"마우스 커서 아이콘", "폴더 아이콘"}:
+            st.markdown(
+                """
+                ### 💡 커서·폴더 실습 순서
+                1. 위 프롬프트로 미드저니 생성 (흰 배경)
+                2. 마음에 드는 장 다운로드
+                3. [remove.bg](https://www.remove.bg/ko)로 **배경 제거 → 투명 PNG**
+                4. 커서: [cursor.cc](https://www.cursor.cc/?action=import_request) / 폴더: [icoconverter.com](https://www.icoconverter.com/)
+                5. 「적용 방법」 탭에서 노트북에 적용
+                6. **6. 작품 공유·발표**에 업로드
+                """
+            )
+        else:
+            st.markdown(
+                """
+                ### 💡 실습 순서
+                1. **내 계정 찾기**로 로그인
+                2. 위 프롬프트를 복사해 `/imagine`에 붙여넣기
+                3. 마음에 드는 그림 다운로드
+                4. 「적용 방법」 탭에서 노트북·프로필에 적용
+                5. **6. 작품 공유·발표** 탭에 업로드
+                """
+            )
 
         with st.expander("📌 용도별 추천 프롬프트 예시 보기"):
             st.markdown(
                 """
                 - **바탕화면**: `aurora night sky over quiet mountains, desktop wallpaper, wide landscape, no text, pastel colors --ar 16:9`
                 - **프로필**: `cute fox avatar, centered face, circular crop friendly, clean pastel background --ar 1:1`
-                - **마우스 커서**: `pixel star cursor icon, transparent background, crisp edges, minimal, icon only --ar 1:1`
-                - **폴더 아이콘**: `pastel folder icon with cat sticker, app icon style, transparent background, vector --ar 1:1`
+                - **마우스 커서**: `pixel star cursor icon, isolated on pure white background, no shadows, crisp edges, icon only --ar 1:1 --no background, scenery, shadow`
+                - **폴더 아이콘**: `pastel folder icon with cat sticker, app icon style, isolated on pure white background, vector --ar 1:1 --no background, scenery, shadow`
                 """
             )
+
+    with tab_apply:
+        st.subheader("🖥️ 내 노트북에 적용하는 방법")
+        st.caption("Windows 노트북 기준입니다. (학교 실습실 환경에 맞춰 단계만 따라 하면 돼요)")
+
+        st.markdown("### 1) 바탕화면 바꾸기")
+        st.markdown(
+            """
+            1. 미드저니에서 **16:9 바탕화면** 이미지를 다운로드
+            2. 다운로드 폴더에서 이미지를 **우클릭**
+            3. **배경화면으로 설정**(또는 **바탕 화면 배경으로 설정**) 클릭
+            4. 안 보이면: 바탕화면 빈 곳 우클릭 → **개인 설정** → **배경** → 사진 선택
+            """
+        )
+
+        st.markdown("### 2) 마우스 커서 바꾸기")
+        st.markdown(
+            """
+            1. 미드저니에서 **흰 배경 커서 아이콘** 생성·다운로드
+            2. [remove.bg](https://www.remove.bg/ko)로 배경 제거 → **투명 PNG** 저장
+            3. [cursor.cc](https://www.cursor.cc/?action=import_request) 접속 → PNG 업로드 → **.cur / .ani** 파일 만들기
+            4. Windows 검색창에 `마우스` 입력 → **마우스 설정** 열기
+            5. **추가 마우스 옵션** → **포인터** 탭
+            6. **찾아보기**로 만든 커서 파일 선택 → **적용**
+            """
+        )
+        st.link_button("🖱️ 커서 제작 사이트 열기", CURSOR_MAKER_URL, type="primary")
+        st.link_button("🧹 배경 제거 열기", REMOVE_BG_URL)
+
+        st.markdown("### 3) 폴더 아이콘 바꾸기")
+        st.markdown(
+            """
+            1. 미드저니에서 **흰 배경 폴더 아이콘** 생성·다운로드
+            2. [remove.bg](https://www.remove.bg/ko)로 배경 제거 → 투명 PNG 저장
+            3. [icoconverter.com](https://www.icoconverter.com/)에서 PNG → **.ico** 변환·다운로드
+            4. 바꾸고 싶은 폴더를 **우클릭 → 속성**
+            5. **사용자 지정** 탭 → **아이콘 변경**
+            6. **찾아보기**로 `.ico` 파일 선택 → **확인** → **적용**
+            """
+        )
+        st.link_button("📁 ICO 변환 사이트 열기", FOLDER_ICON_URL, type="primary")
+
+        st.markdown("### 4) 프로필 사진 바꾸기 (참고)")
+        st.markdown(
+            """
+            - **구글**: 계정 프로필 → 사진 변경 → 업로드
+            - **인스타**: 프로필 편집 → 사진 또는 아바타 수정
+            """
+        )
+
+        st.success("적용까지 끝났다면 **6. 작품 공유·발표**에 결과 이미지를 올려 친구들과 나눠 보세요!")
 
 # ------------------------------------------------------------------ 실습
 elif page == "💻 5. Colab 퀵드로우":
