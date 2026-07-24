@@ -46,6 +46,11 @@ COLLECTOR_FILE = "나만의_퀵드로우_수집기.html"
 COLLECTOR_API_URL = "https://script.google.com/macros/s/AKfycbzPP6GHuqSHltZxutD8qyt8-TW_F5HNU1-2jLtkxEMPa-H8ufKdMzbl6GnCC1Lnq3pA/exec"
 COLLECTOR_CLASS_ID = "collector-submissions-2026"
 WORKSHEET_CLASS_ID = "worksheet-submissions-2026"
+GALLERY_CLASS_ID = "gallery-submissions-2026"
+SURVEY_CLASS_ID = "satisfaction-survey-2026"
+MJ_ACCOUNTS_FILE = BASE / "assets" / "midjourney" / "student_accounts.json"
+GALLERY_FILE = BASE / "assets" / "gallery" / "works.json"
+GALLERY_IMG_DIR = BASE / "assets" / "gallery" / "images"
 
 
 def read_text(filename: str) -> str:
@@ -76,6 +81,41 @@ def post_json(url: str, payload: dict) -> tuple[bool, str]:
         return True, body
     except Exception as e:  # pragma: no cover - UI fallback path
         return False, str(e)
+
+
+def load_mj_accounts() -> list[dict]:
+    if not MJ_ACCOUNTS_FILE.exists():
+        return []
+    try:
+        return json.loads(MJ_ACCOUNTS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+
+def find_mj_account(cohort: str, number: int) -> dict | None:
+    for row in load_mj_accounts():
+        if str(row.get("cohort")) == str(cohort) and int(row.get("number", -1)) == int(number):
+            return row
+    return None
+
+
+def load_gallery_works() -> list[dict]:
+    GALLERY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    if not GALLERY_FILE.exists():
+        return []
+    try:
+        data = json.loads(GALLERY_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
+
+def save_gallery_work(item: dict) -> None:
+    GALLERY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    GALLERY_IMG_DIR.mkdir(parents=True, exist_ok=True)
+    works = load_gallery_works()
+    works.insert(0, item)
+    GALLERY_FILE.write_text(json.dumps(works, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def _init_principle_progress() -> None:
@@ -369,36 +409,36 @@ st.markdown(
 # ------------------------------------------------------------------ 사이드바
 with st.sidebar:
     st.title("🎨 퀵 드로우 실습")
-    st.caption("AI를 직접 만들고 펜마우스로 그려서 게임하기")
+    st.caption("조대부고 AISW · 하루 수업 흐름")
     page = st.radio(
         "메뉴",
         [
-            "🌈 도입",
-            "🧠 AI·코딩 핵심 원리",
-            "🧩 데이터 학습·편향 (수집기)",
+            "🌈 1. OT·쁘띠빠크 (9:00)",
+            "🧠 2. AI 원리·퀵드로우 (10:00)",
+            "🧩 3. 데이터 편향 실습 (11:00)",
+            "🎀 4. 미드저니 아트 (11:00·13:00)",
+            "💻 5. Colab 퀵드로우 (14:20)",
+            "🖼️ 6. 작품 공유·발표 (15:30)",
+            "📝 학습지",
             "🖥️ 수업 슬라이드",
-            "📝 학습지 작성·제출",
-            "🎀 미드저니 아트 만들기",
-            "💻 Colab으로 퀵드로우 만들기",
-            "🎤 발표·마무리",
             "📎 참고자료",
         ],
         label_visibility="collapsed",
     )
     st.divider()
-    st.markdown("**오늘의 흐름**")
+    st.markdown("**오늘의 시간표**")
     st.markdown(
-        "1. 도입 — 아이스브레이킹 + AI 두 얼굴\n"
-        "2. AI·코딩 핵심 원리 — 30분 이론+퀴즈\n"
-        "3. 데이터 학습·편향 — 수집기 체험\n"
-        "4. 미드저니 아트 만들기\n"
-        "5-6. Colab으로 나만의 퀵드로우 만들기(코드 작성)\n"
-        "7. 발표·마무리"
+        "9:00 OT·쁘띠빠크\n\n"
+        "10:00 원리 설명·퀵드로우\n\n"
+        "11:00 편향 실습·MJ 계정\n\n"
+        "13:00 미드저니 작품 실습\n\n"
+        "14:20 Colab 퀵드로우\n\n"
+        "15:30 공유·발표·만족도"
     )
 
 
 # ------------------------------------------------------------------ 도입
-if page == "🌈 도입":
+if page == "🌈 1. OT·쁘띠빠크 (9:00)":
     st.title("나만의 커스텀 퀵 드로우 만들기")
     st.subheader("그림을 알아맞히는 AI를 직접 만들고, 펜마우스로 게임해봐요!")
     st.markdown(
@@ -583,11 +623,11 @@ if page == "🌈 도입":
 
     st.divider()
     st.markdown(
-        "왼쪽 메뉴를 순서대로 진행해보세요: **도입 → 핵심 원리 → 수집기 → 미드저니 → Colab → 발표·마무리**"
+        "왼쪽 메뉴를 시간표 순서대로 진행해보세요: **OT → 원리 → 편향 → 미드저니 → Colab → 공유·발표**"
     )
 
 # ------------------------------------------------------------------ AI·코딩 핵심 원리 (30분 이론+퀴즈)
-elif page == "🧠 AI·코딩 핵심 원리":
+elif page == "🧠 2. AI 원리·퀵드로우 (10:00)":
     _init_principle_progress()
     st.markdown('<div class="section-chip">AI & CODING CORE · 30 MIN</div>', unsafe_allow_html=True)
     st.title("🧠 AI·코딩 핵심 원리")
@@ -919,7 +959,7 @@ elif page == "🧠 AI·코딩 핵심 원리":
         st.caption(f"남은 미션: {', '.join(remaining)} · 각 탭의 퀴즈/실습을 완료하면 진행률이 올라갑니다.")
 
 # ------------------------------------------------------------------ 수집기 체험
-elif page == "🧩 데이터 학습·편향 (수집기)":
+elif page == "🧩 3. 데이터 편향 실습 (11:00)":
     st.markdown('<div class="section-chip">DATA BIAS LAB</div>', unsafe_allow_html=True)
     st.title("🧩 나만의 퀵드로우 수집기")
     st.subheader("직접 데이터를 만들며 학습과 편향의 의미를 먼저 체험해요")
@@ -993,7 +1033,7 @@ elif page == "🖥️ 수업 슬라이드":
         st.error(f"{SLIDES_FILE} 파일을 찾을 수 없습니다.")
 
 # ------------------------------------------------------------------ 학습지
-elif page == "📝 학습지 작성·제출":
+elif page == "📝 학습지":
     st.markdown('<div class="section-chip">WORKSHEET SUBMISSION</div>', unsafe_allow_html=True)
     st.title("📄 학습지 작성 · 제출")
     st.caption("인쇄 대신 웹에서 바로 작성하고 제출할 수 있어요.")
@@ -1075,104 +1115,156 @@ elif page == "📝 학습지 작성·제출":
                 st.caption(msg[:200])
 
 # ------------------------------------------------------------------ 미드저니
-elif page == "🎀 미드저니 아트 만들기":
+elif page == "🎀 4. 미드저니 아트 (11:00·13:00)":
     st.markdown('<div class="section-chip">MIDJOURNEY CREATOR</div>', unsafe_allow_html=True)
     st.title("🖌️ 미드저니로 게임 아트 만들기")
+    st.caption("11:00 계정·사용법 안내 → 13:00 작품 만들기 실습")
     st.markdown(
         "미드저니는 **글(프롬프트)을 쓰면 그림을 만들어 주는 AI**예요. "
         "내 게임에 쓸 ① 제목 로고 ② 정답 캐릭터(마스코트) ③ 배경을 만들어 봅시다."
     )
-    st.link_button("🎨 미드저니 열기", MIDJOURNEY_URL, type="primary")
 
-    st.divider()
-    st.subheader("✨ 프롬프트 자동 만들기")
-    st.caption("아래에서 고르면 미드저니에 넣을 영어 프롬프트가 자동으로 만들어져요. 복사해서 붙여넣으세요!")
-
-    purpose = st.selectbox(
-        "무엇을 만들까요?",
-        ["정답 캐릭터(마스코트)", "게임 제목 로고", "배경", "직접 입력"],
+    tab_account, tab_guide, tab_make = st.tabs(
+        ["🔑 내 계정 찾기", "📖 사용법 안내", "✨ 프롬프트·작품 만들기"]
     )
 
-    col1, col2 = st.columns(2)
-    with col1:
-        subject = st.text_input(
-            "주제 (영어로 쓰면 더 잘 돼요)",
-            value="cat",
-            help="예: cat, apple, robot, space ...",
+    with tab_account:
+        st.subheader("조대부고 7기·8기 학생용 계정")
+        st.info("본인 **기수**와 **번호**를 입력하면 이메일·비밀번호가 나타납니다. 다른 사람 계정은 사용하지 마세요!")
+        c1, c2 = st.columns(2)
+        with c1:
+            cohort = st.selectbox("기수", ["7", "8"], format_func=lambda x: f"{x}기", key="mj_cohort")
+        with c2:
+            number = st.number_input("내 번호", min_value=1, max_value=20, value=1, step=1, key="mj_number")
+        if st.button("내 계정 보기", type="primary", key="mj_lookup"):
+            acc = find_mj_account(str(cohort), int(number))
+            if not acc:
+                st.error("해당 번호의 계정을 찾지 못했어요. 기수·번호를 다시 확인해주세요.")
+            else:
+                st.success(f"{acc['label']} 계정입니다.")
+                st.markdown(f"**이메일**")
+                st.code(acc["email"], language="text")
+                st.markdown(f"**비밀번호**")
+                st.code(acc["password"], language="text")
+                st.caption("로그인 후 Discord/Midjourney 안내에 따라 사용하세요. 비밀번호를 바꾸지 말아 주세요.")
+        st.link_button("🎨 미드저니 열기", MIDJOURNEY_URL, type="secondary")
+
+    with tab_guide:
+        st.subheader("미드저니 사용법 (수업용)")
+        st.markdown(
+            """
+            ### 1) 접속·로그인
+            1. **내 계정 찾기** 탭에서 이메일·비밀번호 확인
+            2. [미드저니](https://www.midjourney.com/imagine) 접속 후 로그인
+            3. 처음이면 Discord 연동/약관 안내에 따라 진행
+
+            ### 2) 그림 만들기 (`/imagine`)
+            1. 입력창에 **프롬프트(영어 설명)** 붙여넣기
+            2. 생성되면 이미지 4장이 한 세트로 나옵니다
+            3. 마음에 드는 장을 고르고 **확대(U)** / **변형(V)** 를 사용
+            4. 완성 이미지를 **다운로드**
+
+            ### 3) 프롬프트 공식
+            `주제 + 용도 + 스타일 + 색감 + --ar 비율`
+
+            예) `cute cat mascot, flat vector illustration, pastel colors, simple, white background --ar 1:1`
+
+            ### 4) 오늘 만들 것 (추천 3종)
+            | 작품 | 용도 | 비율 추천 |
+            |---|---|---|
+            | 게임 제목 로고 | 시작 화면 | 16:9 또는 1:1 |
+            | 정답 캐릭터(마스코트) | 맞혔을 때 | 1:1 |
+            | 배경 | 게임 배경 | 16:9 |
+
+            ### 5) 수업 팁
+            - Fast 시간이 제한될 수 있어요 → **꼭 필요한 4~6장만** 생성
+            - 한 단어만 바꿔가며 3번 비교해 보세요 (실험 노트)
+            - 같은 스타일 키워드를 고정하면 클래스 디자인이 통일돼요
+            - 완성 작품은 **6. 작품 공유·발표** 탭에 올려 친구들과 나눠요
+            """
         )
-    with col2:
-        style = st.selectbox(
-            "그림 스타일",
-            [
-                "flat vector illustration",
-                "cute cartoon",
-                "watercolor painting",
-                "pixel art",
-                "3d render",
-                "simple line art",
-                "sticker design",
-            ],
+
+    with tab_make:
+        st.subheader("✨ 프롬프트 자동 만들기")
+        st.caption("아래에서 고르면 미드저니에 넣을 영어 프롬프트가 자동으로 만들어져요. 복사해서 붙여넣으세요!")
+        st.link_button("🎨 미드저니 열기", MIDJOURNEY_URL, type="primary")
+
+        purpose = st.selectbox(
+            "무엇을 만들까요?",
+            ["정답 캐릭터(마스코트)", "게임 제목 로고", "배경", "직접 입력"],
+            key="mj_purpose",
         )
 
-    col3, col4 = st.columns(2)
-    with col3:
-        color = st.selectbox(
-            "색감/분위기",
-            ["pastel colors", "vivid colors", "bright and cheerful", "black and white", "neon"],
+        col1, col2 = st.columns(2)
+        with col1:
+            subject = st.text_input(
+                "주제 (영어로 쓰면 더 잘 돼요)",
+                value="cat",
+                help="예: cat, apple, robot, space ...",
+                key="mj_subject",
+            )
+        with col2:
+            style = st.selectbox(
+                "그림 스타일",
+                [
+                    "flat vector illustration",
+                    "cute cartoon",
+                    "watercolor painting",
+                    "pixel art",
+                    "3d render",
+                    "simple line art",
+                    "sticker design",
+                ],
+                key="mj_style",
+            )
+
+        col3, col4 = st.columns(2)
+        with col3:
+            color = st.selectbox(
+                "색감/분위기",
+                ["pastel colors", "vivid colors", "bright and cheerful", "black and white", "neon"],
+                key="mj_color",
+            )
+        with col4:
+            ratio = st.selectbox(
+                "그림 비율 (--ar)",
+                ["1:1 (정사각)", "16:9 (가로)", "9:16 (세로)"],
+                key="mj_ratio",
+            )
+
+        extras = st.multiselect(
+            "추가 옵션 (선택)",
+            ["simple", "minimal", "white background", "kawaii", "logo", "mascot", "high detail"],
+            default=["simple", "white background"],
+            key="mj_extras",
         )
-    with col4:
-        ratio = st.selectbox("그림 비율 (--ar)", ["1:1 (정사각)", "16:9 (가로)", "9:16 (세로)"])
 
-    extras = st.multiselect(
-        "추가 옵션 (선택)",
-        ["simple", "minimal", "white background", "kawaii", "logo", "mascot", "high detail"],
-        default=["simple", "white background"],
-    )
+        purpose_hint = {
+            "정답 캐릭터(마스코트)": "mascot character",
+            "게임 제목 로고": "game logo, text",
+            "배경": "background scene",
+            "직접 입력": "",
+        }[purpose]
+        ratio_code = {"1:1 (정사각)": "1:1", "16:9 (가로)": "16:9", "9:16 (세로)": "9:16"}[ratio]
+        parts = [subject.strip(), purpose_hint, style, color] + extras
+        prompt_text = ", ".join([p for p in parts if p]).strip(", ")
+        prompt_text = f"{prompt_text} --ar {ratio_code}"
 
-    # 용도별 기본 키워드 살짝 더하기
-    purpose_hint = {
-        "정답 캐릭터(마스코트)": "mascot character",
-        "게임 제목 로고": "game logo, text",
-        "배경": "background scene",
-        "직접 입력": "",
-    }[purpose]
+        st.markdown("**👇 이 프롬프트를 복사해서 미드저니에 붙여넣으세요**")
+        st.code(prompt_text, language="text")
 
-    ratio_code = {"1:1 (정사각)": "1:1", "16:9 (가로)": "16:9", "9:16 (세로)": "9:16"}[ratio]
-
-    parts = [subject.strip(), purpose_hint, style, color] + extras
-    prompt_text = ", ".join([p for p in parts if p]).strip(", ")
-    prompt_text = f"{prompt_text} --ar {ratio_code}"
-
-    st.markdown("**👇 이 프롬프트를 복사해서 미드저니에 붙여넣으세요**")
-    st.code(prompt_text, language="text")
-
-    st.divider()
-    st.markdown(
-        """
-        ### 💡 사용 순서
-        1. 위 **미드저니 열기** 버튼으로 접속 (로그인)
-        2. 만들어진 프롬프트를 복사해서 입력칸(`/imagine`)에 붙여넣기
-        3. 마음에 드는 그림을 골라 **다운로드**
-        4. 실습에서 만든 게임을 이 그림으로 꾸미기
-
-        > ⚠️ **베이직 플랜 팁**: 빠른 생성(Fast) 시간이 정해져 있어요.
-        > 프롬프트를 미리 잘 정한 뒤 **꼭 필요한 4~6장만** 만드세요.
-        """
-    )
-
-    st.divider()
-    st.markdown("### 🎯 미드저니를 더 잘 쓰는 아이디어")
-    st.markdown(
-        """
-        - **클래스별 통일 디자인**: 같은 스타일 키워드(색감/선 두께/배경 톤)를 고정해서 3~5개 클래스를 한 세트로 만드세요.
-        - **오답 줄이기 아트 전략**: 정답 오브젝트를 **정면·측면·원근**으로 각각 1장씩 생성해서 학생 스케치 다양성을 유도해요.
-        - **게임 완성도 업**: 맞혔을 때 보여줄 `정답 보상 이미지`, 틀렸을 때 보여줄 `힌트 이미지`를 따로 만들어 두세요.
-        - **프롬프트 실험 노트**: 한 단어만 바꿨을 때 결과가 어떻게 달라지는지 3회 비교 기록해보세요.
-        """
-    )
+        st.markdown(
+            """
+            ### 💡 실습 순서
+            1. **내 계정 찾기**로 로그인 정보 확인
+            2. 위 프롬프트를 복사해 `/imagine`에 붙여넣기
+            3. 마음에 드는 그림 다운로드
+            4. **6. 작품 공유·발표** 탭에 업로드
+            """
+        )
 
 # ------------------------------------------------------------------ 실습
-elif page == "💻 Colab으로 퀵드로우 만들기":
+elif page == "💻 5. Colab 퀵드로우 (14:20)":
     st.markdown('<div class="section-chip">PYTHON BUILD ZONE</div>', unsafe_allow_html=True)
     st.title("🧪 실습 — 나만의 AI 만들기")
     st.markdown(
@@ -1210,39 +1302,160 @@ elif page == "💻 Colab으로 퀵드로우 만들기":
         """
     )
 
-# ------------------------------------------------------------------ 발표·마무리
-elif page == "🎤 발표·마무리":
-    st.markdown('<div class="section-chip">SHOWCASE TIME</div>', unsafe_allow_html=True)
-    st.title("6️⃣ 발표 · 마무리")
-    st.subheader("AI가 틀리는 이유를 데이터 관점으로 이야기해봐요")
+# ------------------------------------------------------------------ 작품 공유·발표·만족도
+elif page == "🖼️ 6. 작품 공유·발표 (15:30)":
+    st.markdown('<div class="section-chip">SHOWCASE · SURVEY</div>', unsafe_allow_html=True)
+    st.title("🖼️ 작품 공유 · 발표 · 만족도")
+    st.caption("3:30~3:50 · 친구 작품을 보고, 발표하고, 오늘 수업을 남겨 주세요")
 
-    slides_html = read_text(SLIDES_FILE)
-    if slides_html:
-        last_slide_html = slides_html.replace(
-            "<body>",
-            "<body><script>window.SLIDE_START = 20;</script>",
-            1,
+    share_tab, gallery_tab, talk_tab, survey_tab = st.tabs(
+        ["📤 내 작품 올리기", "👀 친구 작품 보기", "🎤 발표 질문", "😊 만족도 조사"]
+    )
+
+    with share_tab:
+        st.subheader("내 작품 공유하기")
+        st.markdown("미드저니 이미지 또는 Colab 결과 화면을 올려 친구들과 나눠 보세요.")
+        with st.form("gallery_submit_form", clear_on_submit=True):
+            g_cohort = st.selectbox("기수", ["7기", "8기"], key="gal_cohort")
+            g_number = st.number_input("번호", min_value=1, max_value=20, value=1, key="gal_num")
+            g_name = st.text_input("닉네임/이름 (선택)", placeholder="예: 다은")
+            g_kind = st.selectbox(
+                "작품 종류",
+                ["미드저니 로고", "미드저니 마스코트", "미드저니 배경", "Colab 퀵드로우", "기타"],
+            )
+            g_title = st.text_input("작품 제목", placeholder="예: 파스텔 고양이 마스코트")
+            g_desc = st.text_area("한 줄 설명", placeholder="어떤 프롬프트/아이디어였나요?")
+            g_url = st.text_input("이미지 링크 (선택)", placeholder="https://...")
+            g_file = st.file_uploader("이미지 파일 업로드 (png/jpg)", type=["png", "jpg", "jpeg", "webp"])
+            submitted = st.form_submit_button("공유하기", type="primary")
+
+        if submitted:
+            if not g_title.strip():
+                st.warning("작품 제목을 적어 주세요.")
+            else:
+                image_path = ""
+                if g_file is not None:
+                    GALLERY_IMG_DIR.mkdir(parents=True, exist_ok=True)
+                    safe_name = f"{g_cohort}_{int(g_number)}_{datetime.now(timezone.utc).strftime('%H%M%S')}_{g_file.name}"
+                    out = GALLERY_IMG_DIR / safe_name
+                    out.write_bytes(g_file.getvalue())
+                    image_path = str(out.relative_to(BASE))
+                item = {
+                    "id": datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f"),
+                    "cohort": g_cohort,
+                    "number": int(g_number),
+                    "name": g_name.strip() or f"{g_cohort} {int(g_number)}번",
+                    "kind": g_kind,
+                    "title": g_title.strip(),
+                    "desc": g_desc.strip(),
+                    "url": g_url.strip(),
+                    "image_path": image_path,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                }
+                save_gallery_work(item)
+                post_json(
+                    COLLECTOR_API_URL,
+                    {
+                        "classId": GALLERY_CLASS_ID,
+                        "type": "gallery",
+                        **{k: v for k, v in item.items() if k != "image_path"},
+                        "hasImage": bool(image_path),
+                    },
+                )
+                st.success("작품이 갤러리에 올라갔어요! '친구 작품 보기'에서 확인하세요.")
+                st.balloons()
+
+    with gallery_tab:
+        st.subheader("친구들의 작품 갤러리")
+        works = load_gallery_works()
+        if not works:
+            st.info("아직 올라온 작품이 없어요. 먼저 '내 작품 올리기'에서 공유해 보세요!")
+        else:
+            filter_kind = st.multiselect(
+                "종류 필터",
+                ["미드저니 로고", "미드저니 마스코트", "미드저니 배경", "Colab 퀵드로우", "기타"],
+                default=[],
+            )
+            shown = [w for w in works if not filter_kind or w.get("kind") in filter_kind]
+            st.caption(f"총 {len(shown)}개")
+            cols = st.columns(2)
+            for i, w in enumerate(shown):
+                with cols[i % 2]:
+                    st.markdown(f"**{w.get('title', '(제목 없음)')}**")
+                    st.caption(f"{w.get('name', '')} · {w.get('kind', '')}")
+                    if w.get("desc"):
+                        st.write(w["desc"])
+                    img_rel = w.get("image_path") or ""
+                    img_abs = BASE / img_rel if img_rel else None
+                    if img_abs and img_abs.exists():
+                        st.image(str(img_abs), use_container_width=True)
+                    elif w.get("url"):
+                        st.markdown(f"[이미지 링크 열기]({w['url']})")
+                        if str(w["url"]).lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".gif")):
+                            st.image(w["url"], use_container_width=True)
+                    st.divider()
+
+    with talk_tab:
+        st.subheader("발표하며 이야기해 보기")
+        slides_html = read_text(SLIDES_FILE)
+        if slides_html:
+            last_slide_html = slides_html.replace(
+                "<body>",
+                "<body><script>window.SLIDE_START = 20;</script>",
+                1,
+            )
+            st.caption("발표용 질문 슬라이드")
+            components.html(last_slide_html, height=480, scrolling=False)
+        st.markdown(
+            """
+            - 오늘 만든 작품 중 가장 마음에 드는 것은?
+            - AI가 잘 못 맞힌 그림은 무엇이었나요?
+            - 학습 데이터가 한쪽으로 치우치면 어떤 일이 생길까요?
+            - 미드저니 프롬프트에서 **한 단어**를 바꿨더니 어떻게 달라졌나요?
+            """
         )
-        st.caption("아래는 발표용 마지막 질문 슬라이드(자동 시작)입니다.")
-        components.html(last_slide_html, height=520, scrolling=False)
 
-    st.markdown(
-        """
-        아래 질문에 답해보세요.
-        - AI가 잘 못 맞힌 그림은 무엇이었나요?
-        - 학습 데이터가 한쪽으로 치우치면 어떤 일이 생길까요?
-        - 수집기에서 더 다양하게 그리면 결과가 어떻게 달라질까요?
-        """
-    )
-
-    st.divider()
-    st.markdown("### 학습지(인쇄/확인)")
-    st.download_button(
-        "⬇️ 학습지 내려받기 (HTML)",
-        data=read_bytes(WORKSHEET_FILE),
-        file_name=WORKSHEET_FILE,
-        mime="text/html",
-    )
+    with survey_tab:
+        st.subheader("오늘 수업 만족도 조사")
+        with st.form("satisfaction_form"):
+            s_cohort = st.selectbox("기수", ["7기", "8기"], key="sv_cohort")
+            s_number = st.number_input("번호", min_value=1, max_value=20, value=1, key="sv_num")
+            s_score = st.slider("전반적 만족도", 1, 5, 4)
+            s_fun = st.slider("재미있었나요?", 1, 5, 4)
+            s_learn = st.slider("AI·코딩 개념이 이해됐나요?", 1, 5, 4)
+            s_best = st.selectbox(
+                "가장 좋았던 활동",
+                ["쁘띠빠크", "AI 원리 퀴즈", "수집기(편향)", "미드저니", "Colab", "작품 공유"],
+            )
+            s_comment = st.text_area("남기고 싶은 말 (선택)")
+            s_ok = st.form_submit_button("제출하기", type="primary")
+        if s_ok:
+            payload = {
+                "classId": SURVEY_CLASS_ID,
+                "type": "satisfaction",
+                "cohort": s_cohort,
+                "number": int(s_number),
+                "score": int(s_score),
+                "fun": int(s_fun),
+                "learn": int(s_learn),
+                "best": s_best,
+                "comment": s_comment.strip(),
+                "submittedAt": datetime.now(timezone.utc).isoformat(),
+            }
+            ok, msg = post_json(COLLECTOR_API_URL, payload)
+            # local backup
+            survey_file = BASE / "assets" / "gallery" / "surveys.json"
+            try:
+                surveys = json.loads(survey_file.read_text(encoding="utf-8")) if survey_file.exists() else []
+            except Exception:
+                surveys = []
+            surveys.append(payload)
+            survey_file.write_text(json.dumps(surveys, ensure_ascii=False, indent=2), encoding="utf-8")
+            if ok:
+                st.success("제출 완료! 오늘 수고했어요 🎓")
+            else:
+                st.success("로컬에 저장했어요. (원격 전송은 잠시 후 다시 시도될 수 있어요)")
+                st.caption(msg[:160])
 
 # ------------------------------------------------------------------ 참고자료
 elif page == "📎 참고자료":
@@ -1295,6 +1508,8 @@ elif page == "📎 참고자료":
         현재 앱의 저장 구분 키:
         - 수집기: `classId=collector-submissions-2026`
         - 학습지: `classId=worksheet-submissions-2026`
+        - 작품 공유: `classId=gallery-submissions-2026`
+        - 만족도: `classId=satisfaction-survey-2026`
 
         확인 방법:
         1. Apps Script 편집기에서 해당 웹앱 프로젝트 열기  

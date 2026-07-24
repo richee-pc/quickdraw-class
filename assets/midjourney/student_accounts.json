@@ -1,0 +1,322 @@
+[
+  {
+    "cohort": "7",
+    "number": 1,
+    "label": "7기 1번",
+    "email": "2026sak0701@gsuite.gen.go.kr",
+    "password": "dufma0701@@",
+    "student_id": "ST01"
+  },
+  {
+    "cohort": "7",
+    "number": 2,
+    "label": "7기 2번",
+    "email": "2026sak0702@gsuite.gen.go.kr",
+    "password": "dufma0702@@",
+    "student_id": "ST02"
+  },
+  {
+    "cohort": "7",
+    "number": 3,
+    "label": "7기 3번",
+    "email": "2026sak0703@gsuite.gen.go.kr",
+    "password": "dufma0703@@",
+    "student_id": "ST03"
+  },
+  {
+    "cohort": "7",
+    "number": 4,
+    "label": "7기 4번",
+    "email": "2026sak0704@gsuite.gen.go.kr",
+    "password": "dufma0704@@",
+    "student_id": "ST04"
+  },
+  {
+    "cohort": "7",
+    "number": 5,
+    "label": "7기 5번",
+    "email": "2026sak0705@gsuite.gen.go.kr",
+    "password": "dufma0705@@",
+    "student_id": "ST05"
+  },
+  {
+    "cohort": "7",
+    "number": 6,
+    "label": "7기 6번",
+    "email": "2026sak0706@gsuite.gen.go.kr",
+    "password": "dufma0706@@",
+    "student_id": "ST06"
+  },
+  {
+    "cohort": "7",
+    "number": 7,
+    "label": "7기 7번",
+    "email": "2026sak0707@gsuite.gen.go.kr",
+    "password": "dufma0707@@",
+    "student_id": "ST07"
+  },
+  {
+    "cohort": "7",
+    "number": 8,
+    "label": "7기 8번",
+    "email": "2026sak0708@gsuite.gen.go.kr",
+    "password": "dufma0708@@",
+    "student_id": "ST08"
+  },
+  {
+    "cohort": "7",
+    "number": 9,
+    "label": "7기 9번",
+    "email": "2026sak0709@gsuite.gen.go.kr",
+    "password": "dufma0709@@",
+    "student_id": "ST09"
+  },
+  {
+    "cohort": "7",
+    "number": 10,
+    "label": "7기 10번",
+    "email": "2026sak0710@gsuite.gen.go.kr",
+    "password": "dufma0710@@",
+    "student_id": "ST10"
+  },
+  {
+    "cohort": "7",
+    "number": 11,
+    "label": "7기 11번",
+    "email": "2026sak0711@gsuite.gen.go.kr",
+    "password": "dufma0711@@",
+    "student_id": "ST11"
+  },
+  {
+    "cohort": "7",
+    "number": 12,
+    "label": "7기 12번",
+    "email": "2026sak0712@gsuite.gen.go.kr",
+    "password": "dufma0712@@",
+    "student_id": "ST12"
+  },
+  {
+    "cohort": "7",
+    "number": 13,
+    "label": "7기 13번",
+    "email": "2026sak0713@gsuite.gen.go.kr",
+    "password": "dufma0713@@",
+    "student_id": "ST13"
+  },
+  {
+    "cohort": "7",
+    "number": 14,
+    "label": "7기 14번",
+    "email": "2026sak0714@gsuite.gen.go.kr",
+    "password": "dufma0714@@",
+    "student_id": "ST14"
+  },
+  {
+    "cohort": "7",
+    "number": 15,
+    "label": "7기 15번",
+    "email": "2026sak0715@gsuite.gen.go.kr",
+    "password": "dufma0715@@",
+    "student_id": "ST15"
+  },
+  {
+    "cohort": "7",
+    "number": 16,
+    "label": "7기 16번",
+    "email": "2026sak0716@gsuite.gen.go.kr",
+    "password": "dufma0716@@",
+    "student_id": "ST16"
+  },
+  {
+    "cohort": "7",
+    "number": 17,
+    "label": "7기 17번",
+    "email": "2026sak0717@gsuite.gen.go.kr",
+    "password": "dufma0717@@",
+    "student_id": "ST17"
+  },
+  {
+    "cohort": "7",
+    "number": 18,
+    "label": "7기 18번",
+    "email": "2026sak0718@gsuite.gen.go.kr",
+    "password": "dufma0718@@",
+    "student_id": "ST18"
+  },
+  {
+    "cohort": "7",
+    "number": 19,
+    "label": "7기 19번",
+    "email": "2026sak0719@gsuite.gen.go.kr",
+    "password": "dufma0719@@",
+    "student_id": "ST19"
+  },
+  {
+    "cohort": "7",
+    "number": 20,
+    "label": "7기 20번",
+    "email": "2026sak0720@gsuite.gen.go.kr",
+    "password": "dufma0720@@",
+    "student_id": "ST20"
+  },
+  {
+    "cohort": "8",
+    "number": 1,
+    "label": "8기 1번",
+    "email": "2026sak0801@gsuite.gen.go.kr",
+    "password": "dufma0801@@",
+    "student_id": "ST01"
+  },
+  {
+    "cohort": "8",
+    "number": 2,
+    "label": "8기 2번",
+    "email": "2026sak0802@gsuite.gen.go.kr",
+    "password": "dufma0802@@",
+    "student_id": "ST02"
+  },
+  {
+    "cohort": "8",
+    "number": 3,
+    "label": "8기 3번",
+    "email": "2026sak0803@gsuite.gen.go.kr",
+    "password": "dufma0803@@",
+    "student_id": "ST03"
+  },
+  {
+    "cohort": "8",
+    "number": 4,
+    "label": "8기 4번",
+    "email": "2026sak0804@gsuite.gen.go.kr",
+    "password": "dufma0804@@",
+    "student_id": "ST04"
+  },
+  {
+    "cohort": "8",
+    "number": 5,
+    "label": "8기 5번",
+    "email": "2026sak0805@gsuite.gen.go.kr",
+    "password": "dufma0805@@",
+    "student_id": "ST05"
+  },
+  {
+    "cohort": "8",
+    "number": 6,
+    "label": "8기 6번",
+    "email": "2026sak0806@gsuite.gen.go.kr",
+    "password": "dufma0806@@",
+    "student_id": "ST06"
+  },
+  {
+    "cohort": "8",
+    "number": 7,
+    "label": "8기 7번",
+    "email": "2026sak0807@gsuite.gen.go.kr",
+    "password": "dufma0807@@",
+    "student_id": "ST07"
+  },
+  {
+    "cohort": "8",
+    "number": 8,
+    "label": "8기 8번",
+    "email": "2026sak0808@gsuite.gen.go.kr",
+    "password": "dufma0808@@",
+    "student_id": "ST08"
+  },
+  {
+    "cohort": "8",
+    "number": 9,
+    "label": "8기 9번",
+    "email": "2026sak0809@gsuite.gen.go.kr",
+    "password": "dufma0809@@",
+    "student_id": "ST09"
+  },
+  {
+    "cohort": "8",
+    "number": 10,
+    "label": "8기 10번",
+    "email": "2026sak0810@gsuite.gen.go.kr",
+    "password": "dufma0810@@",
+    "student_id": "ST10"
+  },
+  {
+    "cohort": "8",
+    "number": 11,
+    "label": "8기 11번",
+    "email": "2026sak0811@gsuite.gen.go.kr",
+    "password": "dufma0811@@",
+    "student_id": "ST11"
+  },
+  {
+    "cohort": "8",
+    "number": 12,
+    "label": "8기 12번",
+    "email": "2026sak0812@gsuite.gen.go.kr",
+    "password": "dufma0812@@",
+    "student_id": "ST12"
+  },
+  {
+    "cohort": "8",
+    "number": 13,
+    "label": "8기 13번",
+    "email": "2026sak0813@gsuite.gen.go.kr",
+    "password": "dufma0813@@",
+    "student_id": "ST13"
+  },
+  {
+    "cohort": "8",
+    "number": 14,
+    "label": "8기 14번",
+    "email": "2026sak0814@gsuite.gen.go.kr",
+    "password": "dufma0814@@",
+    "student_id": "ST14"
+  },
+  {
+    "cohort": "8",
+    "number": 15,
+    "label": "8기 15번",
+    "email": "2026sak0815@gsuite.gen.go.kr",
+    "password": "dufma0815@@",
+    "student_id": "ST15"
+  },
+  {
+    "cohort": "8",
+    "number": 16,
+    "label": "8기 16번",
+    "email": "2026sak0816@gsuite.gen.go.kr",
+    "password": "dufma0816@@",
+    "student_id": "ST16"
+  },
+  {
+    "cohort": "8",
+    "number": 17,
+    "label": "8기 17번",
+    "email": "2026sak0817@gsuite.gen.go.kr",
+    "password": "dufma0817@@",
+    "student_id": "ST17"
+  },
+  {
+    "cohort": "8",
+    "number": 18,
+    "label": "8기 18번",
+    "email": "2026sak0818@gsuite.gen.go.kr",
+    "password": "dufma0818@@",
+    "student_id": "ST18"
+  },
+  {
+    "cohort": "8",
+    "number": 19,
+    "label": "8기 19번",
+    "email": "2026sak0819@gsuite.gen.go.kr",
+    "password": "dufma0819@@",
+    "student_id": "ST19"
+  },
+  {
+    "cohort": "8",
+    "number": 20,
+    "label": "8기 20번",
+    "email": "2026sak0820@gsuite.gen.go.kr",
+    "password": "dufma0820@@",
+    "student_id": "ST20"
+  }
+]

@@ -5,3 +5,5 @@ data/
 *.npy
 .venv/
 assets/manuscript/images/extracted/
+assets/gallery/images/*
+!assets/gallery/images/.gitkeep
