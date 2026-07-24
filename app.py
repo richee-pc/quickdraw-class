@@ -880,9 +880,8 @@ elif page == "🧠 AI·코딩 핵심 원리":
                         if ok:
                             st.code(result, language="text")
                             st.session_state.coding_lab_solved.add(f"{sid}_run")
-                            # 기본 예제와 같으면 예측 정답과도 매칭 안내
-                            normalized = " / ".join(line for line in result.splitlines() if line.strip())
-                            if snippet["predict_answer"].replace(" ", "") in normalized.replace(" ", "") or normalized.replace(" ", "") == snippet["predict_answer"].replace(" ", ""):
+                            joined = " / ".join(line for line in result.splitlines() if line.strip())
+                            if joined == snippet["predict_answer"] or result == snippet["predict_answer"]:
                                 st.caption("실행 결과가 예측 정답과 잘 맞아요!")
                         else:
                             st.error(result)
