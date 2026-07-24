@@ -1009,7 +1009,6 @@ elif page == "🧠 2. AI 원리·퀵드로우":
             """,
             unsafe_allow_html=True,
         )
-        st.link_button("🛒 상품 페이지 열기 (G마켓)", PEN_MOUSE_URL, use_container_width=True)
         st.link_button("▶️ 공식 사용설명 영상", PEN_MOUSE_MANUAL_URL, use_container_width=True)
     with pm2:
         st.markdown("#### ⚙️ 연결·사용법 (빠른 안내)")
