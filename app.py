@@ -81,6 +81,8 @@ def post_json(url: str, payload: dict) -> tuple[bool, str]:
 def _init_principle_progress() -> None:
     if "principle_done" not in st.session_state:
         st.session_state.principle_done = {f"m{i}": False for i in range(1, 7)}
+    if "_quiz_seed" not in st.session_state:
+        st.session_state._quiz_seed = random.randint(1, 10_000_000)
 
 
 def _mark_principle_done(module_key: str) -> None:
@@ -101,6 +103,19 @@ def _lesson_card(title: str, body: str) -> None:
     )
 
 
+def _shuffled_options(quiz_key: str, options: list[str], correct_idx: int) -> tuple[list[str], str]:
+    """세션마다 선택지 순서를 섞어 정답이 항상 1번에 오지 않게 함."""
+    state_key = f"{quiz_key}_shuffled"
+    if state_key not in st.session_state:
+        ordered = list(options)
+        rng = random.Random(f"{quiz_key}:{st.session_state.get('_quiz_seed', 0)}")
+        rng.shuffle(ordered)
+        st.session_state[state_key] = ordered
+    shuffled = st.session_state[state_key]
+    correct_text = options[correct_idx]
+    return shuffled, correct_text
+
+
 def _quiz_block(
     module_key: str,
     quiz_key: str,
@@ -112,21 +127,144 @@ def _quiz_block(
     allow_retry: bool = True,
 ) -> None:
     st.markdown(f"**📝 퀴즈:** {question}")
+    shuffled, correct_text = _shuffled_options(quiz_key, options, correct_idx)
     choice = st.radio(
         "정답을 고르세요",
-        options,
+        shuffled,
         key=f"{quiz_key}_choice",
         label_visibility="collapsed",
     )
     if st.button("✅ 정답 확인", key=f"{quiz_key}_check"):
-        picked = options.index(choice)
-        if picked == correct_idx:
+        if choice == correct_text:
             st.success("정답! 🎉")
             st.info(explanation)
             _mark_principle_done(module_key)
         elif allow_retry:
             st.error("아쉽지만 오답이에요. 설명을 다시 읽고 한 번 더 도전해보세요!")
             st.caption(explanation)
+
+
+def _safe_run_python(code: str) -> tuple[bool, str]:
+    """수업용 짧은 파이썬 코드를 안전하게 실행하고 stdout을 반환."""
+    import ast
+    import io
+    from contextlib import redirect_stdout
+
+    banned = ("import ", "open(", "exec(", "eval(", "os.", "sys.", "subprocess", "Path(")
+    if "__" in code:
+        return False, "보안상 '__' 가 들어간 코드는 실행할 수 없어요."
+    lowered = code.lower()
+    for token in banned:
+        if token.lower() in lowered:
+            return False, f"보안상 '{token.strip()}' 는 이 실습에서 사용할 수 없어요."
+
+    try:
+        tree = ast.parse(code, mode="exec")
+    except SyntaxError as e:
+        return False, f"문법 오류: {e.msg}"
+
+    safe_builtins = {
+        "print": print,
+        "len": len,
+        "range": range,
+        "sum": sum,
+        "min": min,
+        "max": max,
+        "abs": abs,
+        "round": round,
+        "sorted": sorted,
+        "list": list,
+        "dict": dict,
+        "tuple": tuple,
+        "set": set,
+        "str": str,
+        "int": int,
+        "float": float,
+        "bool": bool,
+        "enumerate": enumerate,
+        "zip": zip,
+        "map": map,
+        "filter": filter,
+        "True": True,
+        "False": False,
+        "None": None,
+    }
+    stdout = io.StringIO()
+    try:
+        with redirect_stdout(stdout):
+            exec(compile(tree, "<student>", "exec"), {"__builtins__": safe_builtins}, {})
+    except Exception as e:  # pragma: no cover - classroom feedback path
+        return False, f"실행 오류: {type(e).__name__}: {e}"
+    out = stdout.getvalue().rstrip()
+    return True, out if out else "(출력 없음)"
+
+
+CODING_LAB_SNIPPETS: list[dict] = [
+    {
+        "id": "var_print",
+        "title": "① 변수와 print",
+        "hint": "변수에 담은 값을 화면에 출력해요.",
+        "code": "name = \"퀵드로우\"\nscore = 95\nprint(name)\nprint(score)",
+        "predict_options": ["퀵드로우 / 95", "name / score", "에러 발생"],
+        "predict_answer": "퀵드로우 / 95",
+    },
+    {
+        "id": "normalize",
+        "title": "② 정규화 (÷ 255)",
+        "hint": "픽셀 값을 0~1로 바꾸는 계산이에요.",
+        "code": "DIVISOR = 255\npixel = 204\nnormalized = pixel / DIVISOR\nprint(round(normalized, 2))",
+        "predict_options": ["0.8", "204", "255"],
+        "predict_answer": "0.8",
+    },
+    {
+        "id": "list_len",
+        "title": "③ 리스트와 len",
+        "hint": "여러 값을 묶고 개수를 세어 봐요.",
+        "code": "labels = [\"cat\", \"dog\", \"car\"]\nprint(labels[0])\nprint(len(labels))",
+        "predict_options": ["cat / 3", "dog / 3", "car / 2"],
+        "predict_answer": "cat / 3",
+    },
+    {
+        "id": "for_loop",
+        "title": "④ for 반복문",
+        "hint": "같은 일을 여러 번 자동으로 반복해요.",
+        "code": "nums = [1, 2, 3]\ntotal = 0\nfor n in nums:\n    total = total + n\nprint(total)",
+        "predict_options": ["6", "123", "3"],
+        "predict_answer": "6",
+    },
+    {
+        "id": "if_else",
+        "title": "⑤ if 조건문",
+        "hint": "조건에 따라 다른 결과를 출력해요.",
+        "code": "acc = 0.92\nif acc >= 0.9:\n    print(\"합격\")\nelse:\n    print(\"재학습\")",
+        "predict_options": ["합격", "재학습", "0.92"],
+        "predict_answer": "합격",
+    },
+    {
+        "id": "function",
+        "title": "⑥ 함수 만들기",
+        "hint": "자주 쓰는 계산을 함수로 묶어 재사용해요.",
+        "code": "def double(x):\n    return x * 2\n\nprint(double(7))\nprint(double(10))",
+        "predict_options": ["14 / 20", "7 / 10", "2 / 2"],
+        "predict_answer": "14 / 20",
+    },
+    {
+        "id": "shape_tuple",
+        "title": "⑦ 이미지 shape 튜플",
+        "hint": "(장수, 높이, 너비, 채널) 순서를 기억해요.",
+        "code": "shape = (50, 28, 28, 1)\nprint(shape[0])\nprint(shape[-1])",
+        "predict_options": ["50 / 1", "28 / 28", "1 / 50"],
+        "predict_answer": "50 / 1",
+    },
+    {
+        "id": "list_comp_lite",
+        "title": "⑧ for로 리스트 만들기",
+        "hint": "0~255 값을 0~1로 바꾸는 미니 정규화예요.",
+        "code": "pixels = [0, 127, 255]\nnorm = []\nfor p in pixels:\n    norm.append(round(p / 255, 2))\nprint(norm)",
+        "predict_options": ["[0.0, 0.5, 1.0]", "[0, 127, 255]", "[255, 127, 0]"],
+        "predict_answer": "[0.0, 0.5, 1.0]",
+    },
+]
 
 
 st.markdown(
@@ -555,17 +693,19 @@ elif page == "🧠 AI·코딩 핵심 원리":
                 st.warning(f"현재: {' → '.join(order_pick) if order_pick else '(없음)'} · 정답: 데이터 → 학습 → 모델 → 추론")
 
         st.markdown("**🧪 미니 실습 ②:** train / test 역할 고르기")
+        split_options = [
+            "80장=train(학습), 20장=test(시험) — 맞는 방법!",
+            "20장=train, 80장=test — 반대로 해야 한다",
+            "100장 전부 train — 시험은 필요 없다",
+        ]
+        split_shuffled, split_correct = _shuffled_options("quiz_m2_split", split_options, 0)
         split_choice = st.radio(
             "수집기에서 80장 그리고, 처음 보는 20장으로 테스트한다면?",
-            [
-                "80장=train(학습), 20장=test(시험) — 맞는 방법!",
-                "20장=train, 80장=test — 반대로 해야 한다",
-                "100장 전부 train — 시험은 필요 없다",
-            ],
+            split_shuffled,
             key="split_choice",
         )
         if st.button("train/test 확인", key="split_check"):
-            if "80장=train" in split_choice:
+            if split_choice == split_correct:
                 st.success("정답! 새 데이터로 테스트해야 '진짜 실력'을 알 수 있어요.")
                 _mark_principle_done("m2")
             else:
@@ -681,7 +821,7 @@ elif page == "🧠 AI·코딩 핵심 원리":
         )
 
     with m6:
-        st.markdown("### 💻 Colab 실습 전 코딩 4종 세트")
+        st.markdown("### 💻 코딩 기초 랩 — 예측하고, 바로 실행해 보세요!")
         _lesson_card(
             "📚 라이브러리 = 도서관 책 이름표",
             "numpy(배열), pandas(표), keras(CNN)처럼 <b>미리 만들어 둔 코드 묶음</b>이에요.<br>"
@@ -691,46 +831,77 @@ elif page == "🧠 AI·코딩 핵심 원리":
             """
             | 개념 | 역할 | Colab에서 쓰는 곳 |
             |---|---|---|
-            | **변수** | 값 저장 (메모리 태그) | `DIVISOR = 255` |
+            | **변수** | 값 저장 | `DIVISOR = 255` |
             | **리스트** | 여러 값 묶기 | `labels = ['cat','dog']` |
             | **함수** | 반복 코드 재사용 | `add_conv_block()` |
             | **for / if** | 반복·조건 분기 | 데이터 처리, 정규화 |
             """
         )
-        st.code(
-            "DIVISOR = 255\n"
-            "labels = ['cat', 'apple', 'car']\n"
-            "def normalize(img):\n"
-            "    return img / DIVISOR\n"
-            "for img in images:\n"
-            "    if img.max() > 1:\n"
-            "        img = normalize(img)",
-            language="python",
-        )
-        st.markdown("**🧪 빈칸 챌우기 ①:** 픽셀 정규화")
-        fill_answer = st.text_input("DIVISOR = ?", key="fill_divisor", placeholder="숫자")
-        if st.button("정규화 확인", key="fill_check"):
-            if fill_answer.strip() == "255":
-                st.success("맞아요! 0~255 → 0~1로 바꿔 CNN 학습이 안정적이에요.")
-            else:
-                st.error("힌트: 픽셀 최대값은 255입니다.")
+        st.info("아래 8개 예제를 순서대로: **① 결과 예측 → ② 실행 버튼 → ③ 실제 출력 확인** 해 보세요!")
 
-        st.markdown("**🧪 빈칸 채우기 ②:** for + if 조합")
-        loop_answer = st.radio(
-            "모든 이미지를 255로 나누려면?",
-            [
-                "for img in images: img = img / 255",
-                "if img > 0: print('hello')",
-                "labels = ['cat']",
-            ],
-            key="loop_answer",
+        if "coding_lab_solved" not in st.session_state:
+            st.session_state.coding_lab_solved = set()
+
+        for snippet in CODING_LAB_SNIPPETS:
+            sid = snippet["id"]
+            with st.expander(snippet["title"], expanded=(sid == "var_print")):
+                st.caption(snippet["hint"])
+                code_key = f"lab_code_{sid}"
+                if code_key not in st.session_state:
+                    st.session_state[code_key] = snippet["code"]
+                edited = st.text_area(
+                    "코드",
+                    height=140,
+                    key=code_key,
+                    label_visibility="collapsed",
+                )
+
+                pred_opts, pred_correct = _shuffled_options(
+                    f"lab_pred_{sid}",
+                    snippet["predict_options"],
+                    snippet["predict_options"].index(snippet["predict_answer"]),
+                )
+                predict = st.radio(
+                    "이 코드를 실행하면 어떤 결과가 나올까요?",
+                    pred_opts,
+                    key=f"lab_predict_{sid}",
+                )
+                c_pred, c_run, c_reset = st.columns(3)
+                with c_pred:
+                    if st.button("🔮 예측 확인", key=f"lab_pred_btn_{sid}"):
+                        if predict == pred_correct:
+                            st.success("예측 성공! 이제 실행해서 확인해 보세요.")
+                            st.session_state.coding_lab_solved.add(f"{sid}_pred")
+                        else:
+                            st.error("다시 코드를 천천히 읽어 보세요.")
+                with c_run:
+                    if st.button("▶️ 실행", key=f"lab_run_btn_{sid}", type="primary"):
+                        ok, result = _safe_run_python(edited)
+                        if ok:
+                            st.code(result, language="text")
+                            st.session_state.coding_lab_solved.add(f"{sid}_run")
+                            # 기본 예제와 같으면 예측 정답과도 매칭 안내
+                            normalized = " / ".join(line for line in result.splitlines() if line.strip())
+                            if snippet["predict_answer"].replace(" ", "") in normalized.replace(" ", "") or normalized.replace(" ", "") == snippet["predict_answer"].replace(" ", ""):
+                                st.caption("실행 결과가 예측 정답과 잘 맞아요!")
+                        else:
+                            st.error(result)
+                with c_reset:
+                    if st.button("↺ 원본 복원", key=f"lab_reset_btn_{sid}"):
+                        st.session_state[code_key] = snippet["code"]
+                        st.rerun()
+
+        solved_runs = sum(1 for s in CODING_LAB_SNIPPETS if f"{s['id']}_run" in st.session_state.coding_lab_solved)
+        solved_preds = sum(1 for s in CODING_LAB_SNIPPETS if f"{s['id']}_pred" in st.session_state.coding_lab_solved)
+        st.progress(
+            (solved_runs + solved_preds) / (len(CODING_LAB_SNIPPETS) * 2),
+            text=f"코딩 랩 진행: 예측 {solved_preds}/{len(CODING_LAB_SNIPPETS)} · 실행 {solved_runs}/{len(CODING_LAB_SNIPPETS)}",
         )
-        if st.button("반복문 확인", key="loop_check"):
-            if "for img in images" in loop_answer:
-                st.success("정답! for 반복문으로 모든 이미지에 같은 처리를 적용해요.")
-                _mark_principle_done("m6")
-            else:
-                st.error("힌트: '모든 이미지' → for 반복문이 필요해요.")
+        if solved_runs >= 4 and solved_preds >= 4:
+            _mark_principle_done("m6")
+            st.success("미션 6 클리어! 변수·리스트·함수·반복·조건을 직접 돌려 봤어요.")
+        else:
+            st.caption("힌트: 예측 4개 + 실행 4개 이상 성공하면 미션 완료로 체크돼요.")
 
         st.info("Colab 노트북 TODO 칸을 채울 때: 변수 → 함수 → for/if 순서로 떠올려 보세요!")
 
